@@ -5,6 +5,29 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+function Test-IsAdministrator {
+    $currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($currentIdentity)
+    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+if (-not (Test-IsAdministrator)) {
+    Write-Host 'WACK requires elevation. Requesting Administrator privileges...' -ForegroundColor Yellow
+
+    $escapedPackage = $PackagePath.Replace('"','`"')
+    $escapedReport = $ReportDirectory.Replace('"','`"')
+    $arguments = @(
+        '-NoProfile',
+        '-ExecutionPolicy', 'Bypass',
+        '-File', ('"{0}"' -f $PSCommandPath),
+        '-PackagePath', ('"{0}"' -f $escapedPackage),
+        '-ReportDirectory', ('"{0}"' -f $escapedReport)
+    ) -join ' '
+
+    $elevated = Start-Process -FilePath 'powershell.exe' -ArgumentList $arguments -Verb RunAs -Wait -PassThru
+    exit $elevated.ExitCode
+}
+
 $kitRoot = "${env:ProgramFiles(x86)}\Windows Kits\10\App Certification Kit"
 $appCert = Join-Path $kitRoot 'appcert.exe'
 
@@ -63,6 +86,7 @@ function Invoke-AppCert {
 
 'PTL - WINDOWS APP CERTIFICATION KIT' | Set-Content -LiteralPath $log -Encoding UTF8
 Log "Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')"
+Log "Elevation: Administrator"
 Log "Package: $PackagePath"
 Log "AppCert: $appCert"
 Log "Report: $report"
