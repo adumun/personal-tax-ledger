@@ -1,0 +1,151 @@
+schema_version: "0.1"
+kind: adumun.pre_standard
+id: PRESTD-WIN-MSSTORE-PUBLISH
+name: Microsoft Store publication for Windows desktop apps
+status: PROVING_GROUND
+maturity: pre_standard
+origin:
+  proving_ground: Personal Tax Ledger
+  candidate_version: 0.1.5.0
+  date: 2026-09-06
+scope:
+  platform: windows
+  packaging: msix
+  distribution: microsoft_store
+  portal: partner_center
+principles:
+  - store_identity_is_canonical
+  - sideload_and_store_are_separate_lanes
+  - self_signed_is_not_public_trust_evidence
+  - wack_is_pre_submission_gate
+  - restricted_capabilities_require_justification
+  - metadata_must_be_factual
+  - market_scope_must_match_functional_scope
+  - evidence_is_part_of_delivery
+  - certification_is_not_release_done
+  - dor_dod_required_per_stage
+stages:
+  - id: S0
+    name: store_identity
+    dod:
+      - partner_center_identity_persisted
+      - manifest_identity_exact_match
+      - no_placeholders
+  - id: S1
+    name: msix_store_staging
+    dod:
+      - deterministic_staging
+      - parseable_manifest
+      - exact_store_identity
+      - machine_readable_metadata
+  - id: S2
+    name: controlled_sideload
+    purpose: packaging_upgrade_and_persistence_validation_only
+    dod:
+      - install_validated
+      - upgrade_validated
+      - persistence_validated
+      - no_unexpected_data_duplication
+  - id: S3
+    name: store_submission_package
+    dod:
+      - makeappx_package_created
+      - round_trip_validation_pass
+      - sha256_persisted
+      - version_architecture_identity_verified
+  - id: S4
+    name: wack
+    dod:
+      - overall_result_pass
+      - partial_run_false
+      - xml_report_persisted
+      - execution_log_persisted
+      - optional_failures_reviewed
+  - id: S5
+    name: pricing_and_availability
+    required_decisions:
+      - markets
+      - audience
+      - discoverability
+      - release_schedule
+      - stop_acquisition
+      - base_price
+  - id: S6
+    name: properties
+    required_decisions:
+      - category
+      - privacy
+      - support
+      - product_declarations
+      - system_requirements
+  - id: S7
+    name: age_ratings
+    provider: IARC
+    dod:
+      - questionnaire_complete
+      - ratings_reviewed
+  - id: S8
+    name: packages
+    dod:
+      - package_uploaded
+      - package_validated
+      - device_families_explicit
+      - restricted_capability_warnings_captured
+  - id: S9
+    name: store_listing
+    dod:
+      - localized_listing_complete
+      - screenshots_present
+      - screenshots_use_fictitious_or_anonymized_data
+      - privacy_and_support_urls_valid
+  - id: S10
+    name: submission_options
+    dod:
+      - publishing_policy_selected
+      - restricted_capabilities_justified
+  - id: S11
+    name: submit_for_certification
+    dor:
+      - partner_center_sections_complete
+      - package_validated
+      - wack_pass
+      - evidence_set_frozen
+    dod:
+      - state_in_certification
+      - pre_processing_started
+  - id: S12
+    name: post_certification_validation
+    dod:
+      - certification_pass
+      - publishing_complete
+      - store_url_active
+      - store_signed_installation_pass
+      - smart_app_control_pass
+      - runtime_pass
+      - persistence_pass
+      - upgrade_pass
+required_evidence:
+  - store_identity
+  - store_manifest
+  - build_metadata
+  - package_filename_version_architecture_size_sha256
+  - authenticode_pre_store
+  - wack_log
+  - wack_xml
+  - partner_center_screenshots
+  - pricing_properties_ratings_packages_listing_submission_options
+  - restricted_capability_justification
+  - certification_state
+  - certification_result
+  - post_publication_validation
+promotion_to_standard_requires:
+  - second_real_application_proving_ground
+  - product_specific_variable_extraction
+  - owners_and_raci
+  - evidence_manifest_automation
+  - x64_and_arm64_policy
+  - versioning_and_release_policy
+  - listing_and_privacy_templates
+  - execution_fabric_integration
+  - partner_center_failure_taxonomy
+  - rollback_stop_acquisition_update_procedure
