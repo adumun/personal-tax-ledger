@@ -24,6 +24,11 @@ const setupFileName = `PersonalTaxLedger-${packageJson.version}-Setup.exe`;
 const winstallerRoot = dirname(require.resolve('electron-winstaller/package.json'));
 const winstallerVendor = join(winstallerRoot, 'vendor');
 
+const EXPECTED_LOADING_GIF_WIDTH = 400;
+const EXPECTED_LOADING_GIF_HEIGHT = 180;
+const MIN_LOADING_GIF_BYTES = 1024;
+const MIN_LOADING_GIF_FRAMES = 2;
+
 function commandAvailable(command) {
   const result = spawnSync('sh', ['-lc', `command -v ${command}`], { stdio: 'ignore' });
   return result.status === 0;
@@ -59,6 +64,41 @@ function materializeSquirrel7Zip() {
   console.log(`- ${targetDll}`);
 }
 
+function countGifGraphicControlExtensions(gif) {
+  let count = 0;
+  for (let i = 0; i <= gif.length - 3; i += 1) {
+    if (gif[i] === 0x21 && gif[i + 1] === 0xf9 && gif[i + 2] === 0x04) count += 1;
+  }
+  return count;
+}
+
+function assertCanonicalInstallerGif(gif) {
+  if (gif.length < MIN_LOADING_GIF_BYTES) {
+    throw new Error(`El asset canónico del instalador es demasiado pequeño (${gif.length} bytes).`);
+  }
+
+  if (gif.subarray(0, 6).toString('ascii') !== 'GIF89a') {
+    throw new Error('El asset canónico del instalador no decodifica a un GIF89a válido.');
+  }
+
+  const width = gif.readUInt16LE(6);
+  const height = gif.readUInt16LE(8);
+  if (width !== EXPECTED_LOADING_GIF_WIDTH || height !== EXPECTED_LOADING_GIF_HEIGHT) {
+    throw new Error(`Dimensiones inesperadas para el GIF del instalador: ${width}x${height}; se esperaba ${EXPECTED_LOADING_GIF_WIDTH}x${EXPECTED_LOADING_GIF_HEIGHT}.`);
+  }
+
+  if (gif[gif.length - 1] !== 0x3b) {
+    throw new Error('El GIF del instalador no termina con el trailer GIF esperado (0x3B).');
+  }
+
+  const frameCount = countGifGraphicControlExtensions(gif);
+  if (frameCount < MIN_LOADING_GIF_FRAMES) {
+    throw new Error(`El GIF del instalador no contiene animación suficiente: ${frameCount} frame(s) detectados.`);
+  }
+
+  return { width, height, frameCount };
+}
+
 function materializeInstallerAssets() {
   if (!existsSync(sourceLoadingGifBase64)) {
     throw new Error(`Falta el asset canónico del instalador: ${sourceLoadingGifBase64}`);
@@ -70,9 +110,7 @@ function materializeInstallerAssets() {
   }
 
   const gif = Buffer.from(encoded, 'base64');
-  if (gif.length < 6 || gif.subarray(0, 6).toString('ascii') !== 'GIF89a') {
-    throw new Error('El asset canónico del instalador no decodifica a un GIF89a válido.');
-  }
+  const contract = assertCanonicalInstallerGif(gif);
 
   mkdirSync(installerAssetsDirectory, { recursive: true });
   writeFileSync(loadingGifPath, gif);
@@ -83,6 +121,7 @@ function materializeInstallerAssets() {
 
   console.log(`PTL polished installer GIF materialized: ${loadingGifPath}`);
   console.log(`PTL installer GIF bytes: ${gif.length}`);
+  console.log(`PTL installer GIF contract: GIF89a ${contract.width}x${contract.height}, ${contract.frameCount} frames`);
 }
 
 if (process.platform !== 'win32') {
