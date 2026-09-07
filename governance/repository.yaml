@@ -36,6 +36,7 @@ repository:
       - claiming complete coverage of every Chilean tax case
   non_claims:
     - PTL 0.1.6 is a functional UAT build, not a final production release.
+    - The public UAT package is a validation channel and must not be conflated with the Microsoft Store product release.
     - A PTL estimate is not official SII truth.
     - Public UAT evidence does not certify complete tax correctness.
   capabilities:
@@ -137,16 +138,31 @@ publication:
     same_change_expected: true
   completeness_mode: ACTIVE_DECLARED_GAPS_ALLOWED
 
+uat_distribution:
+  status: ACTIVE
+  version: 0.1.6
+  artifact_name: PersonalTaxLedger-0.1.6-Setup.zip
+  public_url: https://drive.google.com/file/d/1QfG8qbe2EEaGfLathshNKYVWoSRi28OA/view?usp=drivesdk
+  channel_semantics: VALIDATION_ONLY
+  feedback_url: https://form.jotform.com/262494013962055
+
+product_distribution:
+  intended_primary_channel: MICROSOFT_STORE
+  status: PENDING_STORE_RELEASE
+  rule: >-
+    UAT downloadable artifacts are validation payloads and are not the canonical
+    production release. The Microsoft Store distribution lifecycle is governed separately.
+
 conformance:
   target: FULL
   current: PRODUCT_UAT_ADOPTION
   declared_gaps:
     - id: PTL-SITE-001
-      concern: PUBLIC_UAT_BINARY_NOT_YET_PUBLISHED_AS_GITHUB_RELEASE
-      affected_audiences: [USER]
-      rationale: The validated UAT 0.1.6 installer exists, but no public GitHub Release asset is currently published in the repository.
+      concern: PERMANENT_UAT_ARTIFACT_PUBLICATION_POLICY_NOT_YET_DEFINED
+      affected_audiences: [USER, GOVERNANCE]
+      rationale: The UAT 0.1.6 package is publicly available through a temporary shared download URL, while the permanent versioned publication model for future UAT payloads remains to be defined.
       status: ACTIVE
-      remediation: Publish the validated UAT 0.1.6 installer as a public GitHub Release asset and replace the generic Releases entrypoint with the exact public artifact URL.
+      remediation: Define a governed UAT artifact publication/versioning policy without conflating validation artifacts with the Microsoft Store production release lifecycle.
       owner: PTL
     - id: PTL-SITE-002
       concern: BUILDER_PRODUCT_PROFILE_ADOPTION_NOT_YET_EXECUTED
