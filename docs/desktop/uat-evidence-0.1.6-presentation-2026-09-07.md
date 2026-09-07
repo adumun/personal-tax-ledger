@@ -6,7 +6,7 @@ Scope: local UAT distribution lane / desktop presentation polish
 
 ## Purpose
 
-Record the final technical and native Windows evidence for the Personal Tax Ledger 0.1.6 desktop presentation and Squirrel installer polish slice. This evidence covers repository synchronization, canonical installer asset integrity, source/toolchain gates, Windows x64 Electron packaging, Squirrel.Windows installer creation, artifact integrity, native visual acceptance, workspace persistence, and the separate Microsoft Store signing boundary.
+Record the final technical and native Windows evidence for the Personal Tax Ledger 0.1.6 desktop presentation and Squirrel installer polish slice. This evidence covers repository synchronization, canonical installer asset integrity, source/toolchain gates, Windows x64 Electron packaging, Squirrel.Windows installer creation, artifact integrity, native visual acceptance, workspace persistence, external UAT distribution, feedback collection, and the separate Microsoft Store signing boundary.
 
 ## Source revision and version
 
@@ -178,6 +178,21 @@ The database last-write timestamp changed during the UAT session, which is consi
 
 The historical Squirrel installation should still not be removed solely because this presentation UAT passed; removal belongs to the broader distribution-transition decision.
 
+## External UAT distribution and feedback collection
+
+On 2026-09-07, the validated PTL `0.1.6` UAT build was distributed to the first external tester (the operator's brother) for real-user validation outside the developer machine.
+
+The tester was intentionally given the UAT build without operational guidance so that the exercise can capture spontaneous discoverability, navigation, comprehension, perceived utility, usability friction, functional behavior, and—where the tester has sufficient domain knowledge—possible tax-logic inconsistencies.
+
+A dedicated Jotform survey was provided to collect the tester's feedback:
+
+- survey: `Encuesta de Feedback PTL UAT 0.1.6`;
+- public form URL: `https://form.jotform.com/262494013962055`;
+- purpose: structured capture of UI/UX feedback, functional evaluation, installation/startup behavior, data persistence observations, bugs, perceived product value, and tax-logic/veracity feedback;
+- interpretation rule: PTL remains a simulator/support tool; it does not replace official SII information or professional tax advice, and official SII information prevails in case of discrepancy.
+
+This marks the transition from developer/native-machine acceptance into external user validation for the `0.1.6` UAT lane. External tester responses are evidence inputs for subsequent prioritization and corrective work; they do not by themselves change the release status until reviewed and classified.
+
 ## Presentation-polish scope closed by this evidence
 
 The 0.1.6 presentation slice now has validated evidence for:
@@ -190,7 +205,9 @@ The 0.1.6 presentation slice now has validated evidence for:
 - corrected deterministic Squirrel loading GIF;
 - updated installer publisher metadata;
 - successful native Windows installer presentation;
-- successful reuse of the historical workspace.
+- successful reuse of the historical workspace;
+- external UAT distribution initiated;
+- structured feedback collection channel established.
 
 ## Separate Microsoft Store / Smart App Control boundary
 
