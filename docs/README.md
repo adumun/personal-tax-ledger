@@ -17,6 +17,9 @@ Esta carpeta documenta arquitectura, decisiones, procedimientos operativos, evid
 - [`desktop/final-configuration.md`](desktop/final-configuration.md): configuración final Electron/ASAR/staging/Squirrel.Windows.
 - [`desktop/lessons-learned.md`](desktop/lessons-learned.md): lecciones aprendidas y decisiones que no deben revertirse sin nueva evidencia.
 - [`desktop/uat-evidence-2026-09-04.md`](desktop/uat-evidence-2026-09-04.md): evidencia manual de Windows y lifecycle del instalador.
+- [`desktop/microsoft-store-publication-evidence-2026-09-06.md`](desktop/microsoft-store-publication-evidence-2026-09-06.md): evidencia integral de la primera submission real a Microsoft Store.
+- [`desktop/microsoft-store-publication-evidence-manifest-2026-09-06.json`](desktop/microsoft-store-publication-evidence-manifest-2026-09-06.json): manifest machine-readable con identidad, candidate, configuración y hashes de evidencia visual.
+- [`governance/pre-standard-microsoft-store-publication.md`](governance/pre-standard-microsoft-store-publication.md): pre-estándar ADÜMÜN de publicación de aplicaciones Windows vía Microsoft Store, derivado del proving ground PTL.
 - [`desktop-electron.md`](desktop-electron.md): evolución histórica de la ruta Electron y sus gates.
 - [`gaps/README.md`](gaps/README.md): pendientes clasificados por tipo, impacto y prioridad.
 - [`slice/README.md`](slice/README.md): instrucciones históricas y series de ejecución.
