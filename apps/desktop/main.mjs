@@ -15,6 +15,13 @@ import {
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const desktopDir = dirname(fileURLToPath(import.meta.url));
+const SPLASH_MINIMUM_MS = Object.freeze({
+  NORMAL: 1400,
+  FIRST_RUN: 1800,
+  UPDATED: 1800
+});
+const SPLASH_TRANSITION_MS = 180;
+
 let localApp;
 let mainWindow;
 let splashWindow;
@@ -140,15 +147,24 @@ function buildSplashHtml(kind) {
   const subtitle = kind === 'FIRST_RUN'
     ? 'Preparando tu espacio personal por primera vez…'
     : kind === 'UPDATED'
-      ? `Preparando Personal Tax Ledger ${app.getVersion()}…`
+      ? `Actualizando tu espacio para Personal Tax Ledger ${app.getVersion()}…`
       : 'Abriendo tu workspace tributario…';
+
   return `<!doctype html><html><head><meta charset="utf-8"><style>
+    :root{color-scheme:dark}
+    *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:#142126;color:#eaf4f2}
     body{display:flex;align-items:center;justify-content:center}
-    .box{width:430px;text-align:center;padding:38px}
-    .mark{width:72px;height:72px;margin:0 auto 20px;border-radius:20px;background:#35c7a7;color:#08251f;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:25px;letter-spacing:-1px;box-shadow:0 12px 30px rgba(53,199,167,.18)}
-    h1{font-size:23px;margin:0 0 9px}.sub{color:#aac0bb;font-size:14px;line-height:1.5}.bar{height:3px;background:#2d474c;margin-top:28px;overflow:hidden;border-radius:3px}.bar:after{content:'';display:block;width:42%;height:100%;background:#35c7a7;animation:load 1.2s infinite ease-in-out}@keyframes load{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
-  </style></head><body><div class="box"><div class="mark">PTL</div><h1>Personal Tax Ledger</h1><div class="sub">${subtitle}</div><div class="bar"></div></div></body></html>`;
+    .shell{width:440px;padding:36px 42px 30px;text-align:center}
+    .mark{width:76px;height:76px;margin:0 auto 20px;border-radius:22px;background:#35c7a7;color:#08251f;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:24px;letter-spacing:-1px;box-shadow:0 16px 38px rgba(53,199,167,.18)}
+    h1{font-size:23px;font-weight:650;letter-spacing:-.35px;margin:0 0 8px}
+    .version{color:#6f8d86;font-size:11px;margin-bottom:14px}
+    .sub{min-height:22px;color:#aac0bb;font-size:13px;line-height:1.55}
+    .bar{height:3px;background:#2d474c;margin:26px auto 0;overflow:hidden;border-radius:999px}.bar:after{content:'';display:block;width:34%;height:100%;border-radius:999px;background:#35c7a7;animation:load 1.15s infinite cubic-bezier(.45,0,.55,1)}
+    .brand{margin-top:18px;color:#6f8d86;font-size:10px;letter-spacing:1.8px}
+    @keyframes load{0%{transform:translateX(-120%)}100%{transform:translateX(395%)}}
+    @media (prefers-reduced-motion:reduce){.bar:after{animation-duration:2.2s}}
+  </style></head><body><main class="shell"><div class="mark">PTL</div><h1>Personal Tax Ledger</h1><div class="version">v${app.getVersion()}</div><div class="sub">${subtitle}</div><div class="bar"></div><div class="brand">ADÜMÜN</div></main></body></html>`;
 }
 
 async function createSplash(kind) {
@@ -179,9 +195,30 @@ async function createSplash(kind) {
 
 async function waitForMinimumSplash() {
   if (!splashShownAt) return;
-  const minimumMs = launchKind === 'NORMAL' ? 250 : 900;
+  const minimumMs = SPLASH_MINIMUM_MS[launchKind] ?? SPLASH_MINIMUM_MS.NORMAL;
   const remaining = minimumMs - (Date.now() - splashShownAt);
   if (remaining > 0) await new Promise(resolveWait => setTimeout(resolveWait, remaining));
+}
+
+async function transitionFromSplashToMain() {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+
+  mainWindow.setOpacity(0);
+  mainWindow.show();
+
+  const splash = splashWindow && !splashWindow.isDestroyed() ? splashWindow : undefined;
+  const steps = 9;
+  const stepMs = Math.max(12, Math.floor(SPLASH_TRANSITION_MS / steps));
+
+  for (let step = 1; step <= steps; step += 1) {
+    const progress = step / steps;
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setOpacity(progress);
+    if (splash && !splash.isDestroyed()) splash.setOpacity(1 - progress);
+    await new Promise(resolveWait => setTimeout(resolveWait, stepMs));
+  }
+
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setOpacity(1);
+  if (splash && !splash.isDestroyed()) splash.close();
 }
 
 async function prepareBootstrap() {
@@ -220,6 +257,7 @@ async function startDesktop() {
     minWidth: 1024,
     minHeight: 700,
     show: false,
+    opacity: 0,
     backgroundColor: '#f3f6f8',
     webPreferences: {
       preload: join(desktopDir, 'preload.cjs'),
@@ -232,8 +270,7 @@ async function startDesktop() {
   mainWindow.once('ready-to-show', async () => {
     await waitForMinimumSplash();
     if (!mainWindow || mainWindow.isDestroyed()) return;
-    mainWindow.show();
-    splashWindow?.close();
+    await transitionFromSplashToMain();
     if (startupConfig?.firstRunCompleted) {
       saveBootstrapConfig(currentUserDataPath(), {
         ...readCurrentBootstrap(),
