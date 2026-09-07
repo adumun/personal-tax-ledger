@@ -1,0 +1,157 @@
+schema_version: 1
+repository:
+  name: personal-tax-ledger
+  owner: cmartinezs
+  canonical_url: https://github.com/cmartinezs/personal-tax-ledger
+  type: PRODUCT
+  secondary_types:
+    - REFERENCE_IMPLEMENTATION
+  facets:
+    - END_USER_FIRST
+    - DESKTOP_APPLICATION
+    - UAT_ACTIVE
+    - LOCAL_FIRST
+    - TAX_DOMAIN
+  purpose: >-
+    Help people in Chile organize personal tax information, simulate annual tax
+    scenarios and understand the effect of salaries, fees, APV and mortgage-related
+    items through an explainable local desktop application.
+  status:
+    lifecycle: UAT
+    maturity: EXTERNAL_USER_VALIDATION_0_1_6
+  scope:
+    includes:
+      - annual personal tax simulation support for Chile
+      - salaries and multiple employers
+      - fee receipts and related treatment
+      - APV scenarios
+      - mortgage-related treatment currently modeled
+      - explainable annual result and supporting references
+      - local desktop persistence
+      - public UAT participation and feedback
+    excludes:
+      - replacing the Servicio de Impuestos Internos
+      - filing official tax returns
+      - professional tax advice
+      - claiming complete coverage of every Chilean tax case
+  non_claims:
+    - PTL 0.1.6 is a functional UAT build, not a final production release.
+    - A PTL estimate is not official SII truth.
+    - Public UAT evidence does not certify complete tax correctness.
+  capabilities:
+    - ANNUAL_TAX_SIMULATION
+    - SALARY_AND_MULTIPLE_EMPLOYER_MODELING
+    - FEE_RECEIPT_MODELING
+    - APV_SCENARIO_COMPARISON
+    - MORTGAGE_TAX_MODELING
+    - EXPLAINABLE_RESULTS
+    - LOCAL_DATA_PERSISTENCE
+    - EXTERNAL_UAT_FEEDBACK
+  canonical_branch: master
+
+audiences:
+  primary:
+    - USER
+  secondary:
+    - DEVELOPER
+    - GOVERNANCE
+
+knowledge:
+  - id: repository-orientation
+    source: README.md
+    type: [CONCEPT, FACT]
+    intent: [DESCRIPTIVE, SUMMARY]
+    audiences: [USER, DEVELOPER, GOVERNANCE]
+    authority: CANONICAL_INFORMATIVE
+    confidentiality: PUBLIC
+    publication: REQUIRED
+  - id: product-home
+    source: site/index.html
+    type: [CONCEPT, FACT]
+    intent: [DESCRIPTIVE, SUMMARY]
+    audiences: [USER]
+    authority: DERIVED_READ_MODEL
+    confidentiality: PUBLIC
+    publication: REQUIRED
+  - id: user-capabilities
+    source: site/usage.html
+    type: [CONCEPT, PROCEDURE]
+    intent: [DESCRIPTIVE, PROCEDURAL]
+    audiences: [USER]
+    authority: DERIVED_READ_MODEL
+    confidentiality: PUBLIC
+    publication: REQUIRED
+  - id: uat-participation
+    source: site/uat.html
+    type: [PROCEDURE, STATE]
+    intent: [PROCEDURAL, DESCRIPTIVE]
+    audiences: [USER]
+    authority: DERIVED_READ_MODEL
+    confidentiality: PUBLIC
+    publication: REQUIRED
+  - id: user-faq
+    source: site/faq.html
+    type: [REFERENCE]
+    intent: [REFERENCE]
+    audiences: [USER]
+    authority: DERIVED_READ_MODEL
+    confidentiality: PUBLIC
+    publication: REQUIRED
+  - id: contributor-entrypoint
+    source: site/contribute.html
+    type: [PROCEDURE, REFERENCE]
+    intent: [PROCEDURAL, REFERENCE]
+    audiences: [DEVELOPER, GOVERNANCE]
+    authority: DERIVED_READ_MODEL
+    confidentiality: PUBLIC
+    publication: REQUIRED
+  - id: architecture-current-state
+    source: docs/architecture/current-state.md
+    type: [STRUCTURE, CONCEPT]
+    intent: [EXPLANATORY, REFERENCE]
+    audiences: [DEVELOPER, GOVERNANCE]
+    authority: CANONICAL_INFORMATIVE
+    confidentiality: PUBLIC
+    publication: REQUIRED
+  - id: desktop-uat-evidence
+    source: docs/desktop/uat-evidence-0.1.6-presentation-2026-09-07.md
+    type: [EVIDENCE, STATE, HISTORY]
+    intent: [REFERENCE, DESCRIPTIVE]
+    audiences: [DEVELOPER, GOVERNANCE]
+    authority: IMPLEMENTATION_EVIDENCE
+    confidentiality: PUBLIC
+    publication: REQUIRED
+
+publication:
+  enabled: true
+  derived_read_model: true
+  visibility: PUBLIC
+  target: GH_PAGES
+  branch: gh-pages
+  mode: BUILD_FROM_BRANCH
+  folder: /
+  github_actions_deployment:
+    allowed: EXCEPTION_ONLY
+    exception: null
+  freshness:
+    same_change_expected: true
+  completeness_mode: ACTIVE_DECLARED_GAPS_ALLOWED
+
+conformance:
+  target: FULL
+  current: PRODUCT_UAT_ADOPTION
+  declared_gaps:
+    - id: PTL-SITE-001
+      concern: PUBLIC_UAT_BINARY_NOT_YET_PUBLISHED_AS_GITHUB_RELEASE
+      affected_audiences: [USER]
+      rationale: The validated UAT 0.1.6 installer exists, but no public GitHub Release asset is currently published in the repository.
+      status: ACTIVE
+      remediation: Publish the validated UAT 0.1.6 installer as a public GitHub Release asset and replace the generic Releases entrypoint with the exact public artifact URL.
+      owner: PTL
+    - id: PTL-SITE-002
+      concern: BUILDER_PRODUCT_PROFILE_ADOPTION_NOT_YET_EXECUTED
+      affected_audiences: [USER, DEVELOPER, GOVERNANCE]
+      rationale: PTL now declares PRODUCT and USER-first governance, but standard-repo-website-builder adoption has not yet regenerated this site from the governed contract.
+      status: ACTIVE
+      remediation: Run PTL through the repository website builder once Wave 7 multi-repository adoption is unblocked.
+      owner: PTL
