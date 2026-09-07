@@ -10,6 +10,8 @@ Esta carpeta concentra la documentación técnica de autoridad para la distribuc
 - [Firma de código Windows](windows-code-signing.md): contrato de signing, variables de entorno, integración con Packager/Squirrel y gate de cierre bajo Smart App Control.
 - [Microsoft Store + MSIX](microsoft-store-msix.md): vía principal candidata de distribución pública sin compra de certificado, contrato de identidad de Partner Center, staging MSIX y gates de compatibilidad.
 - [Microsoft Store submission 0.1.5](microsoft-store-submission-0.1.5.md): runbook de la primera submission real, artefacto Store, WACK, `runFullTrust`, privacy policy, listing y gate posterior a certificación.
+- [Evidencia completa de publicación Microsoft Store — 2026-09-06](microsoft-store-publication-evidence-2026-09-06.md): reconstrucción integral del proceso Partner Center desde pricing hasta envío a certificación, incluyendo decisiones, ratings, package validado y gates pendientes.
+- [Manifest machine-readable de evidencia Microsoft Store — 2026-09-06](microsoft-store-publication-evidence-manifest-2026-09-06.json): identidad, candidate, configuración de submission, hashes de 27 screenshots y checksum del bundle binario privado.
 - [Evidencia preparación MSIX 0.1.5 — 2026-09-06](msix-015-preparation-evidence-2026-09-06.md): gate de preparación del upgrade `0.1.4.0 -> 0.1.5.0`, validaciones de identidad Store y bind explícito a `127.0.0.1`.
 - [Lecciones aprendidas](lessons-learned.md): decisiones, fallos reproducidos, causas raíz y correcciones permanentes.
 - [Evidencia UAT técnica 2026-09-04](uat-evidence-2026-09-04.md): gates observados en Windows nativo.
