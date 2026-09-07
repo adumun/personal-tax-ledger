@@ -1,6 +1,6 @@
 # Distribution build modes
 
-Status: IMPLEMENTED_PENDING_NATIVE_VALIDATION  
+Status: VALIDATED_0.1.5_UAT / 0.1.6_PRESENTATION_UAT_PENDING  
 Scope: Windows desktop distribution  
 Canonical entrypoint: repository root `Makefile`
 
@@ -81,6 +81,47 @@ This lane:
 
 The UAT artifact is intended for controlled testing by known testers, not public release.
 
+## UAT 0.1.5 validation
+
+Native Windows validation confirmed:
+
+- installer generation PASS;
+- install PASS;
+- uninstall PASS;
+- reinstall same version PASS;
+- no Smart App Control block observed on the validating machine;
+- no unexpected firewall prompt observed;
+- workspace/data persistence PASS;
+- relaunch PASS.
+
+The remaining issue discovered during 0.1.5 UAT was presentation quality rather than functional distribution behavior: the Squirrel `loadingGif` looked like a technical placeholder and the internal Electron splash was visible for too little time during a fast normal startup.
+
+## 0.1.6 desktop presentation polish
+
+0.1.6 introduces a presentation-only refinement while preserving the distribution architecture:
+
+- the Squirrel loading surface is generated deterministically at packaging time with PTL identity, installation copy, animated progress and ADÜMÜN attribution;
+- the internal Electron splash now has explicit minimum visibility windows:
+  - `NORMAL`: 1400 ms;
+  - `FIRST_RUN`: 1800 ms;
+  - `UPDATED`: 1800 ms;
+- splash copy includes application version and launch context;
+- a short opacity transition avoids an abrupt splash-to-main cut.
+
+If real startup takes longer than the minimum, the splash remains visible naturally until the main window reaches `ready-to-show`.
+
+## Version immutability
+
+A payload version that has entered external certification or release review is immutable.
+
+Consequences for the current release line:
+
+- `0.1.5.0` remains the Microsoft Store certification candidate and must not be rebuilt with changed payload;
+- `0.1.5` UAT artifacts remain historical evidence;
+- payload-changing desktop presentation work starts at `0.1.6` / future Store package `0.1.6.0`.
+
+Any future modification after a Store submission must advance the version before producing a replacement payload.
+
 ## Smart App Control / reputation caveat
 
 An unsigned or privately signed UAT installer can be blocked by Smart App Control, Windows Application Control, SmartScreen, or enterprise policy on another Windows machine. This is not equivalent to a Store certification failure.
@@ -107,9 +148,17 @@ make build-uat
 
 This preserves standard Make semantics and is straightforward to automate.
 
+## Local web execution
+
+```bash
+make run-web
+```
+
+This builds the local web frontend and starts the existing local application composition root without Electron.
+
 ## Preflight gate
 
-Both lanes depend on:
+Both distribution lanes depend on:
 
 ```bash
 make validate
@@ -149,6 +198,7 @@ Before running either distribution build:
 - repository is on the intended source revision;
 - Node.js version satisfies `package.json#engines`;
 - dependencies are installed;
+- package metadata/lockfile are synchronized for the intended version;
 - WSL has the current desktop build prerequisites;
 - Store lane: Windows SDK / MakeAppx is installed on the Windows host;
 - UAT lane: Mono and Wine are available when Squirrel is built from WSL/Linux.
@@ -173,8 +223,13 @@ This does **not** mean the release is public. Certification, publishing and Stor
 - `distribution-manifest.json` created;
 - EXE SHA-256 recorded;
 - artifact location is `out/distribution/uat`;
-- tester is informed that the artifact is not Store-signed.
+- tester is informed that the artifact is not Store-signed;
+- presentation is visually accepted on native Windows;
+- reinstall/persistence regression gate remains PASS.
 
 ## Current validation status
 
-The build interface and scripts are implemented on `master`, but the new top-level commands themselves still require native execution evidence before this document can move from `IMPLEMENTED_PENDING_NATIVE_VALIDATION` to `VALIDATED`.
+- 0.1.5 local UAT distribution path: VALIDATED.
+- 0.1.5.0 Microsoft Store candidate: IN CERTIFICATION and frozen.
+- 0.1.6 presentation source implementation: IMPLEMENTED.
+- 0.1.6 native installer/splash visual validation: PENDING.
