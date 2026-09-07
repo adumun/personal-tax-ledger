@@ -1,19 +1,19 @@
 # UAT evidence — 0.1.6 desktop presentation
 
-Status: TECHNICAL_INSTALLER_GATES_PASS_NATIVE_VISUAL_UAT_PENDING  
+Status: PRESENTATION_SLICE_CLOSED_STORE_SIGNED_SAC_GATE_SEPARATE  
 Date: 2026-09-07  
 Scope: local UAT distribution lane / desktop presentation polish
 
 ## Purpose
 
-Record the technical evidence for the Personal Tax Ledger 0.1.6 desktop presentation and Squirrel installer polish slice. This evidence covers repository synchronization, canonical installer asset integrity, source/toolchain gates, Windows x64 Electron packaging, Squirrel.Windows installer creation, artifact integrity, and the remaining native visual validation boundary.
+Record the final technical and native Windows evidence for the Personal Tax Ledger 0.1.6 desktop presentation and Squirrel installer polish slice. This evidence covers repository synchronization, canonical installer asset integrity, source/toolchain gates, Windows x64 Electron packaging, Squirrel.Windows installer creation, artifact integrity, native visual acceptance, workspace persistence, and the separate Microsoft Store signing boundary.
 
 ## Source revision and version
 
 The governed revalidation synchronized local `master` with GitHub before any build activity.
 
 - package version: `0.1.6`
-- validated source revision before the run: `05d597e003689e01a8a4386ba31da2f7cf3d6733`
+- validated source revision before the governed build: `05d597e003689e01a8a4386ba31da2f7cf3d6733`
 - local `HEAD` and `origin/master`: identical before validation
 - branch: `master`
 
@@ -109,7 +109,7 @@ Squirrel metadata:
 
 ## Technical gate result
 
-The final governed validation result is:
+The governed technical validation result is:
 
 ```text
 canonical GIF valid              PASS
@@ -117,14 +117,70 @@ early GIF contract gate          PASS
 installer build                  PASS
 versioned Setup.exe              PASS
 artifact/hash evidence           PASS
-native visual installer UAT      PENDING
+native visual installer UAT      PASS
 ```
 
 Technical installer revalidation result: `PASS`.
 
-## Presentation-polish scope represented by this build
+## Native Windows visual UAT
 
-The 0.1.6 payload includes:
+Native Windows validation was executed against the exact governed installer artifact, after verifying its SHA-256 before launch.
+
+Artifact identity on Windows:
+
+- staged path: `C:\Users\carlo\Downloads\PTL-UAT-0.1.6\PersonalTaxLedger-0.1.6-Setup.exe`;
+- size: `153660416` bytes;
+- SHA-256: `f41f227d1b3e1c811fcc338515f81e8e41d8941370adc47fb609b5069f04c401`;
+- artifact identity gate: PASS.
+
+Operator-observed visual and behavioral results:
+
+- installer/loading surface appeared: PASS;
+- branded animated PTL GIF rendered correctly: PASS;
+- installer presentation judged acceptably professional: PASS;
+- unexpected Windows firewall prompt: NONE;
+- Windows security/reputation result during this Squirrel UAT: NONE;
+- application opened successfully after installation: PASS;
+- internal PTL splash clearly visible: PASS;
+- splash-to-main transition visually acceptable: PASS;
+- historical data/workspace remained intact: PASS.
+
+Native visual installer UAT result: `PASS`.
+
+## Historical workspace persistence evidence
+
+The UAT explicitly inspected the historical workspace:
+
+```text
+C:\Users\carlo\AppData\Roaming\Personal Tax Ledger
+```
+
+SQLite path:
+
+```text
+C:\Users\carlo\AppData\Roaming\Personal Tax Ledger\data\personal-tax-ledger.sqlite
+```
+
+Before UAT:
+
+- workspace existed: yes;
+- database existed: yes;
+- database size: `172032` bytes.
+
+After UAT:
+
+- workspace existed: yes;
+- database existed: yes;
+- database size: `172032` bytes;
+- operator confirmed historical application data remained intact.
+
+The database last-write timestamp changed during the UAT session, which is consistent with the application opening and using the same persisted workspace. No duplicate workspace was observed.
+
+The historical Squirrel installation should still not be removed solely because this presentation UAT passed; removal belongs to the broader distribution-transition decision.
+
+## Presentation-polish scope closed by this evidence
+
+The 0.1.6 presentation slice now has validated evidence for:
 
 - explicit splash minimum visibility windows;
 - updated startup copy per launch kind;
@@ -132,22 +188,18 @@ The 0.1.6 payload includes:
 - ADÜMÜN attribution;
 - splash-to-main opacity transition;
 - corrected deterministic Squirrel loading GIF;
-- updated installer publisher metadata.
+- updated installer publisher metadata;
+- successful native Windows installer presentation;
+- successful reuse of the historical workspace.
 
-## Remaining native visual UAT gates
+## Separate Microsoft Store / Smart App Control boundary
 
-The presentation slice is technically built and validated but is not closed until native Windows observation confirms:
+This UAT validates the Squirrel/UAT installer lane only.
 
-1. the Squirrel installer surface appears acceptably branded and professional;
-2. the corrected loading GIF renders normally and does not appear corrupt, blank, truncated, or visually malformed;
-3. the internal application splash is clearly visible on a fast machine;
-4. the splash-to-main transition is visually acceptable;
-5. the historical workspace at `C:\Users\carlo\AppData\Roaming\Personal Tax Ledger` remains reused and application data remains intact;
-6. no unexpected Windows firewall prompt is introduced;
-7. any Smart App Control / reputation block observed on the self-signed or unsigned Squirrel lane is recorded as a distribution-signing boundary rather than incorrectly treated as Store-signed validation.
+It does **not** establish that a Microsoft Store-signed package passes Smart App Control. The Store-signed SAC gate remains separate and must remain `PENDING` until the Microsoft-certified package is actually obtained and tested on Windows.
 
-The historical Squirrel installation must not be removed solely for this UAT. The Store-signed Smart App Control gate remains separate and must not be declared PASS until the Microsoft-certified package is actually tested.
+No conclusion about Store certification or Store-signed reputation is inferred from the absence of a reputation warning during this Squirrel UAT.
 
 ## Release-lane rule
 
-The existing Microsoft Store submission lane remains immutable while under certification. This 0.1.6 Squirrel/UAT payload is a separate distribution artifact and must not be confused with a Microsoft Store-signed package.
+The Microsoft Store submission lane remains distinct from this Squirrel/UAT payload. Store submission artifacts and Squirrel/UAT artifacts must not be conflated, and the Store-signed security/reputation gate must be recorded independently when available.
