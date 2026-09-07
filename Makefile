@@ -8,7 +8,7 @@ UAT_OUT := $(DIST_ROOT)/uat
 WIN_REPO := $(shell wslpath -w "$(CURDIR)" 2>/dev/null || true)
 WIN_STORE_OUT := $(shell wslpath -w "$(CURDIR)/$(STORE_OUT)" 2>/dev/null || true)
 
-.PHONY: build build-store build-uat validate clean-distribution help
+.PHONY: build build-store build-uat run-web validate clean-distribution help
 
 # Canonical distribution entrypoint.
 # - make build            -> Microsoft Store candidate (.msix)
@@ -44,13 +44,19 @@ build-store: validate
 build-uat: validate
 	@echo "==> PTL local UAT build $(VERSION)"
 	@rm -rf "$(UAT_OUT)"
-	@mkdir -p "$(UAT_OUT)"
 	@PTL_REQUIRE_WINDOWS_SIGNING=0 PTL_WINDOWS_SIGNING_MODE=off npm run desktop:installer:win
+	@mkdir -p "$(UAT_OUT)"
 	@cp "out/installer-win32-x64/PersonalTaxLedger-$(VERSION)-Setup.exe" "$(UAT_OUT)/PersonalTaxLedger-$(VERSION)-UAT-Setup.exe"
 	@node scripts/write-distribution-manifest.mjs uat "$(UAT_OUT)"
 	@echo
 	@echo "UAT INSTALLER READY: $(UAT_OUT)/PersonalTaxLedger-$(VERSION)-UAT-Setup.exe"
 	@echo "WARNING: this UAT EXE is not Store-signed and may be blocked by Smart App Control on some Windows devices."
+
+# Run the local web application without Electron.
+# Builds the frontend first, then starts the local HTTP composition root.
+run-web:
+	@npm run build
+	@npm start
 
 validate:
 	@npm run typecheck
@@ -68,5 +74,6 @@ help:
 	@echo "  make build MODE=uat    Build the local UAT Setup.exe"
 	@echo "  make build-uat         Alias for local UAT Setup.exe"
 	@echo "  make build-store       Alias for Microsoft Store MSIX candidate"
+	@echo "  make run-web           Build and run the local web application"
 	@echo "  make validate          Run the distribution preflight gate"
 	@echo "  make clean-distribution"
