@@ -21,16 +21,18 @@ Ver [ADÜMÜN governance and Business TaxOps relationship](docs/governance/adumu
 - [Catálogo HTTP](docs/architecture/http-route-catalog.md)
 - [Política de paquetes](docs/architecture/package-policy.md)
 - [Desktop distribution](docs/desktop/README.md)
+- [Distribución pública UAT](docs/desktop/uat-public-distribution.md)
 - [Configuración final desktop](docs/desktop/final-configuration.md)
 - [Lecciones aprendidas desktop](docs/desktop/lessons-learned.md)
 - [Evidencia UAT técnica desktop](docs/desktop/uat-evidence-2026-09-04.md)
+- [Microsoft Store submission en certificación](docs/desktop/microsoft-store-submission-in-certification-2026-09-06.md)
 - [Guía de Windows](docs/windows-local.md)
 - [Gaps conocidos](docs/gaps/README.md)
 - [Serie de trabajo A.6-A.13](docs/slice/personal-tax-ledger-packs-a6-a13/README.md)
 
 ## Estado de distribución desktop
 
-El gate funcional de Windows quedó validado el 2026-09-04:
+El gate funcional del instalador Windows Squirrel quedó validado el 2026-09-04:
 
 ```text
 Electron wrapper                 PASS
@@ -44,9 +46,16 @@ Uninstall + reinstall            PASS
 Persistencia de userData         PASS
 ```
 
-La configuración final usa Electron `44.2.0`, `@electron/packager` `20.3.0`, `electron-winstaller` `5.4.4`, `asar: true`, `prune: false` y staging autocontenido en `.desktop-runtime`. Los datos desktop se almacenan bajo `app.getPath('userData')`, separados de los binarios instalados.
+La configuración desktop usa Electron `44.2.0`, `@electron/packager` `20.3.0`, `electron-winstaller` `5.4.4`, `asar: true`, `prune: false` y staging autocontenido en `.desktop-runtime`. Los datos desktop se almacenan bajo `app.getPath('userData')`, separados de los binarios instalados.
 
-El siguiente slice de distribución es la firma de código y, después, la política formal de update/autoupdate y el UAT de usuario no técnico.
+Actualmente existen **dos lanes de distribución separadas**:
+
+1. **UAT externa `0.1.6`**: `PersonalTaxLedger-0.1.6-Setup.zip`, distribuido de forma controlada mediante Google Drive. El SHA-256 vigente del ZIP y la política de canal están en [`docs/desktop/uat-public-distribution.md`](docs/desktop/uat-public-distribution.md). El repositorio todavía no tiene GitHub Releases publicados, por lo que Releases no es hoy el canal canónico.
+2. **Microsoft Store `0.1.5.0`**: el MSIX fue validado localmente y enviado a Microsoft Partner Center. La última evidencia versionada lo mantiene en estado `NATIVE_MSIX_VALIDATED_STORE_SUBMITTED_CERTIFICATION_PENDING`; no se considera publicado hasta cerrar certificación, publicación y validación nativa del build firmado por Store.
+
+La UAT `0.1.6` no debe presentarse como paquete Microsoft Store, y la submission Store `0.1.5.0` no debe presentarse como release publicado mientras no exista evidencia posterior que cierre esos gates.
+
+Siguientes cierres de distribución: confianza de usuario externo/SmartScreen para la lane UAT, eventual migración de artefactos UAT a un canal de release con mejor provenance, validación del resultado de Microsoft Store y política formal de update/autoupdate.
 
 ## Mapa del repositorio
 
