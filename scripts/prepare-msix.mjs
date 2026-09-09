@@ -1,9 +1,9 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { deflateSync } from 'node:zlib';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createAppxManifest, msixConfig } from './msix-config.mjs';
+import { createBrandedPng, MSIX_BRAND_ASSET_VERSION } from './msix-assets.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const sourceDir = join(repoRoot, 'out', 'Personal Tax Ledger-win32-x64');
@@ -12,57 +12,49 @@ const stagingDir = join(outDir, 'staging');
 const assetsDir = join(stagingDir, 'Assets');
 const metadataPath = join(outDir, 'msix-build.json');
 
-function crc32(buffer) {
-  let crc = 0xffffffff;
-  for (const byte of buffer) {
-    crc ^= byte;
-    for (let i = 0; i < 8; i += 1) {
-      crc = (crc >>> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
+const REQUIRED_ASSETS = Object.freeze([
+  { name: 'StoreLogo.png', width: 50, height: 50 },
+  { name: 'Square44x44Logo.png', width: 44, height: 44 },
+  { name: 'Square150x150Logo.png', width: 150, height: 150 },
+  { name: 'Wide310x150Logo.png', width: 310, height: 150 }
+]);
+
+function sha256(buffer) {
+  return createHash('sha256').update(buffer).digest('hex');
+}
+
+function writeBrandedAsset({ name, width, height }) {
+  const png = createBrandedPng(width, height);
+  const path = join(assetsDir, name);
+  writeFileSync(path, png);
+  return {
+    name,
+    width,
+    height,
+    sha256: sha256(png),
+    brandAssetVersion: MSIX_BRAND_ASSET_VERSION
+  };
+}
+
+function assertCertificationAssets(assets) {
+  if (assets.length !== REQUIRED_ASSETS.length) {
+    throw new Error(`Set de assets MSIX incompleto: ${assets.length}/${REQUIRED_ASSETS.length}.`);
+  }
+
+  const hashes = new Set(assets.map(asset => asset.sha256));
+  if (hashes.size !== assets.length) {
+    throw new Error('Los assets MSIX deben materializarse como imágenes específicas por tamaño; se detectaron binarios duplicados.');
+  }
+
+  for (const required of REQUIRED_ASSETS) {
+    const asset = assets.find(candidate => candidate.name === required.name);
+    if (!asset || asset.width !== required.width || asset.height !== required.height) {
+      throw new Error(`Asset MSIX requerido inválido o ausente: ${required.name}.`);
+    }
+    if (asset.brandAssetVersion !== MSIX_BRAND_ASSET_VERSION) {
+      throw new Error(`Asset MSIX sin identidad PTL versionada: ${required.name}.`);
     }
   }
-  return (crc ^ 0xffffffff) >>> 0;
-}
-
-function pngChunk(type, data) {
-  const typeBuffer = Buffer.from(type, 'ascii');
-  const length = Buffer.alloc(4);
-  length.writeUInt32BE(data.length);
-  const crcBuffer = Buffer.alloc(4);
-  crcBuffer.writeUInt32BE(crc32(Buffer.concat([typeBuffer, data])));
-  return Buffer.concat([length, typeBuffer, data, crcBuffer]);
-}
-
-function solidPng(width, height, rgba = [53, 199, 167, 255]) {
-  const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(width, 0);
-  ihdr.writeUInt32BE(height, 4);
-  ihdr[8] = 8;
-  ihdr[9] = 6;
-  ihdr[10] = 0;
-  ihdr[11] = 0;
-  ihdr[12] = 0;
-
-  const row = Buffer.alloc(1 + width * 4);
-  row[0] = 0;
-  for (let x = 0; x < width; x += 1) {
-    const offset = 1 + x * 4;
-    row[offset] = rgba[0];
-    row[offset + 1] = rgba[1];
-    row[offset + 2] = rgba[2];
-    row[offset + 3] = rgba[3];
-  }
-  const raw = Buffer.concat(Array.from({ length: height }, () => row));
-  return Buffer.concat([
-    signature,
-    pngChunk('IHDR', ihdr),
-    pngChunk('IDAT', deflateSync(raw)),
-    pngChunk('IEND', Buffer.alloc(0))
-  ]);
-}
-
-function writeAsset(name, width, height) {
-  writeFileSync(join(assetsDir, name), solidPng(width, height));
 }
 
 if (!existsSync(join(sourceDir, 'PersonalTaxLedger.exe'))) {
@@ -75,15 +67,13 @@ mkdirSync(stagingDir, { recursive: true });
 cpSync(sourceDir, stagingDir, { recursive: true });
 mkdirSync(assetsDir, { recursive: true });
 
-writeAsset('StoreLogo.png', 50, 50);
-writeAsset('Square44x44Logo.png', 44, 44);
-writeAsset('Square150x150Logo.png', 150, 150);
-writeAsset('Wide310x150Logo.png', 310, 150);
+const assets = REQUIRED_ASSETS.map(writeBrandedAsset);
+assertCertificationAssets(assets);
 writeFileSync(join(stagingDir, 'AppxManifest.xml'), createAppxManifest(config), 'utf8');
 
 const manifest = readFileSync(join(stagingDir, 'AppxManifest.xml'));
 const metadata = {
-  formatVersion: 1,
+  formatVersion: 2,
   mode: config.mode,
   identityName: config.identityName,
   publisher: config.publisher,
@@ -93,7 +83,13 @@ const metadata = {
   sourceDirectory: sourceDir,
   stagingDirectory: stagingDir,
   expectedPackageName: `PersonalTaxLedger-${config.version}-x64.msix`,
-  manifestSha256: createHash('sha256').update(manifest).digest('hex'),
+  manifestSha256: sha256(manifest),
+  certification: {
+    policy: '10.1.1.11 On Device Tiles',
+    brandingAssetVersion: MSIX_BRAND_ASSET_VERSION,
+    placeholderAssetsAllowed: false,
+    assets
+  },
   createdAt: new Date().toISOString()
 };
 writeFileSync(metadataPath, `${JSON.stringify(metadata, null, 2)}\n`, 'utf8');
@@ -103,6 +99,8 @@ console.log(`- mode: ${metadata.mode}`);
 console.log(`- identity: ${metadata.identityName}`);
 console.log(`- publisher: ${metadata.publisher}`);
 console.log(`- version: ${metadata.version}`);
+console.log(`- branding: ${MSIX_BRAND_ASSET_VERSION}`);
+console.log(`- certification assets: ${assets.length}/${REQUIRED_ASSETS.length} branded`);
 console.log(`- staging: ${metadata.stagingDirectory}`);
 console.log(`- metadata: ${metadataPath}`);
-console.log('Next: package staging with MakeAppx.exe on a Windows SDK host.');
+console.log('Next: package staging with MakeAppx.exe on a Windows SDK host, run WACK, then resubmit to Partner Center.');
