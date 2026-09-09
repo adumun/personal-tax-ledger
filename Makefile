@@ -3,12 +3,40 @@ SHELL := /bin/bash
 MODE ?= store
 VERSION := $(shell node -p "require('./package.json').version")
 DIST_ROOT := out/distribution
-STORE_OUT := $(DIST_ROOT)/store
 UAT_OUT := $(DIST_ROOT)/uat
-WIN_REPO := $(shell wslpath -w "$(CURDIR)" 2>/dev/null || true)
-WIN_STORE_OUT := $(shell wslpath -w "$(CURDIR)/$(STORE_OUT)" 2>/dev/null || true)
 
-.PHONY: build build-store build-uat run-web validate clean-distribution help
+.PHONY: bootstrap deps up down test doctor validate build build-store store-artifact build-uat run-web lint clean clean-distribution help
+
+bootstrap:
+	@npm ci
+
+deps:
+	@command -v node >/dev/null || { echo "Missing dependency: node" >&2; exit 2; }
+	@command -v npm >/dev/null || { echo "Missing dependency: npm" >&2; exit 2; }
+	@node -e "const major=Number(process.versions.node.split('.')[0]); if (major !== 24) { console.error('Expected Node 24.x, got '+process.version); process.exit(2); }"
+	@echo "Node: $$(node --version)"
+	@echo "npm:  $$(npm --version)"
+
+up: run-web
+
+down:
+	@echo "PTL local runtime runs in the foreground; stop it with Ctrl-C. No persistent local service is managed by Make."
+
+test:
+	@npm test
+
+doctor: deps
+	@test -f package.json || { echo "Missing package.json" >&2; exit 2; }
+	@test -f package-lock.json || { echo "Missing package-lock.json" >&2; exit 2; }
+	@test -f scripts/build-store-msix.sh || { echo "Missing Store artifact script" >&2; exit 2; }
+	@test -f scripts/package-msix.ps1 || { echo "Missing Windows SDK MSIX bridge" >&2; exit 2; }
+	@echo "Repository health: PASS"
+
+validate:
+	@npm run typecheck
+	@$(MAKE) --no-print-directory test
+	@npm run desktop:check
+	@npm run architecture:check
 
 # Canonical distribution entrypoint.
 # - make build            -> Microsoft Store candidate (.msix)
@@ -23,21 +51,13 @@ else
 	@exit 2
 endif
 
-# Public distribution lane. Microsoft Store accepts the MSIX candidate, not Setup.exe.
-build-store: validate
-	@echo "==> PTL Store build $(VERSION)"
-	@rm -rf "$(STORE_OUT)"
-	@mkdir -p "$(STORE_OUT)"
-	@PTL_MSIX_MODE=store npm run desktop:msix:prepare
-	@if [[ -z "$(WIN_REPO)" ]]; then \
-		echo "Unable to resolve the repository as a Windows path. Store packaging requires WSL2 + Windows SDK." >&2; \
-		exit 3; \
-	fi
-	@powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(WIN_REPO)\\scripts\\build-msix-store-submission.ps1" -RepoRoot "$(WIN_REPO)" -OutputDirectory "$(WIN_STORE_OUT)"
-	@node scripts/write-distribution-manifest.mjs store "$(STORE_OUT)"
-	@echo
-	@echo "STORE CANDIDATE READY: $(STORE_OUT)"
-	@find "$(STORE_OUT)" -maxdepth 1 -type f -printf '  %f\n' | sort
+# Microsoft Store release-artifact lane.
+# Complex/native tooling remains encapsulated in scripts/build-store-msix.sh.
+build-store:
+	@bash scripts/build-store-msix.sh
+
+# Explicit domain alias for the exact artifact uploaded to Partner Center.
+store-artifact: build-store
 
 # Local human UAT lane. Produces an installable Squirrel Setup.exe.
 # This artifact is intentionally NOT a Microsoft Store submission artifact.
@@ -52,28 +72,36 @@ build-uat: validate
 	@echo "UAT INSTALLER READY: $(UAT_OUT)/PersonalTaxLedger-$(VERSION)-UAT-Setup.exe"
 	@echo "WARNING: this UAT EXE is not Store-signed and may be blocked by Smart App Control on some Windows devices."
 
-# Run the local web application without Electron.
-# Builds the frontend first, then starts the local HTTP composition root.
 run-web:
 	@npm run build
 	@npm start
 
-validate:
-	@npm run typecheck
-	@npm test
-	@npm run desktop:check
-	@npm run architecture:check
+lint:
+	@npm run lint
+
+clean: clean-distribution
+	@rm -rf out/msix
 
 clean-distribution:
 	@rm -rf "$(DIST_ROOT)"
 
 help:
-	@echo "Personal Tax Ledger distribution targets"
+	@echo "Personal Tax Ledger — canonical Make interface"
 	@echo
-	@echo "  make build             Build the Microsoft Store MSIX candidate (default)"
-	@echo "  make build MODE=uat    Build the local UAT Setup.exe"
-	@echo "  make build-uat         Alias for local UAT Setup.exe"
-	@echo "  make build-store       Alias for Microsoft Store MSIX candidate"
-	@echo "  make run-web           Build and run the local web application"
-	@echo "  make validate          Run the distribution preflight gate"
-	@echo "  make clean-distribution"
+	@echo "Baseline (STD-ENG-DEV-001):"
+	@echo "  make bootstrap          Install locked dependencies"
+	@echo "  make deps               Validate required toolchain"
+	@echo "  make up                 Build and run local web application"
+	@echo "  make down               Explain foreground shutdown semantics"
+	@echo "  make test               Run canonical automated test suite"
+	@echo "  make doctor             Run non-destructive repository health checks"
+	@echo "  make validate           Run deeper repository validation"
+	@echo "  make lint               Run lint/static checks"
+	@echo "  make clean              Remove generated distribution/MSIX output"
+	@echo
+	@echo "Distribution:"
+	@echo "  make build              Build Microsoft Store artifact (default MODE=store)"
+	@echo "  make build MODE=uat     Build local UAT Setup.exe"
+	@echo "  make build-store        Build and validate Partner Center MSIX"
+	@echo "  make store-artifact     Explicit alias for build-store"
+	@echo "  make build-uat          Build local UAT Setup.exe"
