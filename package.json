@@ -40,6 +40,9 @@
     "start": "node apps/local/src/main.mjs",
     "test": "node --test test/*.test.mjs"
   },
+  "allowScripts": {
+    "electron-winstaller": false
+  },
   "devDependencies": {
     "@electron/packager": "20.3.0",
     "electron": "44.2.0",
