@@ -113,10 +113,10 @@ done
 
 printf '%s\n' "$MANIFEST" | grep -Fq 'Name="Admn.PersonalTaxLedger"' || fail "Final manifest does not contain the canonical Store identity."
 printf '%s\n' "$MANIFEST" | grep -Fq "Version=\"$VERSION\"" || fail "Final manifest version does not match $VERSION."
-printf '%s\n' "$MANIFEST" | grep -Fq 'Assets\\Square44x44Logo.png' || fail "Square44x44Logo is not referenced by the final manifest."
-printf '%s\n' "$MANIFEST" | grep -Fq 'Assets\\Square150x150Logo.png' || fail "Square150x150Logo is not referenced by the final manifest."
-printf '%s\n' "$MANIFEST" | grep -Fq 'Assets\\Wide310x150Logo.png' || fail "Wide310x150Logo is not referenced by the final manifest."
-printf '%s\n' "$MANIFEST" | grep -Fq 'Assets\\StoreLogo.png' || fail "StoreLogo is not referenced by the final manifest."
+printf '%s\n' "$MANIFEST" | grep -Fq 'Assets\Square44x44Logo.png' || fail "Square44x44Logo is not referenced by the final manifest."
+printf '%s\n' "$MANIFEST" | grep -Fq 'Assets\Square150x150Logo.png' || fail "Square150x150Logo is not referenced by the final manifest."
+printf '%s\n' "$MANIFEST" | grep -Fq 'Assets\Wide310x150Logo.png' || fail "Wide310x150Logo is not referenced by the final manifest."
+printf '%s\n' "$MANIFEST" | grep -Fq 'Assets\StoreLogo.png' || fail "StoreLogo is not referenced by the final manifest."
 
 PACKAGE_SHA256="$(sha256sum "$OUTPUT" | awk '{print $1}')"
 PACKAGE_SIZE="$(stat -c '%s' "$OUTPUT")"
