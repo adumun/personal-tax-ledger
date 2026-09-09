@@ -14,6 +14,7 @@ Ver [ADÜMÜN governance and Business TaxOps relationship](docs/governance/adumu
 
 ## Navegación
 
+- [Interfaz canónica Make y troubleshooting](docs/development/make-command-interface.md)
 - [ADÜMÜN governance y relación con Business TaxOps](docs/governance/adumun-governance-and-taxops-relationship.md)
 - [Arquitectura actual](docs/architecture/current-state.md)
 - [Arquitectura objetivo](docs/architecture/target-state.md)
@@ -29,6 +30,48 @@ Ver [ADÜMÜN governance and Business TaxOps relationship](docs/governance/adumu
 - [Guía de Windows](docs/windows-local.md)
 - [Gaps conocidos](docs/gaps/README.md)
 - [Serie de trabajo A.6-A.13](docs/slice/personal-tax-ledger-packs-a6-a13/README.md)
+
+## Interfaz de comandos
+
+PTL adopta el modelo de ejecución de `STD-ENG-DEV-001`: **Make es la interfaz estable del repositorio**. npm, Node.js, Bash, PowerShell, Electron y Windows SDK son herramientas de implementación detrás de esa fachada.
+
+Para descubrir las operaciones disponibles:
+
+```bash
+make help
+```
+
+Flujo local recomendado:
+
+```bash
+make bootstrap
+make deps
+make up
+```
+
+Verificación habitual:
+
+```bash
+make doctor
+make test
+make validate
+```
+
+Build de distribución:
+
+```bash
+make build
+```
+
+`make build` usa Microsoft Store como modo por defecto. Para UAT local Windows:
+
+```bash
+make build MODE=uat
+```
+
+La referencia completa de cada target, su comando nativo subyacente, escenarios de uso, semántica de éxito/fallo y troubleshooting está en [`docs/development/make-command-interface.md`](docs/development/make-command-interface.md).
+
+Los comandos nativos (`npm run ...`, `bash scripts/...`, `powershell.exe`, `MakeAppx.exe`) siguen existiendo para implementación y diagnóstico, pero no son la interfaz operativa que debe memorizarse ni la que debe priorizarse en runbooks o automatización.
 
 ## Estado de distribución desktop
 
@@ -51,9 +94,9 @@ La configuración desktop usa Electron `44.2.0`, `@electron/packager` `20.3.0`, 
 Actualmente existen **dos lanes de distribución separadas**:
 
 1. **UAT externa `0.1.6`**: `PersonalTaxLedger-0.1.6-Setup.zip`, distribuido de forma controlada mediante Google Drive. El SHA-256 vigente del ZIP y la política de canal están en [`docs/desktop/uat-public-distribution.md`](docs/desktop/uat-public-distribution.md). El repositorio todavía no tiene GitHub Releases publicados, por lo que Releases no es hoy el canal canónico.
-2. **Microsoft Store `0.1.5.0`**: el MSIX fue validado localmente y enviado a Microsoft Partner Center. La última evidencia versionada lo mantiene en estado `NATIVE_MSIX_VALIDATED_STORE_SUBMITTED_CERTIFICATION_PENDING`; no se considera publicado hasta cerrar certificación, publicación y validación nativa del build firmado por Store.
+2. **Microsoft Store**: la generación de candidatos se realiza desde WSL mediante la fachada Make. El artefacto final de Store es el `.msix` reportado por `make build` / `make build-store`; el estado de publicación depende de la evidencia vigente de Partner Center y no debe confundirse con la lane UAT.
 
-La UAT `0.1.6` no debe presentarse como paquete Microsoft Store, y la submission Store `0.1.5.0` no debe presentarse como release publicado mientras no exista evidencia posterior que cierre esos gates.
+La UAT no debe presentarse como paquete Microsoft Store, y una submission Store no debe presentarse como release publicada mientras no exista evidencia que cierre certificación, publicación y validación del build firmado por Store.
 
 Siguientes cierres de distribución: confianza de usuario externo/SmartScreen para la lane UAT, eventual migración de artefactos UAT a un canal de release con mejor provenance, validación del resultado de Microsoft Store y política formal de update/autoupdate.
 
@@ -73,7 +116,7 @@ Siguientes cierres de distribución: confianza de usuario externo/SmartScreen pa
 | `packages/frontend-application` | Servicios frontend, hooks y orchestration reutilizables | [`packages/frontend-application/README.md`](packages/frontend-application/README.md) |
 | `packages/http-api` | Inbound adapter HTTP reutilizable | [`packages/http-api/README.md`](packages/http-api/README.md) |
 | `apps/local/web` | Aplicación React local | [`apps/local/web/README.md`](apps/local/web/README.md) |
-| `scripts` | Automatización verificable y portable | [`scripts/README.md`](scripts/README.md) |
+| `scripts` | Automatización verificable y portable detrás de la fachada Make | [`scripts/README.md`](scripts/README.md) |
 | `docs` | Decisiones, procedimientos y gaps | [`docs/README.md`](docs/README.md) |
 | `site` | Fuente de la web de conocimiento del repo | [`site/README.md`](site/README.md) |
 
@@ -94,32 +137,30 @@ Los cálculos no siguen ese camino: `packages/core` recibe datos y devuelve resu
 
 ## Requisitos de desarrollo
 
-- Node.js `24.15+`.
+- GNU Make.
+- Node.js 24.x dentro del rango declarado en `package.json`.
 - npm incluido con Node.
-- `node:sqlite`, incluido en Node 24.15+.
+- `node:sqlite`, incluido en Node 24.
 
 No se requiere Docker, un ORM, Firebase, Supabase ni una base externa.
 
 Para construir el instalador Squirrel desde WSL/Linux se requieren además Mono y Wine; estos requisitos pertenecen al host de build, no al PC del usuario final.
 
+Para generar MSIX Microsoft Store, el checkout permanece en WSL y se requiere interoperabilidad WSL→Windows con PowerShell y Windows SDK Packaging Tools disponibles en el host Windows.
+
 ## Instalación y ejecución local
 
-```bash
-npm ci
-npm start
-```
-
-La aplicación completa queda en `http://localhost:3001`. Para desarrollo con frontend Vite y API en watch:
+Interfaz canónica:
 
 ```bash
-npm run dev
+make bootstrap
+make deps
+make up
 ```
 
-Para compilar únicamente el frontend:
+La aplicación completa queda en `http://localhost:3001` mientras el proceso está activo. Para detenerla se usa `Ctrl-C`; `make down` documenta esta semántica y no gestiona un daemon oculto.
 
-```bash
-npm run build
-```
+Para desarrollo especializado del frontend/API, los scripts npm siguen siendo detalles de implementación disponibles para diagnóstico y trabajo de bajo nivel. Consulta la guía Make antes de documentar un nuevo flujo directo.
 
 Variables de ejecución:
 
@@ -128,37 +169,46 @@ Variables de ejecución:
 | `PORT` | `3001` | Puerto del host HTTP local. |
 | `DB_PATH` | `data/apv-chile.sqlite` | Ruta de la base SQLite en modo local no-Electron. |
 
-## Build desktop
+## Build desktop y distribución
+
+Microsoft Store:
 
 ```bash
-npm run desktop:check
-npm run desktop:package:win
-npm run desktop:installer:win
+make build
 ```
 
-Artefacto final esperado:
+Equivalentes explícitos:
 
-```text
-out/installer-win32-x64/PersonalTaxLedger-Setup.exe
+```bash
+make build-store
+make store-artifact
 ```
+
+UAT Windows local:
+
+```bash
+make build MODE=uat
+```
+
+La lógica nativa está encapsulada detrás de los targets y scripts del repositorio. No copies secuencias npm/PowerShell/MakeAppx a nuevos runbooks salvo como troubleshooting.
 
 ## Verificación completa
 
+Interfaz recomendada:
+
 ```bash
-npm run lint
-npm run typecheck
-npm run architecture:check
-npm test
-npm run test:workspaces
-npm run build:packages
-npm run test:external-consumer
-npm run pack:smoke
-npm run smoke:local
-npm run desktop:check
-npm run desktop:package:win
+make doctor
+make validate
 ```
 
-`npm run pack:smoke` empaqueta e instala los exports públicos en un consumidor temporal. `npm run smoke:local` arranca un servidor real con SQLite temporal y prueba endpoints HTTP.
+Para necesidades específicas:
+
+```bash
+make test
+make lint
+```
+
+Las pruebas especializadas de workspaces, smoke tests y packaging siguen disponibles como scripts internos, pero cualquier operación recurrente nueva debe evaluarse para ser expuesta mediante Make y documentada en la guía de interfaz.
 
 ## Principios para contribuidores
 
@@ -171,6 +221,7 @@ npm run desktop:package:win
 7. Actualiza el README de la carpeta cuando cambie su responsabilidad o API.
 8. Documenta en [`docs/gaps/`](docs/gaps/README.md) cualquier decisión funcional, técnica o prerrequisito no resuelto.
 9. Mantén GitHub como autoridad técnica; Drive como framing/evidencia complementaria y `site/` como read model derivado.
+10. Para operaciones recurrentes, documenta primero la fachada Make y luego el comando nativo que implementa el target; evita convertir tooling específico en la interfaz pública del repo.
 
 ## Estado arquitectónico
 
