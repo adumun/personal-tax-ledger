@@ -32,7 +32,6 @@ Esta carpeta documenta arquitectura, decisiones, procedimientos operativos, evid
 - Usa Mermaid para diagramas en Markdown canónico.
 - Si una operación recurrente tiene o debe tener fachada Make, documenta primero `make <target>` y después el comando nativo únicamente como implementación/troubleshooting.
 - Si se agrega o cambia un target Make, actualiza conjuntamente el `Makefile`, [`development/make-command-interface.md`](development/make-command-interface.md), `make help` y los runbooks afectados.
-- Usa Mermaid para diagramas en Markdown canónico.
 - Si una decisión cambia el flujo de dependencias, actualiza `architecture/current-state.md`, `target-state.md` y el mapa correspondiente.
 - Si cambia la distribución desktop, actualiza conjuntamente `desktop/`, `desktop-electron.md`, backlog/gaps y la proyección `site/`.
 - Si algo no puede resolverse por falta de información, registra un gap o backlog item en vez de inventar comportamiento.
