@@ -52,20 +52,36 @@ The preparation step fails if the expected asset set is incomplete, dimensionall
 
 A unit test in `test/msix-assets.test.mjs` guards PNG validity, required dimensions, distinct binaries, and the explicit branding version.
 
-## Resubmission procedure
+## Canonical resubmission procedure
 
-On the Windows packaging host:
+PTL follows `STD-ENG-DEV-001`: Make is the stable repository interface and native npm/Node/PowerShell/Windows SDK commands remain encapsulated behind versioned repository scripts.
 
-```powershell
-npm ci
-npm test
-npm run desktop:check
-npm run desktop:msix:prepare:store
+From the WSL repository root:
+
+```bash
+make build
 ```
 
-Then package the generated staging directory with the existing Windows SDK MSIX lane, inspect the four files under `out/msix/staging/Assets`, and run Windows App Certification Kit before uploading the replacement package to Partner Center.
+`MODE=store` is the default. The explicit equivalents are:
 
-The resubmission must use the PTL-branded output from this remediation branch/commit; an older staging directory must not be reused.
+```bash
+make build-store
+make store-artifact
+```
+
+The Make target delegates the complete Store artifact lane to `scripts/build-store-msix.sh`, which performs locked dependency installation, regression tests, desktop source checks, Store staging, certification metadata validation, MSIX packaging through the WSL → Windows SDK bridge, final container/manifest/asset verification, SHA-256 calculation and evidence generation.
+
+Expected outputs for version `0.1.6`:
+
+```text
+out/msix/PersonalTaxLedger-0.1.6.0-x64.msix
+out/msix/msix-build.json
+out/msix/store-artifact.json
+```
+
+The `.msix` is the artifact to upload to Partner Center. The Store lane must not use development signing, and an older staging directory must not be reused.
+
+Direct commands such as `npm run desktop:msix:store:artifact`, `npm run desktop:msix:prepare:store`, `powershell.exe` or `MakeAppx.exe` are implementation details and are not the documented operator interface for routine release execution.
 
 ## Gate
 
