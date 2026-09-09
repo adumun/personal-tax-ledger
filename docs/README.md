@@ -10,6 +10,7 @@ Esta carpeta documenta arquitectura, decisiones, procedimientos operativos, evid
 
 ## Índice
 
+- [`development/make-command-interface.md`](development/make-command-interface.md): interfaz Make canónica del repositorio, mapeo hacia comandos nativos, escenarios de uso y troubleshooting.
 - [`architecture/README.md`](architecture/README.md): mapa de módulos, límites, HTTP y decisiones técnicas.
 - [`backlog/README.md`](backlog/README.md): backlog activo de la iniciativa con slices, gates, dependencias y criterios de aceptación.
 - [`backlog/desktop-lifecycle-and-distribution.md`](backlog/desktop-lifecycle-and-distribution.md): secuencia extendida de lifecycle desktop, upgrade, datos, UAT y distribución futura.
@@ -28,6 +29,9 @@ Esta carpeta documenta arquitectura, decisiones, procedimientos operativos, evid
 ## Cómo mantenerla
 
 - Enlaza código con rutas relativas, por ejemplo [`apps/local/README.md`](../apps/local/README.md).
+- Usa Mermaid para diagramas en Markdown canónico.
+- Si una operación recurrente tiene o debe tener fachada Make, documenta primero `make <target>` y después el comando nativo únicamente como implementación/troubleshooting.
+- Si se agrega o cambia un target Make, actualiza conjuntamente el `Makefile`, [`development/make-command-interface.md`](development/make-command-interface.md), `make help` y los runbooks afectados.
 - Usa Mermaid para diagramas en Markdown canónico.
 - Si una decisión cambia el flujo de dependencias, actualiza `architecture/current-state.md`, `target-state.md` y el mapa correspondiente.
 - Si cambia la distribución desktop, actualiza conjuntamente `desktop/`, `desktop-electron.md`, backlog/gaps y la proyección `site/`.
