@@ -25,7 +25,8 @@ Ver [ADÜMÜN governance and Business TaxOps relationship](docs/governance/adumu
 - [Configuración final desktop](docs/desktop/final-configuration.md)
 - [Lecciones aprendidas desktop](docs/desktop/lessons-learned.md)
 - [Evidencia UAT técnica desktop](docs/desktop/uat-evidence-2026-09-04.md)
-- [Microsoft Store submission en certificación](docs/desktop/microsoft-store-submission-in-certification-2026-09-06.md)
+- [Microsoft Store publication confirmed](docs/desktop/microsoft-store-publication-confirmed-2026-09-11.md)
+- [Microsoft Store submission histórica](docs/desktop/microsoft-store-submission-in-certification-2026-09-06.md)
 - [Guía de Windows](docs/windows-local.md)
 - [Gaps conocidos](docs/gaps/README.md)
 - [Serie de trabajo A.6-A.13](docs/slice/personal-tax-ledger-packs-a6-a13/README.md)
@@ -50,12 +51,18 @@ La configuración desktop usa Electron `44.2.0`, `@electron/packager` `20.3.0`, 
 
 Actualmente existen **dos lanes de distribución separadas**:
 
-1. **UAT externa `0.1.6`**: `PersonalTaxLedger-0.1.6-Setup.zip`, distribuido de forma controlada mediante Google Drive. El SHA-256 vigente del ZIP y la política de canal están en [`docs/desktop/uat-public-distribution.md`](docs/desktop/uat-public-distribution.md). El repositorio todavía no tiene GitHub Releases publicados, por lo que Releases no es hoy el canal canónico.
-2. **Microsoft Store `0.1.5.0`**: el MSIX fue validado localmente y enviado a Microsoft Partner Center. La última evidencia versionada lo mantiene en estado `NATIVE_MSIX_VALIDATED_STORE_SUBMITTED_CERTIFICATION_PENDING`; no se considera publicado hasta cerrar certificación, publicación y validación nativa del build firmado por Store.
+1. **UAT externa `0.1.6`**: `PersonalTaxLedger-0.1.6-Setup.zip`, distribuido de forma controlada mediante Google Drive. El SHA-256 vigente del ZIP y la política de canal están en [`docs/desktop/uat-public-distribution.md`](docs/desktop/uat-public-distribution.md). El repositorio todavía no tiene GitHub Releases publicados, por lo que Releases no es hoy el canal canónico de esa lane.
+2. **Microsoft Store `0.1.5.0`**: la publicación en Microsoft Store fue confirmada el 2026-09-11 desde Partner Center. El producto aparece como **In Microsoft Store** y Partner Center declara que está actualmente disponible según la discoverability configurada en Availability. El gate Microsoft-side de certificación/publicación queda cerrado. La evidencia canónica está en [`docs/desktop/microsoft-store-publication-confirmed-2026-09-11.md`](docs/desktop/microsoft-store-publication-confirmed-2026-09-11.md).
 
-La UAT `0.1.6` no debe presentarse como paquete Microsoft Store, y la submission Store `0.1.5.0` no debe presentarse como release publicado mientras no exista evidencia posterior que cierre esos gates.
+Estado actual de la lane Store:
 
-Siguientes cierres de distribución: confianza de usuario externo/SmartScreen para la lane UAT, eventual migración de artefactos UAT a un canal de release con mejor provenance, validación del resultado de Microsoft Store y política formal de update/autoupdate.
+```text
+STORE_PUBLICATION_CONFIRMED_NATIVE_RUNTIME_VALIDATION_PENDING
+```
+
+La publicación Store no debe confundirse con la UAT `0.1.6`. La evidencia de Partner Center confirma disponibilidad en Store, pero no sustituye la validación nativa posterior del build entregado y firmado por Microsoft en el host objetivo.
+
+Siguientes cierres de distribución: validación nativa del paquete instalado desde Microsoft Store, política formal de update/autoupdate, confianza de usuario externo/SmartScreen para la lane UAT y eventual migración de artefactos UAT a un canal de release con mejor provenance.
 
 ## Mapa del repositorio
 
