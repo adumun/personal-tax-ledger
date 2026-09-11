@@ -19,21 +19,27 @@ This closes the previous certification/publication uncertainty recorded for the 
 
 ## Lifecycle transition
 
-Previous canonical state:
+Historical state before publication:
 
 ```text
 NATIVE_MSIX_VALIDATED_STORE_SUBMITTED_CERTIFICATION_PENDING
 ```
 
-Current evidence-backed state:
+Publication checkpoint:
 
 ```text
 STORE_PUBLICATION_CONFIRMED_NATIVE_RUNTIME_VALIDATION_PENDING
 ```
 
-The Microsoft-side certification/publishing gate is therefore considered **PASS**. The product must no longer be described as `submitted`, `in certification`, or `publication pending` in current-state documentation.
+Post-installation checkpoint observed later on 2026-09-11:
 
-## What this evidence proves
+```text
+STORE_PUBLICATION_CONFIRMED_NATIVE_RUNTIME_SMOKE_PASS
+```
+
+The Microsoft-side certification/publishing gate is therefore **PASS**, and the Store-delivered application has also passed a native Windows installation/launch smoke test.
+
+## What publication evidence proves
 
 The Partner Center evidence confirms that:
 
@@ -43,23 +49,31 @@ The Partner Center evidence confirms that:
 - subsequent product changes must use the normal update submission flow;
 - discoverability remains governed by the Availability module configuration.
 
-## What this evidence does not prove
+## Post-publication native smoke result
 
-This evidence does **not** by itself prove the post-publication native runtime gates that were intentionally kept separate from Microsoft certification:
+On 2026-09-11 the Store-delivered PTL build was downloaded, installed and launched successfully on native Windows. Windows registered the application and exposed it through application search, and the application reached its operational UI without a blocking Store/Smart App Control failure. The user explicitly reported that it works without problems.
 
-1. installation of the Store-delivered, Store-signed build on the target Windows host;
-2. loopback-only listener verification in the Store-installed runtime;
-3. reuse of the historical profile/workspace;
-4. SQLite persistence and absence of duplicate database state;
-5. controlled removal of any legacy Squirrel installation after the Store build is proven stable.
+Canonical smoke record:
 
-Those checks should remain open until native execution evidence is recorded. Store publication itself is already closed.
+- `docs/desktop/microsoft-store-native-runtime-smoke-2026-09-11.md`
+
+## Deep validation items kept separate
+
+The successful Store installation/runtime smoke does not independently prove every internal invariant. The following remain engineering-level verification items only if strict evidence is required:
+
+1. explicit loopback-only listener inspection;
+2. explicit confirmation of the intended historical profile/workspace reuse;
+3. explicit SQLite path/state inspection;
+4. explicit verification that no duplicate database state was created;
+5. controlled removal of any legacy Squirrel installation, if still present.
+
+These are no longer blockers for stating that the Microsoft Store build **is published, installs successfully and runs successfully** for the user.
 
 ## Distribution model after publication
 
 PTL continues to maintain two distinct Windows distribution lanes:
 
-1. **Microsoft Store lane** — public Store distribution. Publication is confirmed for the existing `0.1.5.0` submission lineage.
+1. **Microsoft Store lane** — public Store distribution. Publication is confirmed for the existing `0.1.5.0` submission lineage and native install/launch smoke is PASS.
 2. **Controlled UAT lane** — external tester distribution through the separately governed `0.1.6` Squirrel package.
 
 The UAT package must not be represented as the Store package, and Store publication must not erase the historical UAT evidence.
@@ -72,14 +86,13 @@ Historical submission evidence remains immutable and useful for provenance:
 - `docs/desktop/microsoft-store-publication-evidence-2026-09-06.md`
 - `docs/desktop/microsoft-store-publication-evidence-manifest-2026-09-06.json`
 
-Current publication state is established by this document and must be reflected in:
+Current publication/runtime state is established by:
 
-- repository root `README.md`;
-- `docs/desktop/README.md`;
-- `docs/desktop/distribution-build-modes.md`;
-- `site/README.md`;
-- complementary Drive lifecycle/project records.
+- `docs/desktop/microsoft-store-publication-confirmed-2026-09-11.md`
+- `docs/desktop/microsoft-store-native-runtime-smoke-2026-09-11.md`
+
+and must be reflected by current-state surfaces such as repository `README.md`, desktop documentation, the public site read model and complementary Drive lifecycle/project records.
 
 ## Evidence policy
 
-The Partner Center screenshot used for this checkpoint is human evidence. No claim is made here about Store search ranking or universal discoverability beyond the explicit Partner Center availability statement; discoverability depends on the configured Availability policy.
+The Partner Center screenshot and native Windows screenshots are human evidence. No claim is made about Store search ranking or universal discoverability beyond the explicit Partner Center availability statement; discoverability depends on the configured Availability policy.
