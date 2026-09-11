@@ -18,8 +18,11 @@ Este directorio contiene el backlog técnico y de producto de Personal Tax Ledge
 3. [`ux-and-product-polish.md`](ux-and-product-polish.md): resolver hallazgos de usabilidad antes del UAT no técnico según severidad.
 4. UAT no técnico.
 
+La expansión TAX se mantiene en discovery/backlog y no desplaza automáticamente esta prioridad activa hasta una conciliación explícita.
+
 ## Backlog activo
 
 - [`local-profile-workspace-and-startup.md`](local-profile-workspace-and-startup.md): configuración local, workspace y bootstrap de inicio.
 - [`desktop-lifecycle-and-distribution.md`](desktop-lifecycle-and-distribution.md): lifecycle desktop Windows; gates P0 LC-001..LC-004 cerrados y distribución posterior pendiente.
 - [`ux-and-product-polish.md`](ux-and-product-polish.md): hallazgos de usabilidad, overflow, layout, naming y consistencia visual que deben resolverse antes del UAT no técnico según severidad.
+- [`tax-management-expansion.md`](tax-management-expansion.md): epics propuestos para Annual Tax Workspace, Readiness, Evidence, Ledger, Projection vs Actual, Data Acquisition, SII Reconciliation, Annual Tax Health, Year Closure y Portability/Privacy.
