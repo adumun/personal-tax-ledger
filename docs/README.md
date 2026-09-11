@@ -13,6 +13,8 @@ Esta carpeta documenta arquitectura, decisiones, procedimientos operativos, evid
 - [`architecture/README.md`](architecture/README.md): mapa de módulos, límites, HTTP y decisiones técnicas.
 - [`backlog/README.md`](backlog/README.md): backlog activo de la iniciativa con slices, gates, dependencias y criterios de aceptación.
 - [`backlog/desktop-lifecycle-and-distribution.md`](backlog/desktop-lifecycle-and-distribution.md): secuencia extendida de lifecycle desktop, upgrade, datos, UAT y distribución futura.
+- [`backlog/tax-management-expansion.md`](backlog/tax-management-expansion.md): epics de evolución hacia Tax Management, incluyendo readiness, evidence, ledger, SII reconciliation y annual health.
+- [`product/tax-management-evolution-and-ms-store-benchmark-2026-09-11.md`](product/tax-management-evolution-and-ms-store-benchmark-2026-09-11.md): benchmark Microsoft Store y estructura TAX propuesta, con 127 observaciones/capacidades enumeradas.
 - [`desktop/README.md`](desktop/README.md): índice de distribución desktop.
 - [`desktop/final-configuration.md`](desktop/final-configuration.md): configuración final Electron/ASAR/staging/Squirrel.Windows.
 - [`desktop/lessons-learned.md`](desktop/lessons-learned.md): lecciones aprendidas y decisiones que no deben revertirse sin nueva evidencia.
@@ -31,6 +33,7 @@ Esta carpeta documenta arquitectura, decisiones, procedimientos operativos, evid
 - Usa Mermaid para diagramas en Markdown canónico.
 - Si una decisión cambia el flujo de dependencias, actualiza `architecture/current-state.md`, `target-state.md` y el mapa correspondiente.
 - Si cambia la distribución desktop, actualiza conjuntamente `desktop/`, `desktop-electron.md`, backlog/gaps y la proyección `site/`.
+- Si cambia la dirección funcional TAX, actualiza conjuntamente `product/`, backlog y los contratos/diagramas afectados antes de presentarlo como capacidad implementada.
 - Si algo no puede resolverse por falta de información, registra un gap o backlog item en vez de inventar comportamiento.
 - No uses documentación histórica como descripción del estado actual sin marcarla como histórica.
 - Mantén paridad semántica entre GitHub, Drive y web sin copiar secretos ni datos personales a superficies públicas.
