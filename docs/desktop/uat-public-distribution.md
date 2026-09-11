@@ -2,7 +2,7 @@
 
 **Status:** current external UAT distribution record  
 **UAT version:** `0.1.6`  
-**Date verified:** 2026-09-08
+**Date verified:** 2026-09-11
 
 ## Purpose
 
@@ -58,19 +58,22 @@ A future migration to GitHub Releases is desirable for artifact provenance and r
 
 The Store lane is separate from external UAT `0.1.6`.
 
-Canonical repository evidence currently records:
+Current canonical repository evidence records:
 
 ```text
-Store candidate: PersonalTaxLedger-0.1.5.0-x64-store.msix
+Store submission lineage: PersonalTaxLedger-0.1.5.0-x64-store.msix
 Version: 0.1.5.0
 Architecture: x64
 Minimum Windows version: 10.0.19041.0
-Lifecycle state: NATIVE_MSIX_VALIDATED_STORE_SUBMITTED_CERTIFICATION_PENDING
+Microsoft-side publication: CONFIRMED 2026-09-11
+Lifecycle state: STORE_PUBLICATION_CONFIRMED_NATIVE_RUNTIME_VALIDATION_PENDING
 ```
 
-The public website must not imply that the Store candidate has been certified or published until later evidence proves those gates closed.
+Partner Center shows Personal Tax Ledger as **In Microsoft Store** and states that the product is currently available in Microsoft Store according to the discoverability configured in the Availability module.
 
-The UAT ZIP must likewise not be presented as the Store build.
+This closes the Microsoft certification/publication gate. It does not, by itself, close native runtime validation of the Store-delivered build on the target Windows host.
+
+The UAT ZIP must not be presented as the Store build, and the Store package must not replace UAT evidence or version semantics.
 
 ## Tester trust guidance
 
@@ -95,7 +98,8 @@ See also:
 
 - `site/privacy.html`
 - `docs/desktop/uat-evidence-2026-09-04.md`
-- `docs/desktop/microsoft-store-submission-in-certification-2026-09-06.md`
+- `docs/desktop/microsoft-store-publication-confirmed-2026-09-11.md`
+- `docs/desktop/microsoft-store-submission-in-certification-2026-09-06.md` (historical checkpoint)
 - GitHub issue #1 — PTL-1 UAT Trust Closure
 
 ## Transition rule
