@@ -1,6 +1,6 @@
 # Distribution build modes
 
-Status: VALIDATED_0.1.5_UAT / 0.1.6_PRESENTATION_UAT_PENDING  
+Status: STORE_PUBLICATION_CONFIRMED / 0.1.6_PRESENTATION_UAT_PENDING  
 Scope: Windows desktop distribution  
 Canonical entrypoint: repository root `Makefile`
 
@@ -8,7 +8,7 @@ Canonical entrypoint: repository root `Makefile`
 
 Personal Tax Ledger has two deliberately separate Windows distribution lanes:
 
-1. **Store/public lane**: produces the Microsoft Store submission candidate (`.msix`).
+1. **Store/public lane**: produces the Microsoft Store submission candidate (`.msix`) and feeds the Store publication process.
 2. **Local UAT lane**: produces an installable Squirrel.Windows `Setup.exe` for controlled human UAT outside Microsoft Store.
 
 The lanes must not be confused. A UAT `Setup.exe` is not a Microsoft Store submission artifact, and the Store submission artifact is not distributed as `Setup.exe`.
@@ -79,7 +79,7 @@ This lane:
 - renames/copies the final installer with an explicit `UAT` marker;
 - records file size and SHA-256.
 
-The UAT artifact is intended for controlled testing by known testers, not public release.
+The UAT artifact is intended for controlled testing by known testers, not as the Microsoft Store package.
 
 ## UAT 0.1.5 validation
 
@@ -116,7 +116,7 @@ A payload version that has entered external certification or release review is i
 
 Consequences for the current release line:
 
-- `0.1.5.0` remains the Microsoft Store certification candidate and must not be rebuilt with changed payload;
+- `0.1.5.0` is the Store submission lineage whose publication was confirmed on 2026-09-11 and must not be rebuilt with changed payload;
 - `0.1.5` UAT artifacts remain historical evidence;
 - payload-changing desktop presentation work starts at `0.1.6` / future Store package `0.1.6.0`.
 
@@ -128,7 +128,7 @@ An unsigned or privately signed UAT installer can be blocked by Smart App Contro
 
 If a tester machine blocks the UAT `Setup.exe`, capture the exact Windows message and Code Integrity/Smart App Control state as evidence. Do not weaken or disable security controls as an automatic workaround.
 
-For the final public distribution gate, the authoritative validation must be performed with the Microsoft Store-delivered, Store-signed package.
+For the public Store lane, Microsoft-side certification/publication is now confirmed. The remaining authoritative technical validation is execution of the Microsoft Store-delivered, Store-signed package on the target Windows host.
 
 ## Why `make build --uat` is not used
 
@@ -203,7 +203,7 @@ Before running either distribution build:
 - Store lane: Windows SDK / MakeAppx is installed on the Windows host;
 - UAT lane: Mono and Wine are available when Squirrel is built from WSL/Linux.
 
-## DoD — Store lane
+## DoD — Store build artifact
 
 - validation PASS;
 - Store MSIX created;
@@ -213,7 +213,7 @@ Before running either distribution build:
 - MSIX SHA-256 recorded;
 - artifact location is `out/distribution/store`.
 
-This does **not** mean the release is public. Certification, publishing and Store-signed runtime validation remain separate gates.
+This build DoD does **not** by itself mean a release is public. Certification and publishing are lifecycle gates outside the local build. For the current `0.1.5.0` submission lineage, those Microsoft-side gates are confirmed PASS as of 2026-09-11. Native Store-delivered runtime validation remains separate.
 
 ## DoD — UAT lane
 
@@ -230,6 +230,10 @@ This does **not** mean the release is public. Certification, publishing and Stor
 ## Current validation status
 
 - 0.1.5 local UAT distribution path: VALIDATED.
-- 0.1.5.0 Microsoft Store candidate: IN CERTIFICATION and frozen.
+- 0.1.5.0 Microsoft Store submission lineage: PUBLISHED / PARTNER CENTER AVAILABILITY CONFIRMED.
+- Microsoft-side Store certification/publication gate: PASS.
+- Store-delivered native runtime validation: PENDING.
 - 0.1.6 presentation source implementation: IMPLEMENTED.
 - 0.1.6 native installer/splash visual validation: PENDING.
+
+Canonical publication checkpoint: [`microsoft-store-publication-confirmed-2026-09-11.md`](microsoft-store-publication-confirmed-2026-09-11.md).
