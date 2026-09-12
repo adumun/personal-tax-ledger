@@ -2,7 +2,8 @@
 
 Estado general: `DISCOVERY / BACKLOG`  
 Fuente estratégica: [`../product/tax-management-evolution-and-ms-store-benchmark-2026-09-11.md`](../product/tax-management-evolution-and-ms-store-benchmark-2026-09-11.md)  
-Extensión contractor internacional: [`../product/international-contractor-income-planning-2026-09-12.md`](../product/international-contractor-income-planning-2026-09-12.md)
+Extensión contractor internacional: [`../product/international-contractor-income-planning-2026-09-12.md`](../product/international-contractor-income-planning-2026-09-12.md)  
+Caso de uso real anonimizado: [`../product/real-use-case-mixed-income-contractor-tax-planning-2026-09-12.md`](../product/real-use-case-mixed-income-contractor-tax-planning-2026-09-12.md)
 
 ## Propósito
 
@@ -56,6 +57,25 @@ Orquestar las capacidades TAX existentes para ingresos contractor internacionale
 
 **Dependencias principales:** `PTL-TAX-01`, `PTL-TAX-04`, `PTL-TAX-05`, `PTL-TAX-06`, `PTL-TAX-07` y reglas puras/versionadas de cálculo. No debe implementarse como calculadora aislada ni acoplarse a Deel u otro proveedor de pagos.
 
+### PTL-TAX-12 — Tax Provisioning & Optimization Planner
+Planificar legalmente el cierre tributario antes de Operación Renta, buscando evitar subprovisión, comparar beneficios/deducciones y mostrar el costo económico de cada estrategia.
+
+**Objetivo funcional:** permitir que el usuario responda durante el año “si sigo así, ¿cuánto pagaré o me devolverán y qué acciones legales todavía puedo tomar para mejorar el resultado?”.
+
+**Slices candidatos:**
+
+- `PTL-TAX-12A — Projected Annual Settlement`: estimar impuesto, créditos, PPM, cotizaciones y saldo de cierre con trazabilidad.
+- `PTL-TAX-12B — Monthly Reserve Recommendation`: recomendar reserva mensual para llegar al cierre sin sorpresa de caja.
+- `PTL-TAX-12C — APV Strategy Comparator`: comparar sin APV, APV régimen A y APV régimen B, mostrando efecto tributario, liquidez comprometida, bonificación/beneficio y consecuencias de retiro.
+- `PTL-TAX-12D — Presumed vs Actual Expense Comparator`: comparar 30% de gasto presunto versus gastos efectivos elegibles y respaldados, sin permitir doble rebaja.
+- `PTL-TAX-12E — Mixed Income Contribution Reconciliation`: combinar renta dependiente + honorarios, cotizaciones ya enteradas, topes y salud adicional/excesos.
+- `PTL-TAX-12F — Legal Tax Opportunity Scanner`: detectar beneficios/deducciones aplicables sólo con evidencia y reglas versionadas; nunca generar gastos ficticios ni ocultar renta.
+- `PTL-TAX-12G — Optimization Explainability`: mostrar ahorro tributario por peso comprometido, costo de oportunidad, restricciones y por qué una estrategia domina o no a otra.
+
+**Resultado esperado:** clasificar la posición anual como `UNDERPROVISIONED`, `ON_TARGET`, `OVERPROVISIONED`, `REFUND_EXPECTED`, `PAYMENT_EXPECTED` o `INSUFFICIENT_DATA` y proponer acciones explicables.
+
+**Principio de producto:** una devolución alta no es el objetivo en sí. PTL debe optimizar la carga legal cuando sea económicamente razonable, preservar liquidez y minimizar sorpresas de cierre.
+
 ## Dependencias propuestas
 
 ```mermaid
@@ -80,6 +100,12 @@ flowchart LR
   A --> IC
   C --> IC
   IC --> H
+
+  H --> O[Tax Provisioning & Optimization Planner]
+  P --> O
+  C --> O
+  R --> O
+  O --> Y
 ```
 
 ## Reglas de ejecución
@@ -92,5 +118,8 @@ flowchart LR
 - Ingresos en moneda extranjera conservan monto/moneda originales; la conversión a CLP es un derivado con provenance.
 - No presentar dinero recibido como neto disponible mientras existan obligaciones conocidas o estimadas sin provisionar.
 - No acoplar el dominio a Deel ni a un intermediario específico.
+- Optimización tributaria significa uso legal y respaldado de alternativas normativas; nunca evasión, ocultamiento de renta o gastos ficticios.
+- APV debe evaluarse por efecto tributario + liquidez + beneficio previsional; no recomendarlo sólo porque reduzca impuesto.
+- Gastos presuntos y efectivos deben ser alternativas mutuamente excluyentes cuando así lo determine la regla aplicable.
 - Cada epic debe definir DoR/DoD, modelo, contratos, migrations, pruebas y evidencia antes de implementación.
 - La secuencia final debe conciliarse con el backlog P0 vigente antes de comenzar.
