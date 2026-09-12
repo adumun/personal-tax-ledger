@@ -61,6 +61,12 @@ Key decision: introduce a dedicated **Año tributario** surface and a persistent
 
 Technical Tasks, Spikes, dependency edges and the provisional block critical path are in [`enablers-and-dependencies.md`](enablers-and-dependencies.md).
 
+## Implementation roadmap
+
+The current `GO` decision, fast lane, preliminary effort estimate, safety-critical chain, start gates and first vertical slices are in [`implementation-roadmap.md`](implementation-roadmap.md).
+
+The roadmap is a versioned implementation specification. It does not replace GitHub Issues/Jira as the execution board.
+
 ## Scope boundary
 
 ### Included
