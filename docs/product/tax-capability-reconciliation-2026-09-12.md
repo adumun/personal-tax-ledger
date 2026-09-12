@@ -137,6 +137,28 @@ Se mantiene íntegramente la decisión del 2026-09-11:
 
 Las nuevas líneas de Cloud/AI no relajan estas reglas.
 
+## Transición hacia implementación
+
+La taxonomía reconciliada no debe convertirse directamente en tickets de implementación sin refinamiento. PTL adopta un proceso por bloques y un contrato explícito de Story/readiness documentado en `docs/backlog/story-definition-and-implementation-readiness.md`.
+
+La dirección transversal propuesta reside en:
+
+- `STD-WMS-STORY-001 — User Story Definition & Implementation Readiness`;
+- `STD-EXP-UIDEF-001 — Product UI / Interaction Definition Contract`.
+
+Reglas de transición:
+
+- `TAX-01..12` y `PTL-EXT-01..04` son fuentes de trazabilidad para Stories, no sustitutos de las Stories;
+- actor-visible value se modela como `Story` conforme a `STD-WMS-TYPES-001`;
+- trabajo técnico/habilitador determinista se modela como `Task`, no como un nuevo tipo `Technical Story`;
+- incertidumbre se reduce mediante `Spike`;
+- una Story con impacto UI no puede quedar `READY` sin artefacto de diseño proporcional y referencia explícita;
+- el diseño debe especificar si el cambio es pantalla nueva, rediseño, sección, componente, campos, flujo, estados, responsive o accesibilidad;
+- el implementador no debe inventar materialmente ubicación, flujo, estados o copy que debió resolverse durante refinamiento;
+- una vez refinados los bloques se construirá un DAG de Stories/Tasks/Spikes, se detectarán habilitadores compartidos y se calculará ruta crítica sólo cuando exista estimación comparable.
+
+PTL actuará como primer dogfood antes de proponer adopción generalizada en otros productos cercanos a implementación.
+
 ## North star reconciliado
 
 La evolución queda:
@@ -146,6 +168,8 @@ Personal Tax Ledger
   -> Personal Tax Management System
   -> TAX-01..12 como macro-capacidades canónicas
   -> extensiones PTL que orquestan esas capacidades
+  -> Stories + Design Contracts + Enabling Work
+  -> dependency graph / critical path
   -> local-first por defecto
   -> Cloud para automatización e inteligencia continua
   -> AI como proveedor asistivo, nunca autoridad tributaria
