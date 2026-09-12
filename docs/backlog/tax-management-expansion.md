@@ -3,7 +3,8 @@
 Estado general: `DISCOVERY / BACKLOG`  
 Fuente estratégica: [`../product/tax-management-evolution-and-ms-store-benchmark-2026-09-11.md`](../product/tax-management-evolution-and-ms-store-benchmark-2026-09-11.md)  
 Extensión contractor internacional: [`../product/international-contractor-income-planning-2026-09-12.md`](../product/international-contractor-income-planning-2026-09-12.md)  
-Caso de uso real anonimizado: [`../product/real-use-case-mixed-income-contractor-tax-planning-2026-09-12.md`](../product/real-use-case-mixed-income-contractor-tax-planning-2026-09-12.md)
+Caso de uso real anonimizado: [`../product/real-use-case-mixed-income-contractor-tax-planning-2026-09-12.md`](../product/real-use-case-mixed-income-contractor-tax-planning-2026-09-12.md)  
+Estrategia local/cloud/AI: [`../product/tax-ecosystem-local-cloud-ai-strategy-2026-09-12.md`](../product/tax-ecosystem-local-cloud-ai-strategy-2026-09-12.md)
 
 ## Propósito
 
@@ -76,6 +77,24 @@ Planificar legalmente el cierre tributario antes de Operación Renta, buscando e
 
 **Principio de producto:** una devolución alta no es el objetivo en sí. PTL debe optimizar la carga legal cuando sea económicamente razonable, preservar liquidez y minimizar sorpresas de cierre.
 
+### PTL-TAX-13 — Tax Document Intelligence & Cloud Capability Layer
+Separar capacidades locales, providers de AI opcionales y servicios cloud administrados sin duplicar el dominio tributario.
+
+**Objetivo funcional:** permitir que un documento como una liquidación, boleta o certificado pueda transformarse en candidatos estructurados y semánticamente validados, manteniendo siempre confirmación/auditoría antes de afectar el ledger canónico.
+
+**Slices candidatos:**
+
+- `PTL-TAX-13A — Evidence Ingestion Contract`: documento/evidencia original, metadata, checksum, provenance y lifecycle de procesamiento.
+- `PTL-TAX-13B — Extraction Candidate Schema`: contrato neutral para campos extraídos, valores normalizados, confidence, warnings y referencias a evidencia.
+- `PTL-TAX-13C — Tax Semantic Validation`: reglas para clasificar AFP, comisión, salud legal, salud adicional, deuda privada, impuesto, renta, etc.
+- `PTL-TAX-13D — Human Confirmation Workflow`: preview, edición, aceptación/rechazo y promoción explícita a canonical ledger.
+- `PTL-TAX-13E — Managed Cloud Document Intelligence`: provider administrado, jobs, cuotas, observabilidad y costos de inferencia.
+- `PTL-TAX-13F — Local/BYO Provider Adapter`: contrato que permita, en una fase posterior, AI local o API provista por el usuario sin cambiar el dominio.
+- `PTL-TAX-13G — Cloud Evidence & Sync`: almacenamiento administrado y sincronización opt-in con identidad, versiones, conflicto y provenance.
+- `PTL-TAX-13H — Continuous Tax Monitoring`: eventos/alertas derivados de cambios en ledger, evidencia, proyección y posición de provisionamiento.
+
+**Principio de producto:** Desktop Free sigue siendo útil y completo manualmente. Cloud monetiza automatización, integración e inteligencia continua; AI es un proveedor asistivo y nunca autoridad tributaria.
+
 ## Dependencias propuestas
 
 ```mermaid
@@ -106,6 +125,12 @@ flowchart LR
   C --> O
   R --> O
   O --> Y
+
+  E --> D[Tax Document Intelligence]
+  A --> D
+  D --> L
+  D --> C
+  D --> H
 ```
 
 ## Reglas de ejecución
@@ -121,5 +146,10 @@ flowchart LR
 - Optimización tributaria significa uso legal y respaldado de alternativas normativas; nunca evasión, ocultamiento de renta o gastos ficticios.
 - APV debe evaluarse por efecto tributario + liquidez + beneficio previsional; no recomendarlo sólo porque reduzca impuesto.
 - Gastos presuntos y efectivos deben ser alternativas mutuamente excluyentes cuando así lo determine la regla aplicable.
+- AI produce `candidate data`; no produce hechos canónicos sin validación/confirmación.
+- Ningún SDK o proveedor AI debe entrar a `packages/core`.
+- Local, BYO y Cloud deben converger sobre los mismos contratos de dominio y candidate schema.
+- Cloud no reimplementa cálculo tributario; compone el mismo core/application con adapters distintos.
+- Sync debe ser explícito y opt-in; no se introduce como side effect de usar la app local.
 - Cada epic debe definir DoR/DoD, modelo, contratos, migrations, pruebas y evidencia antes de implementación.
 - La secuencia final debe conciliarse con el backlog P0 vigente antes de comenzar.
