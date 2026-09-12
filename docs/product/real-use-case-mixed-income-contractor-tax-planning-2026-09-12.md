@@ -19,8 +19,9 @@ Contribuyente residente en Chile con:
 - plan de Isapre cuyo precio pactado ronda 7,95 UF en varios meses;
 - empleador dependiente que descuenta 7% legal de salud y adicional de Isapre para completar el precio pactado;
 - préstamo CCAF descontado por planilla, que reduce liquidez pero no debe confundirse con rebaja de base tributaria;
+- honorario nacional adicional por BHE durante septiembre 2026, inicialmente por un solo mes y sin continuidad garantizada;
 - potencial incorporación de servicios contractor para una empresa extranjera, facturados mediante BHE en CLP y pagados en USD;
-- PPM de segunda categoría a cargo del propio emisor;
+- PPM/retención de segunda categoría según tipo de receptor;
 - necesidad de proyectar Operación Renta y tomar decisiones durante el año para no llegar subprovisionado.
 
 ## Evidencia salarial observada enero-agosto 2026
@@ -70,6 +71,26 @@ GROSS INCOME
 
 Esto evita utilizar el líquido pagado como proxy de renta tributable o carga fiscal.
 
+## Honorario nacional adicional — septiembre 2026
+
+Se incorpora una BHE nacional bruta de **$2.500.000** para septiembre de 2026, inicialmente por un solo mes. Su continuidad futura no se considera asegurada.
+
+Para discovery se modela separadamente de la renta extranjera porque el lifecycle tributario operacional es distinto:
+
+```text
+DOMESTIC_BHE
+  -> receptor nacional
+  -> retención practicada por receptor cuando corresponda
+
+FOREIGN_BHE
+  -> receptor extranjero
+  -> PPM enterado por emisor
+```
+
+Ambos flujos convergen posteriormente en la determinación anual de honorarios, cotizaciones, gastos y Global Complementario.
+
+Este nuevo dato eleva los honorarios proyectados del caso 2026 desde aproximadamente $15,57 MM a **~$18,07 MM** bajo el escenario de tres meses de contractor extranjero.
+
 ## Escenario contractor internacional
 
 Hipótesis de simulación:
@@ -104,16 +125,18 @@ PROVISIONED -> DECLARED -> PAID -> APPLIED -> RECONCILED
 
 Para completar el año dependiente se utilizó, sólo como hipótesis de discovery, un nivel similar a agosto para septiembre-diciembre.
 
-Proyección aproximada:
+Proyección aproximada actualizada:
 
 | Concepto | 2026 proyectado |
 |---|---:|
-| Remuneración imponible dependiente | $13,56 MM |
-| Base tributable dependiente informada/proyectada | $9,32 MM |
-| Honorarios contractor brutos | $15,57 MM |
-| Gastos presuntos honorarios, escenario 30% | ~$4,67 MM |
-| Renta neta de honorarios, escenario 30% | ~$10,90 MM |
-| Base anual combinada preliminar | ~$20,21 MM |
+| Remuneración imponible dependiente | ~$13,56 MM |
+| Base tributable dependiente informada/proyectada | ~$9,32 MM |
+| Honorario nacional septiembre | $2,50 MM |
+| Honorarios contractor extranjeros | ~$15,57 MM |
+| Honorarios totales | ~$18,07 MM |
+| Gastos presuntos honorarios, escenario 30% | ~$5,42 MM |
+| Renta neta de honorarios, escenario 30% | ~$12,65 MM |
+| Base anual combinada preliminar | ~$21,97 MM |
 
 La tabla IGC AT2027 todavía no existe al momento del análisis; por ello cualquier impuesto anual resultante debe mantenerse como `PROJECTION`, utilizando reglas/valores proxy explicitados y reemplazándolos cuando se publiquen los parámetros definitivos.
 
@@ -127,6 +150,95 @@ El objetivo no es registrar gastos domésticos como profesionales, sino responde
 ¿Cuál modalidad legal reduce la renta imponible total
 sin introducir gastos no elegibles ni perder trazabilidad?
 ```
+
+Con honorarios proyectados 2026 de ~$18,07 MM, el 30% presunto representa aproximadamente **$5,42 MM**. Ese valor se convierte en el benchmark que deben superar los gastos efectivos deducibles para que el escenario efectivo sea económicamente superior, sin perjuicio de reglas específicas de activos/depreciación.
+
+## Gastos profesionales reales a registrar en el caso
+
+El caso incorpora gastos recurrentes y potencialmente profesionales que PTL debe permitir registrar aunque todavía no estén aceptados definitivamente como deducibles:
+
+- Microsoft 365 mensual;
+- ChatGPT;
+- Claude;
+- servicios Google de uso profesional;
+- Internet hogar con uso mixto personal/profesional;
+- futuros computadores, notebooks, tablets, monitores, periféricos y otros equipos;
+- software, cloud, hosting, dominios, capacitación y servicios profesionales relacionados con la actividad cuando existan.
+
+El sistema debe separar explícitamente:
+
+```text
+RECORDED_EXPENSE
+POTENTIAL_TAX_EXPENSE
+ELIGIBLE_TAX_EXPENSE
+NON_ELIGIBLE_EXPENSE
+NEEDS_REVIEW
+```
+
+Registrar un gasto no equivale a deducirlo.
+
+## Hallazgo 4A — Expense Eligibility & Evidence
+
+PTL necesita modelar el gasto como una entidad con evidencia y evaluación tributaria, no como un monto plano.
+
+Contrato conceptual mínimo:
+
+```text
+Expense
+  date
+  supplier
+  description
+  amount
+  currency
+  category
+  evidence
+  professional_use_percentage
+  recurring_subscription
+
+  tax_assessment
+    ELIGIBLE
+    POTENTIALLY_ELIGIBLE
+    NOT_ELIGIBLE
+    NEEDS_REVIEW
+
+  rationale
+  rule_reference
+  deductible_amount
+  tax_year
+  treatment
+    DIRECT_EXPENSE
+    DEPRECIABLE_ASSET
+    DEFERRED_OR_SPECIAL
+```
+
+Para gastos mixtos como Internet, PTL debe admitir un porcentaje de uso profesional justificable en vez de asumir 0% o 100% silenciosamente.
+
+Para hardware, PTL debe diferenciar precio de compra de monto deducible del ejercicio. Un computador o tablet puede ser un activo necesario para producir renta, pero el tratamiento puede implicar depreciación u otra regla y no necesariamente gasto íntegro inmediato.
+
+## Hallazgo 4B — evidencia extranjera y suscripciones digitales
+
+Servicios como Microsoft 365, ChatGPT, Claude o Google pueden provenir de proveedores extranjeros. PTL debe conservar factura/recibo, proveedor, fecha, moneda, monto original, conversión y evidencia suficiente para evaluar la deducibilidad según normativa aplicable.
+
+La AI puede clasificar o sugerir elegibilidad, pero no declarar canónicamente que el gasto es deducible sin regla, evidencia y confirmación.
+
+## Hallazgo 4C — comparación continua presunto vs efectivo
+
+El usuario no debe verse obligado a escoger anticipadamente la modalidad anual. PTL debe mantener ambos escenarios mientras exista información suficiente:
+
+```text
+SCENARIO_PRESUMED
+  honoraria * 30% sujeto a límite/regla
+
+SCENARIO_ACTUAL
+  sum(eligible deductible amount)
+
+BEST_CURRENT_OPTION
+  compare tax outcome
+  compare evidence readiness
+  compare auditability
+```
+
+Cada nuevo gasto elegible debe recalcular la proyección. El sistema debe mostrar cuánto falta para que gastos efectivos superen el beneficio del presunto y cuál es el impacto tributario marginal de cada gasto aceptado.
 
 ## Hallazgo 5 — APV requiere evaluación económica, no sólo tributaria
 
@@ -168,51 +280,21 @@ Resultados posibles deseables:
 
 ## Evaluación provisional de estrategias 2026
 
-Usando como proxy la tabla IGC AT2026 sobre una base combinada preliminar de ~$20,21 MM, el impuesto teórico de referencia es de aproximadamente $358 mil. Este cálculo es exclusivamente de discovery porque AT2027 aún no está publicado.
+La simulación se mantiene como discovery y debe recalcularse con AT2027 cuando existan parámetros definitivos.
 
 ### Reserva líquida
 
-Ahorrar dinero mes a mes no reduce la obligación tributaria, pero resuelve el riesgo de caja. Para el escenario octubre-diciembre, una reserva adicional de aproximadamente $150 mil por mes deja un colchón cercano a $450 mil para un saldo anual de ese orden.
+Ahorrar dinero mes a mes no reduce la obligación tributaria, pero resuelve el riesgo de caja. Debe modelarse como `TAX_RESERVE`, separado de gasto y de PPM.
 
-### APV régimen B
+### APV
 
-Con tasa marginal proxy de 4%, cada $1.000.000 aportado reduce el impuesto aproximadamente $40.000 mientras el contribuyente permanezca en el mismo tramo. Escenarios ilustrativos:
-
-| APV B | Impuesto proxy | Ahorro tributario proxy |
-|---|---:|---:|
-| $0 | ~$358 mil | $0 |
-| $1,0 MM | ~$318 mil | ~$40 mil |
-| $3,0 MM | ~$238 mil | ~$120 mil |
-| $5,0 MM | ~$158 mil | ~$200 mil |
-
-Llevar el impuesto proxy a cero requeriría aproximadamente $8,95 MM de reducción adicional de base, por lo que no resulta económicamente razonable aportar ese monto sólo para evitar un impuesto cercano a $358 mil. El valor previsional del APV puede justificarlo por razones distintas al ahorro fiscal inmediato.
-
-### APV régimen A
-
-No reduce la base imponible del año, pero puede otorgar bonificación estatal equivalente al 15% del ahorro elegible, con tope anual normativo. En un tramo marginal bajo, este beneficio puede superar ampliamente el ahorro tributario inmediato del régimen B por cada peso aportado. PTL debe comparar ambos regímenes y no asumir que B es siempre superior.
+PTL debe comparar régimen A, régimen B y sin APV según tramo marginal, beneficio previsional, liquidez y restricciones, sin asumir que una modalidad domina siempre.
 
 ### Gastos presuntos vs efectivos
 
-Para tres meses de contractor, el 30% de gasto presunto del escenario corresponde a aproximadamente $4,67 MM. Los gastos efectivos elegibles tendrían que superar ese monto para mejorar el resultado frente al gasto presunto, además de cumplir requisitos de necesidad, pago y respaldo. Gastos domésticos no deben reclasificarse como profesionales.
+Con honorarios proyectados 2026 de ~$18,07 MM, el 30% presunto ronda **$5,42 MM**. Los gastos efectivos tributariamente deducibles deben superar ese benchmark para dominar al presunto, considerando además depreciación y tratamientos especiales.
 
-### Beneficios adicionales
-
-PTL debe revisar automáticamente beneficios personales aplicables y respaldados, por ejemplo intereses de créditos hipotecarios cuando corresponda, sin asumir que el contribuyente cumple sus requisitos.
-
-### Estrategia discovery preferida para 2026
-
-Para este caso parcial de 2026, la estrategia económicamente más coherente a evaluar primero es:
-
-```text
-30% gastos presuntos
-+ PPM obligatorio
-+ reserva líquida adicional (~$150k por mes contractor)
-+ APV régimen A sólo si existe objetivo real de ahorro previsional
-+ APV B sólo si una simulación completa demuestra beneficio suficiente
-+ revisión de beneficios personales aplicables
-```
-
-Para 2027 completo, la recomendación debe recalcularse desde cero porque doce meses de contractor pueden mover al contribuyente a tramos marginales mayores y cambiar la comparación A vs B.
+La aplicación debe permitir registrar desde ya gastos potenciales como Microsoft 365, ChatGPT, Claude, Google e Internet, incluso si finalmente se usa gasto presunto. Esa historia/evidencia no debe perderse porque puede ser útil en años siguientes o para comparar escenarios.
 
 ## Nuevas capacidades derivadas
 
@@ -225,11 +307,31 @@ Comparar estrategias legales antes del cierre anual:
 3. Gastos presuntos vs gastos efectivos elegibles.
 4. PPM efectivamente pagado vs PPM necesario/proyectado.
 5. Efecto de rentas dependientes simultáneas.
-6. Efecto de cotizaciones previsionales ya enteradas por empleadores.
-7. Salud legal, adicional de Isapre y potencial exceso/excedente.
-8. Beneficios tributarios adicionales sólo cuando sean aplicables y respaldados.
-9. Sensibilidad de tipo de cambio para ingresos extranjeros.
-10. Costo de oportunidad de inmovilizar liquidez para obtener un ahorro tributario.
+6. Efecto de honorarios nacionales y extranjeros simultáneos.
+7. Efecto de cotizaciones previsionales ya enteradas por empleadores.
+8. Salud legal, adicional de Isapre y potencial exceso/excedente.
+9. Beneficios tributarios adicionales sólo cuando sean aplicables y respaldados.
+10. Sensibilidad de tipo de cambio para ingresos extranjeros.
+11. Costo de oportunidad de inmovilizar liquidez para obtener un ahorro tributario.
+12. Impacto incremental de nuevos gastos elegibles.
+
+### Expense Eligibility & Evidence Engine
+
+Requerimiento fuerte derivado del caso real:
+
+- registrar gastos sin presuponer elegibilidad;
+- adjuntar evidencia;
+- reconocer suscripciones recurrentes;
+- manejar proveedor nacional/extranjero y moneda original;
+- clasificar categoría tributaria potencial;
+- soportar uso profesional parcial;
+- distinguir gasto corriente vs activo/depreciación;
+- asociar regla/fuente normativa versionada;
+- producir `deductible_amount` separado del importe pagado;
+- recalcular escenarios presunto vs efectivo;
+- identificar evidencia faltante;
+- permitir revisión humana;
+- integrarse con SII Reconciliation cuando exista fuente oficial/importación disponible.
 
 ### Tax Provisioning Strategy
 
@@ -256,6 +358,11 @@ Y clasificar el resultado:
 
 - Optimización significa planificación tributaria legal; nunca ocultamiento de rentas ni creación de gastos ficticios.
 - Los gastos efectivos requieren elegibilidad y evidencia.
+- Registrar un gasto no lo convierte en deducción.
+- Un gasto personal no se vuelve profesional sólo por haberse pagado durante una jornada de trabajo.
+- AI puede sugerir clasificación/elegibilidad, nunca establecerla como hecho canónico sin regla y confirmación.
+- Gastos mixtos deben conservar criterio y porcentaje de asignación profesional.
+- Activos deben conservar costo de adquisición y tratamiento tributario por separado.
 - Una devolución no debe presentarse como “ganancia”.
 - Un APV no debe presentarse como ahorro de impuesto sin mostrar la liquidez comprometida y las consecuencias de retiro.
 - Parámetros futuros no publicados deben marcarse como hipótesis/proxy.
@@ -266,4 +373,4 @@ Y clasificar el resultado:
 
 `REAL_USE_CASE / DISCOVERY / NOT_IMPLEMENTED`
 
-Este caso debe utilizarse como fixture conceptual y posteriormente como escenario de aceptación anonimizado para las capacidades de contractor internacional, conciliación anual, salud mixta y planificación tributaria.
+Este caso debe utilizarse como fixture conceptual y posteriormente como escenario de aceptación anonimizado para las capacidades de renta mixta, contractor internacional, honorarios nacionales, conciliación anual, salud mixta, planificación tributaria y expense eligibility.
