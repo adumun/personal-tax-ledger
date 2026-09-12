@@ -1,195 +1,213 @@
 # Backlog — Tax Management Expansion
 
-Estado general: `DISCOVERY / BACKLOG`  
+Estado general: `DISCOVERY / BACKLOG / RECONCILED`  
 Fuente estratégica: [`../product/tax-management-evolution-and-ms-store-benchmark-2026-09-11.md`](../product/tax-management-evolution-and-ms-store-benchmark-2026-09-11.md)  
-Extensión contractor internacional: [`../product/international-contractor-income-planning-2026-09-12.md`](../product/international-contractor-income-planning-2026-09-12.md)  
-Caso de uso real anonimizado: [`../product/real-use-case-mixed-income-contractor-tax-planning-2026-09-12.md`](../product/real-use-case-mixed-income-contractor-tax-planning-2026-09-12.md)  
+Conciliación de taxonomía: [`../product/tax-capability-reconciliation-2026-09-12.md`](../product/tax-capability-reconciliation-2026-09-12.md)  
+Extensión contractor: [`../product/international-contractor-income-planning-2026-09-12.md`](../product/international-contractor-income-planning-2026-09-12.md)  
+Caso real anonimizado: [`../product/real-use-case-mixed-income-contractor-tax-planning-2026-09-12.md`](../product/real-use-case-mixed-income-contractor-tax-planning-2026-09-12.md)  
 Estrategia local/cloud/AI: [`../product/tax-ecosystem-local-cloud-ai-strategy-2026-09-12.md`](../product/tax-ecosystem-local-cloud-ai-strategy-2026-09-12.md)
 
-## Propósito
+## Regla de nomenclatura
 
-Convertir la dirección de producto TAX en slices ejecutables sin interrumpir el backlog P0 ya activo. Este documento no declara capacidades implementadas.
+`TAX-01..TAX-12` está reservado para las macro-capacidades canónicas definidas el 2026-09-11. Las líneas de producto derivadas del caso real usan `PTL-EXT-xx`; no se numeran como `TAX-13+` salvo promoción transversal explícita.
 
-## Epics
+Los identificadores transitorios `PTL-TAX-11..14` quedan deprecados.
 
-### PTL-TAX-01 — Annual Tax Workspace
-Consolidar el año tributario como aggregate/lifecycle común para datos, reglas, readiness, reconciliación y cierre.
+## Macro-capacidades TAX canónicas
 
-### PTL-TAX-02 — Tax Readiness
-Checklist dinámico de antecedentes, estados de completitud y progreso anual explicable.
+### TAX-01 — Annual Tax Workspace
+Año tributario como aggregate/lifecycle común para datos, reglas, readiness, conciliación, cálculo, health y cierre.
 
-### PTL-TAX-03 — Tax Evidence Vault
-Evidencia asociada a hechos tributarios con provenance, checksum, revisión y deduplicación.
+### TAX-02 — Tax Data Acquisition
+Entrada manual, quick entry, importaciones estructuradas, adapters oficiales permitidos, ingestion documental y provenance.
 
-### PTL-TAX-04 — Tax Ledger / Timeline
-Ledger cronológico navegable con origen, período, clasificación, evidencia e impacto tributario.
+### TAX-03 — Tax Evidence Vault
+Evidencia vinculada a hechos tributarios con metadata, checksum, revisión, deduplicación y raw evidence preservado.
 
-### PTL-TAX-05 — Projection vs Actual
-Comparar acumulado real, proyección de cierre y escenarios alternativos sin contaminar el estado real.
+### TAX-04 — Tax Ledger
+Registro cronológico de hechos con separación entre evento económico, clasificación tributaria y efecto calculado.
 
-### PTL-TAX-06 — Tax Data Acquisition
-Contratos y adapters para entrada manual, importaciones estructuradas y futuras fuentes oficiales/SII permitidas.
+### TAX-05 — Tax Reconciliation
+Conciliación determinista/auditable entre estado local y fuentes externas oficiales, especialmente SII, sin sobrescritura silenciosa.
 
-### PTL-TAX-07 — SII Reconciliation
-Conciliar datos locales con datos reportados/obtenidos desde SII mediante mecanismos oficiales o importaciones asistidas, clasificando diferencias y dejando audit trail.
+### TAX-06 — Tax Readiness
+Checklist dinámico derivado de la situación real y del estado de conciliación. Un dato discrepante no cuenta como listo.
 
-### PTL-TAX-08 — Annual Tax Health
-Vista ejecutiva: resultado actual/proyectado, readiness, conciliación, drivers, riesgos y próximas acciones.
+### TAX-07 — Tax Calculation
+Cálculos puros, versionados por año/regla, con inputs explícitos y sin I/O externo dentro del core.
 
-### PTL-TAX-09 — Tax Year Closure
-Snapshot reproducible de datos, reglas, conciliación, evidencia y resultado; reapertura controlada.
+### TAX-08 — Tax Explainability
+Regla/fórmula, inputs/orígenes, pasos, advertencias, supuestos y drill-down a ledger/evidencia.
 
-### PTL-TAX-10 — Portability, Backup & Privacy
-Backup/restore, exportación portable, control de datos y políticas de seguridad/retención.
+### TAX-09 — Tax Projection & Scenarios
+Actual-to-date, projected close y escenarios alternativos sin mutar el estado real hasta confirmación.
 
-### PTL-TAX-11 — International Contractor Income Planning
-Orquestar las capacidades TAX existentes para ingresos contractor internacionales, inicialmente con foco en ingresos en USD para contribuyentes en Chile.
+### TAX-10 — Annual Tax Health
+Superficie ejecutiva con resultado actual/proyectado, readiness, reconciliación, drivers, riesgos y próximas acciones.
 
-**Objetivo funcional:** responder cuánto dinero recibido puede considerarse realmente disponible y cuánto debe reservarse, además de resolver el cálculo inverso desde un neto objetivo hacia el gross requerido.
+### TAX-11 — Tax Year Closure
+Snapshot reproducible del año, reglas usadas, conciliación/readiness final, evidencia, resultado y reapertura controlada.
 
-**Slices candidatos:**
+### TAX-12 — Tax Portability, Backup & Privacy
+Export/backup/restore, separación de datos y binarios, eliminación/exportación, retención y seguridad según threat model.
 
-- `PTL-TAX-11A — Foreign Currency Income`: monto/moneda original, valoración CLP, provenance del tipo de cambio y fees/spread registrados.
-- `PTL-TAX-11B — Obligation Provisioning`: separar `received`, `reserved`, `declared`, `paid`, `reconciled` y `available`.
-- `PTL-TAX-11C — Gross-to-Net Contractor`: proyectar impuestos, previsión, salud y demás componentes soportados desde un gross contractual.
-- `PTL-TAX-11D — Net-to-Gross Target`: calcular cuánto debe cobrarse/facturarse para alcanzar un neto objetivo configurable.
-- `PTL-TAX-11E — Contractor Scenario Sensitivity`: comparar monto USD, tipo de cambio, carga efectiva y supuestos sin alterar el ledger real.
-- `PTL-TAX-11F — Contractor SII Reconciliation`: vincular ingresos, boletas/antecedentes, declaraciones/pagos y resultado anual mediante la infraestructura de adquisición/conciliación existente.
+## Extensiones de producto PTL
 
-**Dependencias principales:** `PTL-TAX-01`, `PTL-TAX-04`, `PTL-TAX-05`, `PTL-TAX-06`, `PTL-TAX-07` y reglas puras/versionadas de cálculo. No debe implementarse como calculadora aislada ni acoplarse a Deel u otro proveedor de pagos.
+### PTL-EXT-01 — International Contractor Income Planning
 
-### PTL-TAX-12 — Tax Provisioning & Optimization Planner
-Planificar legalmente el cierre tributario antes de Operación Renta, buscando evitar subprovisión, comparar beneficios/deducciones y mostrar el costo económico de cada estrategia.
+Orquesta TAX-01/02/04/05/07/08/09/10 para ingresos contractor nacionales/internacionales y moneda extranjera.
 
-**Objetivo funcional:** permitir que el usuario responda durante el año “si sigo así, ¿cuánto pagaré o me devolverán y qué acciones legales todavía puedo tomar para mejorar el resultado?”.
+**Slices:**
 
-**Slices candidatos:**
+- `PTL-EXT-01A — Foreign Currency Income`
+- `PTL-EXT-01B — Obligation Provisioning`
+- `PTL-EXT-01C — Gross-to-Net Contractor`
+- `PTL-EXT-01D — Net-to-Gross Target`
+- `PTL-EXT-01E — Contractor Scenario Sensitivity`
+- `PTL-EXT-01F — Contractor SII Reconciliation`
 
-- `PTL-TAX-12A — Projected Annual Settlement`: estimar impuesto, créditos, PPM, cotizaciones y saldo de cierre con trazabilidad.
-- `PTL-TAX-12B — Monthly Reserve Recommendation`: recomendar reserva mensual para llegar al cierre sin sorpresa de caja.
-- `PTL-TAX-12C — APV Strategy Comparator`: comparar sin APV, APV régimen A y APV régimen B, mostrando efecto tributario, liquidez comprometida, bonificación/beneficio y consecuencias de retiro.
-- `PTL-TAX-12D — Presumed vs Actual Expense Comparator`: comparar 30% de gasto presunto versus gastos efectivos elegibles y respaldados, sin permitir doble rebaja.
-- `PTL-TAX-12E — Mixed Income Contribution Reconciliation`: combinar renta dependiente + honorarios, cotizaciones ya enteradas, topes y salud adicional/excesos.
-- `PTL-TAX-12F — Legal Tax Opportunity Scanner`: detectar beneficios/deducciones aplicables sólo con evidencia y reglas versionadas; nunca generar gastos ficticios ni ocultar renta.
-- `PTL-TAX-12G — Optimization Explainability`: mostrar ahorro tributario por peso comprometido, costo de oportunidad, restricciones y por qué una estrategia domina o no a otra.
+**Reglas:** monto/moneda original se preservan; CLP es derivado con provenance; `received != disposable`; no acoplar a Deel ni a un pagador concreto.
 
-**Resultado esperado:** clasificar la posición anual como `UNDERPROVISIONED`, `ON_TARGET`, `OVERPROVISIONED`, `REFUND_EXPECTED`, `PAYMENT_EXPECTED` o `INSUFFICIENT_DATA` y proponer acciones explicables.
+### PTL-EXT-02 — Tax Provisioning & Optimization Planner
 
-**Principio de producto:** una devolución alta no es el objetivo en sí. PTL debe optimizar la carga legal cuando sea económicamente razonable, preservar liquidez y minimizar sorpresas de cierre.
+Permitir responder durante el año: “si sigo así, ¿cuánto pagaré o me devolverán, cuánto debo reservar y qué acciones legales todavía puedo evaluar?”.
 
-### PTL-TAX-13 — Tax Document Intelligence & Cloud Capability Layer
-Separar capacidades locales, providers de AI opcionales y servicios cloud administrados sin duplicar el dominio tributario.
+**Slices:**
 
-**Objetivo funcional:** permitir que un documento como una liquidación, boleta, certificado, factura o recibo pueda transformarse en candidatos estructurados y semánticamente validados, manteniendo siempre confirmación/auditoría antes de afectar el ledger canónico.
+- `PTL-EXT-02A — Projected Annual Settlement`
+- `PTL-EXT-02B — Monthly Reserve Recommendation`
+- `PTL-EXT-02C — APV Strategy Comparator`
+- `PTL-EXT-02D — Presumed vs Actual Expense Comparator`
+- `PTL-EXT-02E — Mixed Income Contribution Reconciliation`
+- `PTL-EXT-02F — Legal Tax Opportunity Scanner`
+- `PTL-EXT-02G — Optimization Explainability`
 
-**Slices candidatos:**
+**Estados objetivo:** `UNDERPROVISIONED`, `ON_TARGET`, `OVERPROVISIONED`, `REFUND_EXPECTED`, `PAYMENT_EXPECTED`, `INSUFFICIENT_DATA`.
 
-- `PTL-TAX-13A — Evidence Ingestion Contract`: documento/evidencia original, metadata, checksum, provenance y lifecycle de procesamiento.
-- `PTL-TAX-13B — Extraction Candidate Schema`: contrato neutral para campos extraídos, valores normalizados, confidence, warnings y referencias a evidencia.
-- `PTL-TAX-13C — Tax Semantic Validation`: reglas para clasificar AFP, comisión, salud legal, salud adicional, deuda privada, impuesto, renta, gasto, activo, etc.
-- `PTL-TAX-13D — Human Confirmation Workflow`: preview, edición, aceptación/rechazo y promoción explícita a canonical ledger.
-- `PTL-TAX-13E — Managed Cloud Document Intelligence`: provider administrado, jobs, cuotas, observabilidad y costos de inferencia.
-- `PTL-TAX-13F — Local/BYO Provider Adapter`: contrato que permita, en una fase posterior, AI local o API provista por el usuario sin cambiar el dominio.
-- `PTL-TAX-13G — Cloud Evidence & Sync`: almacenamiento administrado y sincronización opt-in con identidad, versiones, conflicto y provenance.
-- `PTL-TAX-13H — Continuous Tax Monitoring`: eventos/alertas derivados de cambios en ledger, evidencia, proyección y posición de provisionamiento.
+**Principio:** optimizar carga legal cuando sea económicamente racional y minimizar sorpresas; una devolución grande no es éxito por sí misma.
 
-**Principio de producto:** Desktop Free sigue siendo útil y completo manualmente. Cloud monetiza automatización, integración e inteligencia continua; AI es un proveedor asistivo y nunca autoridad tributaria.
+### PTL-EXT-03 — Tax Document Intelligence & Cloud Capability Layer
 
-### PTL-TAX-14 — Expense Eligibility & Evidence Engine
-Convertir gastos registrados y su evidencia en candidatos tributarios evaluables, diferenciando importe pagado de monto efectivamente deducible y alimentando continuamente la comparación `presunto vs efectivo`.
+Extiende TAX-02/03/05/06 con extracción asistida, candidate data y servicios cloud sin duplicar el Tax Core.
 
-**Objetivo funcional:** permitir que el usuario registre todos sus gastos potencialmente profesionales —aunque finalmente no sean deducibles— y que PTL determine su estado, evidencia, tratamiento y efecto proyectado sin contaminar el ledger tributario canónico.
+**Slices:**
 
-**Slices candidatos:**
+- `PTL-EXT-03A — Evidence Ingestion Contract`
+- `PTL-EXT-03B — Extraction Candidate Schema`
+- `PTL-EXT-03C — Tax Semantic Validation`
+- `PTL-EXT-03D — Human Confirmation Workflow`
+- `PTL-EXT-03E — Managed Cloud Document Intelligence`
+- `PTL-EXT-03F — Local/BYO Provider Adapter`
+- `PTL-EXT-03G — Cloud Evidence & Sync`
+- `PTL-EXT-03H — Continuous Tax Monitoring`
 
-- `PTL-TAX-14A — Expense Registry`: fecha, proveedor, descripción, monto, moneda, categoría, recurrencia, origen y notas.
-- `PTL-TAX-14B — Expense Evidence`: factura/boleta/recibo/comprobante, checksum, provenance, vínculo al gasto y estado de suficiencia documental.
-- `PTL-TAX-14C — Eligibility Assessment`: estados `ELIGIBLE`, `POTENTIALLY_ELIGIBLE`, `NOT_ELIGIBLE`, `NEEDS_REVIEW`, con rationale y regla/fuente versionada.
-- `PTL-TAX-14D — Professional Use Allocation`: porcentaje de uso profesional para gastos mixtos como Internet, telefonía u otros casos soportados; nunca asumir 100% silenciosamente.
-- `PTL-TAX-14E — Asset & Depreciation Treatment`: distinguir gasto corriente, activo depreciable y tratamientos especiales; separar costo de adquisición de `deductible_amount` anual.
-- `PTL-TAX-14F — Recurring Digital Subscriptions`: modelar Microsoft 365, AI, SaaS, cloud, hosting, dominios y otros servicios periódicos, nacionales o extranjeros.
-- `PTL-TAX-14G — Foreign Supplier Evidence`: conservar moneda original, proveedor, fecha, documento extranjero, conversión y criterios de respaldo.
-- `PTL-TAX-14H — Presumed vs Actual Continuous Comparator`: recalcular continuamente ambos escenarios, benchmark presunto, brecha a superar e impacto tributario incremental.
-- `PTL-TAX-14I — Expense Readiness`: detectar evidencia faltante, categorización dudosa, allocation pendiente, tratamiento no resuelto o regla aún no disponible.
-- `PTL-TAX-14J — Expense Document Intelligence`: extraer desde recibos/facturas candidatos de proveedor, fecha, monto, moneda, categoría y recurrencia, sujetos al lifecycle de PTL-TAX-13.
+**Lifecycle obligatorio:**
 
-**Requerimientos fuertes del caso real:**
+`RAW_EVIDENCE -> EXTRACTED_CANDIDATE -> SCHEMA_VALIDATED -> TAX_DOMAIN_VALIDATED -> USER_CONFIRMED -> CANONICAL_LEDGER`
 
-- Microsoft 365, ChatGPT, Claude, servicios Google e Internet deben poder registrarse y evaluarse como candidatos profesionales.
+Desktop Free sigue útil manualmente; Cloud monetiza automatización e inteligencia continua; AI nunca es autoridad tributaria.
+
+### PTL-EXT-04 — Expense Eligibility & Evidence Engine
+
+Convertir gastos registrados y evidencia en candidatos tributarios evaluables y alimentar continuamente el escenario presunto vs efectivo.
+
+**Slices:**
+
+- `PTL-EXT-04A — Expense Registry`
+- `PTL-EXT-04B — Expense Evidence`
+- `PTL-EXT-04C — Eligibility Assessment`
+- `PTL-EXT-04D — Professional Use Allocation`
+- `PTL-EXT-04E — Asset & Depreciation Treatment`
+- `PTL-EXT-04F — Recurring Digital Subscriptions`
+- `PTL-EXT-04G — Foreign Supplier Evidence`
+- `PTL-EXT-04H — Presumed vs Actual Continuous Comparator`
+- `PTL-EXT-04I — Expense Readiness`
+- `PTL-EXT-04J — Expense Document Intelligence`
+
+**Requerimientos fuertes derivados del caso real:**
+
+- Microsoft 365, ChatGPT, Claude, servicios Google e Internet pueden registrarse como candidatos profesionales.
 - Registrar no significa deducir.
-- Internet y otros gastos mixtos requieren asignación profesional explícita y justificable.
-- Hardware como computador/tablet debe poder registrarse aunque el beneficio del ejercicio dependa de depreciación/tratamiento.
-- El sistema debe mostrar cuánto representa el gasto presunto del año y cuánto suman los gastos efectivos deducibles aceptados/proyectados.
-- El usuario debe poder conservar evidencia de gastos efectivos incluso si finalmente declara por gasto presunto.
-- La elección anual no debe destruir información ni impedir análisis histórico/futuro.
+- Gastos mixtos requieren allocation profesional explícito y justificable.
+- Hardware/computador/tablet deben soportar tratamiento como activo/depreciación cuando corresponda.
+- Deben coexistir y compararse `presumed expense` y `actual deductible expense` sin destruir evidencia.
+- `paid_amount`, `professional_allocated_amount` y `deductible_amount` son conceptos distintos.
+- La evaluación guarda `rule source`, `effective date`, provenance y estado de revisión.
 
-## Dependencias propuestas
+## Caso real de aceptación conceptual
+
+El fixture conceptual actual debe soportar simultáneamente:
+
+- renta dependiente;
+- BHE nacional de septiembre por CLP 2.500.000 bruto;
+- eventual contractor internacional desde octubre por USD 5.500/mes;
+- retenciones/PPM;
+- AFP, salud legal, adicional Isapre y potencial exceso/excedente;
+- descuentos privados de planilla separados de tributación;
+- APV y provisión mensual;
+- gastos presuntos versus efectivos;
+- suscripciones profesionales recurrentes e Internet;
+- evidencia documental y futura extracción asistida.
+
+## Dependencias
 
 ```mermaid
 flowchart LR
-  W[Annual Tax Workspace] --> R[Tax Readiness]
-  W --> L[Tax Ledger]
-  W --> A[Tax Data Acquisition]
-  R --> E[Tax Evidence]
-  L --> P[Projection vs Actual]
-  A --> C[SII Reconciliation]
-  E --> C
-  L --> C
-  C --> H[Annual Tax Health]
-  P --> H
-  R --> H
-  H --> Y[Tax Year Closure]
-  W --> B[Portability/Backup/Privacy]
+  W[TAX-01 Annual Workspace] --> A[TAX-02 Data Acquisition]
+  A --> E[TAX-03 Evidence]
+  W --> L[TAX-04 Ledger]
+  A --> R[TAX-05 Reconciliation]
+  E --> R
+  L --> R
+  R --> RD[TAX-06 Readiness]
+  L --> C[TAX-07 Calculation]
+  R --> C
+  C --> X[TAX-08 Explainability]
+  C --> P[TAX-09 Projection & Scenarios]
+  P --> H[TAX-10 Annual Tax Health]
+  RD --> H
+  X --> H
+  H --> Y[TAX-11 Tax Year Closure]
+  W --> B[TAX-12 Portability/Backup/Privacy]
 
-  W --> IC[International Contractor Income Planning]
+  A --> IC[PTL-EXT-01 Contractor]
   L --> IC
-  P --> IC
-  A --> IC
   C --> IC
-  IC --> H
+  P --> IC
 
-  H --> O[Tax Provisioning & Optimization Planner]
+  H --> O[PTL-EXT-02 Optimization]
   P --> O
   C --> O
-  R --> O
-  O --> Y
+  RD --> O
 
-  E --> D[Tax Document Intelligence]
-  A --> D
+  A --> D[PTL-EXT-03 Document Intelligence]
+  E --> D
   D --> L
-  D --> C
-  D --> H
+  D --> R
 
-  E --> X[Expense Eligibility & Evidence]
-  A --> X
-  D --> X
-  X --> L
-  X --> P
-  X --> O
-  X --> C
+  A --> G[PTL-EXT-04 Expense Eligibility]
+  E --> G
+  D --> G
+  G --> L
+  G --> C
+  G --> P
+  G --> O
 ```
 
 ## Reglas de ejecución
 
 - No integrar SII directamente en `packages/core`.
-- Matching/reconciliación debe ser auditable y no destructivo.
-- Datos externos no sobrescriben silenciosamente información local.
-- Preferir mecanismos oficiales/documentados; importación asistida antes que automatización frágil.
+- Fuentes externas no sobrescriben silenciosamente el ledger.
+- Preferir servicio oficial documentado -> export oficial -> importación asistida -> entrada manual controlada.
+- Matching/reconciliación es auditable y no destructivo.
 - Provisiones no equivalen a declaraciones, pagos ni impuesto anual definitivo.
-- Ingresos en moneda extranjera conservan monto/moneda originales; la conversión a CLP es un derivado con provenance.
-- No presentar dinero recibido como neto disponible mientras existan obligaciones conocidas o estimadas sin provisionar.
-- No acoplar el dominio a Deel ni a un intermediario específico.
-- Optimización tributaria significa uso legal y respaldado de alternativas normativas; nunca evasión, ocultamiento de renta o gastos ficticios.
-- APV debe evaluarse por efecto tributario + liquidez + beneficio previsional; no recomendarlo sólo porque reduzca impuesto.
-- Gastos presuntos y efectivos deben ser alternativas mutuamente excluyentes cuando así lo determine la regla aplicable.
-- Un gasto registrado no es automáticamente un gasto deducible.
-- `paid_amount`, `professional_allocated_amount` y `deductible_amount` deben ser conceptos distintos.
-- Los activos deben preservar costo de adquisición, vida/tratamiento y deducción anual sin colapsarlos en un solo campo.
-- La evaluación de elegibilidad debe guardar rule source/effective date/provenance y estado de confianza/revisión.
-- AI produce `candidate data`; no produce hechos canónicos sin validación/confirmación.
-- Ningún SDK o proveedor AI debe entrar a `packages/core`.
-- Local, BYO y Cloud deben converger sobre los mismos contratos de dominio y candidate schema.
-- Cloud no reimplementa cálculo tributario; compone el mismo core/application con adapters distintos.
-- Sync debe ser explícito y opt-in; no se introduce como side effect de usar la app local.
-- Cada epic debe definir DoR/DoD, modelo, contratos, migrations, pruebas y evidencia antes de implementación.
-- La secuencia final debe conciliarse con el backlog P0 vigente antes de comenzar.
+- Ingresos en moneda extranjera conservan monto/moneda original y provenance de conversión.
+- Gastos presuntos y efectivos se comparan como alternativas cuando la norma lo determine; no se mezclan indebidamente.
+- Un gasto registrado no es automáticamente deducible.
+- AI produce candidate data, nunca hechos canónicos sin confirmación.
+- Ningún SDK/proveedor AI entra al Tax Core.
+- Local/BYO/Cloud convergen sobre contratos comunes.
+- Cloud compone el mismo dominio; no reimplementa cálculo tributario.
+- Sync es explícito y opt-in.
+- Cada slice requiere DoR/DoD, reglas/fuentes, contratos, migraciones si aplican, tests y evidencia.
+- La secuencia final se concilia con P0 antes de implementación.
