@@ -13,6 +13,8 @@ Este directorio contiene el backlog técnico y de producto de Personal Tax Ledge
 - Las nuevas Stories cercanas a implementación deben seguir [`story-definition-and-implementation-readiness.md`](story-definition-and-implementation-readiness.md): Story para valor visible, Task para habilitación técnica determinista y Spike para reducción de incertidumbre.
 - Toda Story debe declarar impacto UI. Si existe impacto, la evidencia de diseño proporcional (L1/L2/L3) forma parte de DoR; el implementador no debe inventar ubicación, flujo, estados o copy material faltante.
 - Las dependencias deben conservar semántica (`REQUIRES`, `ENABLES`, `DATA_DEPENDS_ON`, `RULE_DEPENDS_ON`, `UI_DEPENDS_ON`, `INFRA_DEPENDS_ON`, `SOFT_DEPENDS_ON`) para permitir análisis posterior de DAG y ruta crítica.
+- Cuando el backlog cercano a implementación aporte valor como especificación versionada, debe permanecer navegable desde este índice o desde [`stories/README.md`](stories/README.md), preservando jerarquía Story -> Task/Spike/design/evidence y referencias cruzadas materiales.
+- El backlog del repo no reemplaza el execution board: estado operativo diario, asignación, sprint/cola y fechas pueden vivir en GitHub Issues/Jira, manteniendo enlaces estables hacia la especificación del repo.
 
 ## Prioridad activa
 
@@ -30,6 +32,7 @@ La expansión TAX se mantiene en discovery/backlog y no desplaza automáticament
 - [`ux-and-product-polish.md`](ux-and-product-polish.md): hallazgos de usabilidad, overflow, layout, naming y consistencia visual que deben resolverse antes del UAT no técnico según severidad.
 - [`tax-management-expansion.md`](tax-management-expansion.md): epics propuestos para Annual Tax Workspace, Readiness, Evidence, Ledger, Projection vs Actual, Data Acquisition, SII Reconciliation, Annual Tax Health, Year Closure y Portability/Privacy.
 - [`story-definition-and-implementation-readiness.md`](story-definition-and-implementation-readiness.md): adopción PTL del contrato de Stories, diseño UI/interaction, enabling work, dependencias y futura ruta crítica.
+- [`stories/README.md`](stories/README.md): índice jerárquico y navegable de los bloques de Stories cercanos a implementación, con referencias a Tasks, Spikes, diseño y análisis de dependencias.
 - [`stories/01-annual-workspace/`](stories/01-annual-workspace/README.md): primer bloque dogfood completo; Stories AW-001..006, contrato UI L1/L2, Tasks/Spike habilitadores, DAG y camino de dependencias provisional.
 
 ## Refinamiento TAX por bloques
