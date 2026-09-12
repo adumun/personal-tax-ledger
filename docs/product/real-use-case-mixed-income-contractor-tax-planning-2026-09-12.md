@@ -166,6 +166,54 @@ Resultados posibles deseables:
 - cero sorpresas materiales;
 - explicación completa de por qué se llegó a ese resultado.
 
+## Evaluación provisional de estrategias 2026
+
+Usando como proxy la tabla IGC AT2026 sobre una base combinada preliminar de ~$20,21 MM, el impuesto teórico de referencia es de aproximadamente $358 mil. Este cálculo es exclusivamente de discovery porque AT2027 aún no está publicado.
+
+### Reserva líquida
+
+Ahorrar dinero mes a mes no reduce la obligación tributaria, pero resuelve el riesgo de caja. Para el escenario octubre-diciembre, una reserva adicional de aproximadamente $150 mil por mes deja un colchón cercano a $450 mil para un saldo anual de ese orden.
+
+### APV régimen B
+
+Con tasa marginal proxy de 4%, cada $1.000.000 aportado reduce el impuesto aproximadamente $40.000 mientras el contribuyente permanezca en el mismo tramo. Escenarios ilustrativos:
+
+| APV B | Impuesto proxy | Ahorro tributario proxy |
+|---|---:|---:|
+| $0 | ~$358 mil | $0 |
+| $1,0 MM | ~$318 mil | ~$40 mil |
+| $3,0 MM | ~$238 mil | ~$120 mil |
+| $5,0 MM | ~$158 mil | ~$200 mil |
+
+Llevar el impuesto proxy a cero requeriría aproximadamente $8,95 MM de reducción adicional de base, por lo que no resulta económicamente razonable aportar ese monto sólo para evitar un impuesto cercano a $358 mil. El valor previsional del APV puede justificarlo por razones distintas al ahorro fiscal inmediato.
+
+### APV régimen A
+
+No reduce la base imponible del año, pero puede otorgar bonificación estatal equivalente al 15% del ahorro elegible, con tope anual normativo. En un tramo marginal bajo, este beneficio puede superar ampliamente el ahorro tributario inmediato del régimen B por cada peso aportado. PTL debe comparar ambos regímenes y no asumir que B es siempre superior.
+
+### Gastos presuntos vs efectivos
+
+Para tres meses de contractor, el 30% de gasto presunto del escenario corresponde a aproximadamente $4,67 MM. Los gastos efectivos elegibles tendrían que superar ese monto para mejorar el resultado frente al gasto presunto, además de cumplir requisitos de necesidad, pago y respaldo. Gastos domésticos no deben reclasificarse como profesionales.
+
+### Beneficios adicionales
+
+PTL debe revisar automáticamente beneficios personales aplicables y respaldados, por ejemplo intereses de créditos hipotecarios cuando corresponda, sin asumir que el contribuyente cumple sus requisitos.
+
+### Estrategia discovery preferida para 2026
+
+Para este caso parcial de 2026, la estrategia económicamente más coherente a evaluar primero es:
+
+```text
+30% gastos presuntos
++ PPM obligatorio
++ reserva líquida adicional (~$150k por mes contractor)
++ APV régimen A sólo si existe objetivo real de ahorro previsional
++ APV B sólo si una simulación completa demuestra beneficio suficiente
++ revisión de beneficios personales aplicables
+```
+
+Para 2027 completo, la recomendación debe recalcularse desde cero porque doce meses de contractor pueden mover al contribuyente a tramos marginales mayores y cambiar la comparación A vs B.
+
 ## Nuevas capacidades derivadas
 
 ### Tax Optimization Planner
