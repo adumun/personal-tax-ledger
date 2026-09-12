@@ -30,3 +30,8 @@ La expansión TAX se mantiene en discovery/backlog y no desplaza automáticament
 - [`ux-and-product-polish.md`](ux-and-product-polish.md): hallazgos de usabilidad, overflow, layout, naming y consistencia visual que deben resolverse antes del UAT no técnico según severidad.
 - [`tax-management-expansion.md`](tax-management-expansion.md): epics propuestos para Annual Tax Workspace, Readiness, Evidence, Ledger, Projection vs Actual, Data Acquisition, SII Reconciliation, Annual Tax Health, Year Closure y Portability/Privacy.
 - [`story-definition-and-implementation-readiness.md`](story-definition-and-implementation-readiness.md): adopción PTL del contrato de Stories, diseño UI/interaction, enabling work, dependencias y futura ruta crítica.
+- [`stories/01-annual-workspace/`](stories/01-annual-workspace/README.md): primer bloque dogfood completo; Stories AW-001..006, contrato UI L1/L2, Tasks/Spike habilitadores, DAG y camino de dependencias provisional.
+
+## Refinamiento TAX por bloques
+
+El refinamiento cercano a implementación se inicia con `Block 01 — Annual Workspace & Tax Profile`. Este bloque no altera automáticamente la prioridad P0 activa, pero sí es la referencia para validar `STD-WMS-STORY-001` y `STD-EXP-UIDEF-001` antes de replicar el método al resto de TAX.
