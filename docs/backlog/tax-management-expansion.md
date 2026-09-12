@@ -1,7 +1,8 @@
 # Backlog — Tax Management Expansion
 
 Estado general: `DISCOVERY / BACKLOG`  
-Fuente estratégica: [`../product/tax-management-evolution-and-ms-store-benchmark-2026-09-11.md`](../product/tax-management-evolution-and-ms-store-benchmark-2026-09-11.md)
+Fuente estratégica: [`../product/tax-management-evolution-and-ms-store-benchmark-2026-09-11.md`](../product/tax-management-evolution-and-ms-store-benchmark-2026-09-11.md)  
+Extensión contractor internacional: [`../product/international-contractor-income-planning-2026-09-12.md`](../product/international-contractor-income-planning-2026-09-12.md)
 
 ## Propósito
 
@@ -39,6 +40,22 @@ Snapshot reproducible de datos, reglas, conciliación, evidencia y resultado; re
 ### PTL-TAX-10 — Portability, Backup & Privacy
 Backup/restore, exportación portable, control de datos y políticas de seguridad/retención.
 
+### PTL-TAX-11 — International Contractor Income Planning
+Orquestar las capacidades TAX existentes para ingresos contractor internacionales, inicialmente con foco en ingresos en USD para contribuyentes en Chile.
+
+**Objetivo funcional:** responder cuánto dinero recibido puede considerarse realmente disponible y cuánto debe reservarse, además de resolver el cálculo inverso desde un neto objetivo hacia el gross requerido.
+
+**Slices candidatos:**
+
+- `PTL-TAX-11A — Foreign Currency Income`: monto/moneda original, valoración CLP, provenance del tipo de cambio y fees/spread registrados.
+- `PTL-TAX-11B — Obligation Provisioning`: separar `received`, `reserved`, `declared`, `paid`, `reconciled` y `available`.
+- `PTL-TAX-11C — Gross-to-Net Contractor`: proyectar impuestos, previsión, salud y demás componentes soportados desde un gross contractual.
+- `PTL-TAX-11D — Net-to-Gross Target`: calcular cuánto debe cobrarse/facturarse para alcanzar un neto objetivo configurable.
+- `PTL-TAX-11E — Contractor Scenario Sensitivity`: comparar monto USD, tipo de cambio, carga efectiva y supuestos sin alterar el ledger real.
+- `PTL-TAX-11F — Contractor SII Reconciliation`: vincular ingresos, boletas/antecedentes, declaraciones/pagos y resultado anual mediante la infraestructura de adquisición/conciliación existente.
+
+**Dependencias principales:** `PTL-TAX-01`, `PTL-TAX-04`, `PTL-TAX-05`, `PTL-TAX-06`, `PTL-TAX-07` y reglas puras/versionadas de cálculo. No debe implementarse como calculadora aislada ni acoplarse a Deel u otro proveedor de pagos.
+
 ## Dependencias propuestas
 
 ```mermaid
@@ -56,6 +73,13 @@ flowchart LR
   R --> H
   H --> Y[Tax Year Closure]
   W --> B[Portability/Backup/Privacy]
+
+  W --> IC[International Contractor Income Planning]
+  L --> IC
+  P --> IC
+  A --> IC
+  C --> IC
+  IC --> H
 ```
 
 ## Reglas de ejecución
@@ -64,5 +88,9 @@ flowchart LR
 - Matching/reconciliación debe ser auditable y no destructivo.
 - Datos externos no sobrescriben silenciosamente información local.
 - Preferir mecanismos oficiales/documentados; importación asistida antes que automatización frágil.
+- Provisiones no equivalen a declaraciones, pagos ni impuesto anual definitivo.
+- Ingresos en moneda extranjera conservan monto/moneda originales; la conversión a CLP es un derivado con provenance.
+- No presentar dinero recibido como neto disponible mientras existan obligaciones conocidas o estimadas sin provisionar.
+- No acoplar el dominio a Deel ni a un intermediario específico.
 - Cada epic debe definir DoR/DoD, modelo, contratos, migrations, pruebas y evidencia antes de implementación.
 - La secuencia final debe conciliarse con el backlog P0 vigente antes de comenzar.
