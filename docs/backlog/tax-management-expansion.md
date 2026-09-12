@@ -80,13 +80,13 @@ Planificar legalmente el cierre tributario antes de Operación Renta, buscando e
 ### PTL-TAX-13 — Tax Document Intelligence & Cloud Capability Layer
 Separar capacidades locales, providers de AI opcionales y servicios cloud administrados sin duplicar el dominio tributario.
 
-**Objetivo funcional:** permitir que un documento como una liquidación, boleta o certificado pueda transformarse en candidatos estructurados y semánticamente validados, manteniendo siempre confirmación/auditoría antes de afectar el ledger canónico.
+**Objetivo funcional:** permitir que un documento como una liquidación, boleta, certificado, factura o recibo pueda transformarse en candidatos estructurados y semánticamente validados, manteniendo siempre confirmación/auditoría antes de afectar el ledger canónico.
 
 **Slices candidatos:**
 
 - `PTL-TAX-13A — Evidence Ingestion Contract`: documento/evidencia original, metadata, checksum, provenance y lifecycle de procesamiento.
 - `PTL-TAX-13B — Extraction Candidate Schema`: contrato neutral para campos extraídos, valores normalizados, confidence, warnings y referencias a evidencia.
-- `PTL-TAX-13C — Tax Semantic Validation`: reglas para clasificar AFP, comisión, salud legal, salud adicional, deuda privada, impuesto, renta, etc.
+- `PTL-TAX-13C — Tax Semantic Validation`: reglas para clasificar AFP, comisión, salud legal, salud adicional, deuda privada, impuesto, renta, gasto, activo, etc.
 - `PTL-TAX-13D — Human Confirmation Workflow`: preview, edición, aceptación/rechazo y promoción explícita a canonical ledger.
 - `PTL-TAX-13E — Managed Cloud Document Intelligence`: provider administrado, jobs, cuotas, observabilidad y costos de inferencia.
 - `PTL-TAX-13F — Local/BYO Provider Adapter`: contrato que permita, en una fase posterior, AI local o API provista por el usuario sin cambiar el dominio.
@@ -94,6 +94,34 @@ Separar capacidades locales, providers de AI opcionales y servicios cloud admini
 - `PTL-TAX-13H — Continuous Tax Monitoring`: eventos/alertas derivados de cambios en ledger, evidencia, proyección y posición de provisionamiento.
 
 **Principio de producto:** Desktop Free sigue siendo útil y completo manualmente. Cloud monetiza automatización, integración e inteligencia continua; AI es un proveedor asistivo y nunca autoridad tributaria.
+
+### PTL-TAX-14 — Expense Eligibility & Evidence Engine
+Convertir gastos registrados y su evidencia en candidatos tributarios evaluables, diferenciando importe pagado de monto efectivamente deducible y alimentando continuamente la comparación `presunto vs efectivo`.
+
+**Objetivo funcional:** permitir que el usuario registre todos sus gastos potencialmente profesionales —aunque finalmente no sean deducibles— y que PTL determine su estado, evidencia, tratamiento y efecto proyectado sin contaminar el ledger tributario canónico.
+
+**Slices candidatos:**
+
+- `PTL-TAX-14A — Expense Registry`: fecha, proveedor, descripción, monto, moneda, categoría, recurrencia, origen y notas.
+- `PTL-TAX-14B — Expense Evidence`: factura/boleta/recibo/comprobante, checksum, provenance, vínculo al gasto y estado de suficiencia documental.
+- `PTL-TAX-14C — Eligibility Assessment`: estados `ELIGIBLE`, `POTENTIALLY_ELIGIBLE`, `NOT_ELIGIBLE`, `NEEDS_REVIEW`, con rationale y regla/fuente versionada.
+- `PTL-TAX-14D — Professional Use Allocation`: porcentaje de uso profesional para gastos mixtos como Internet, telefonía u otros casos soportados; nunca asumir 100% silenciosamente.
+- `PTL-TAX-14E — Asset & Depreciation Treatment`: distinguir gasto corriente, activo depreciable y tratamientos especiales; separar costo de adquisición de `deductible_amount` anual.
+- `PTL-TAX-14F — Recurring Digital Subscriptions`: modelar Microsoft 365, AI, SaaS, cloud, hosting, dominios y otros servicios periódicos, nacionales o extranjeros.
+- `PTL-TAX-14G — Foreign Supplier Evidence`: conservar moneda original, proveedor, fecha, documento extranjero, conversión y criterios de respaldo.
+- `PTL-TAX-14H — Presumed vs Actual Continuous Comparator`: recalcular continuamente ambos escenarios, benchmark presunto, brecha a superar e impacto tributario incremental.
+- `PTL-TAX-14I — Expense Readiness`: detectar evidencia faltante, categorización dudosa, allocation pendiente, tratamiento no resuelto o regla aún no disponible.
+- `PTL-TAX-14J — Expense Document Intelligence`: extraer desde recibos/facturas candidatos de proveedor, fecha, monto, moneda, categoría y recurrencia, sujetos al lifecycle de PTL-TAX-13.
+
+**Requerimientos fuertes del caso real:**
+
+- Microsoft 365, ChatGPT, Claude, servicios Google e Internet deben poder registrarse y evaluarse como candidatos profesionales.
+- Registrar no significa deducir.
+- Internet y otros gastos mixtos requieren asignación profesional explícita y justificable.
+- Hardware como computador/tablet debe poder registrarse aunque el beneficio del ejercicio dependa de depreciación/tratamiento.
+- El sistema debe mostrar cuánto representa el gasto presunto del año y cuánto suman los gastos efectivos deducibles aceptados/proyectados.
+- El usuario debe poder conservar evidencia de gastos efectivos incluso si finalmente declara por gasto presunto.
+- La elección anual no debe destruir información ni impedir análisis histórico/futuro.
 
 ## Dependencias propuestas
 
@@ -131,6 +159,14 @@ flowchart LR
   D --> L
   D --> C
   D --> H
+
+  E --> X[Expense Eligibility & Evidence]
+  A --> X
+  D --> X
+  X --> L
+  X --> P
+  X --> O
+  X --> C
 ```
 
 ## Reglas de ejecución
@@ -146,6 +182,10 @@ flowchart LR
 - Optimización tributaria significa uso legal y respaldado de alternativas normativas; nunca evasión, ocultamiento de renta o gastos ficticios.
 - APV debe evaluarse por efecto tributario + liquidez + beneficio previsional; no recomendarlo sólo porque reduzca impuesto.
 - Gastos presuntos y efectivos deben ser alternativas mutuamente excluyentes cuando así lo determine la regla aplicable.
+- Un gasto registrado no es automáticamente un gasto deducible.
+- `paid_amount`, `professional_allocated_amount` y `deductible_amount` deben ser conceptos distintos.
+- Los activos deben preservar costo de adquisición, vida/tratamiento y deducción anual sin colapsarlos en un solo campo.
+- La evaluación de elegibilidad debe guardar rule source/effective date/provenance y estado de confianza/revisión.
 - AI produce `candidate data`; no produce hechos canónicos sin validación/confirmación.
 - Ningún SDK o proveedor AI debe entrar a `packages/core`.
 - Local, BYO y Cloud deben converger sobre los mismos contratos de dominio y candidate schema.
