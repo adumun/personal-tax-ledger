@@ -10,6 +10,9 @@ Este directorio contiene el backlog técnico y de producto de Personal Tax Ledge
 - Los resultados observados manualmente deben persistirse en `docs/desktop/` o `VALIDATION.md` cuando correspondan.
 - Los hallazgos UX se registran cuando aparecen; si no bloquean el gate actual, se derivan a backlog de product polish para no perder foco ni evidencia.
 - La web pública puede resumir el estado de alto nivel, pero no debe exponer información privada u operacional innecesaria.
+- Las nuevas Stories cercanas a implementación deben seguir [`story-definition-and-implementation-readiness.md`](story-definition-and-implementation-readiness.md): Story para valor visible, Task para habilitación técnica determinista y Spike para reducción de incertidumbre.
+- Toda Story debe declarar impacto UI. Si existe impacto, la evidencia de diseño proporcional (L1/L2/L3) forma parte de DoR; el implementador no debe inventar ubicación, flujo, estados o copy material faltante.
+- Las dependencias deben conservar semántica (`REQUIRES`, `ENABLES`, `DATA_DEPENDS_ON`, `RULE_DEPENDS_ON`, `UI_DEPENDS_ON`, `INFRA_DEPENDS_ON`, `SOFT_DEPENDS_ON`) para permitir análisis posterior de DAG y ruta crítica.
 
 ## Prioridad activa
 
@@ -26,3 +29,4 @@ La expansión TAX se mantiene en discovery/backlog y no desplaza automáticament
 - [`desktop-lifecycle-and-distribution.md`](desktop-lifecycle-and-distribution.md): lifecycle desktop Windows; gates P0 LC-001..LC-004 cerrados y distribución posterior pendiente.
 - [`ux-and-product-polish.md`](ux-and-product-polish.md): hallazgos de usabilidad, overflow, layout, naming y consistencia visual que deben resolverse antes del UAT no técnico según severidad.
 - [`tax-management-expansion.md`](tax-management-expansion.md): epics propuestos para Annual Tax Workspace, Readiness, Evidence, Ledger, Projection vs Actual, Data Acquisition, SII Reconciliation, Annual Tax Health, Year Closure y Portability/Privacy.
+- [`story-definition-and-implementation-readiness.md`](story-definition-and-implementation-readiness.md): adopción PTL del contrato de Stories, diseño UI/interaction, enabling work, dependencias y futura ruta crítica.
