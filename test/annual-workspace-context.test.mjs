@@ -7,7 +7,8 @@ import {
 import {
   createActiveAnnualWorkspaceContextResolver,
   createExecutionLogUseCases,
-  createIncomeUseCases
+  createIncomeUseCases,
+  createTaxParameterUseCases
 } from '@personal-tax-ledger/application';
 import { handleRequestError } from '@personal-tax-ledger/http-api';
 
@@ -131,6 +132,24 @@ test('update/delete de una entidad perteneciente a otro año se bloquea aunque e
   );
   assert.equal(updateCalls, 0);
   assert.equal(removeCalls, 0);
+});
+
+test('tax_parameters respeta el workspace anual activo y bloquea edición cruzada', async () => {
+  let upsertCalls = 0;
+  const repository = {
+    async list(_context, year) { return [{ ruleKey: 'x', value: year, type: 'number' }]; },
+    async get() { return null; },
+    async upsert() { upsertCalls += 1; return 1; }
+  };
+  const active2026 = createAnnualWorkspaceContext(baseContext, annualWorkspace(2026));
+  const useCases = createTaxParameterUseCases({ repository, resolveActiveContext: async () => active2026 });
+
+  assert.equal((await useCases.listTaxParameters(active2026, 2026))[0].value, 2026);
+  await assert.rejects(
+    () => useCases.upsertTaxParameter(active2026, 2025, 'x', 1),
+    error => error?.code === 'workspace_year_mismatch'
+  );
+  assert.equal(upsertCalls, 0);
 });
 
 test('la bitácora enriquece operaciones materiales con annualWorkspaceId y commercialYear', async () => {
