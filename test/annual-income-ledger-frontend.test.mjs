@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const componentPath = new URL('../apps/local/web/src/app/AnnualIncomeLedgerSection.tsx', import.meta.url);
-const overviewPath = new URL('../apps/local/web/src/app/AnnualWorkspaceOverviewSection.tsx', import.meta.url);
+const gatePath = new URL('../apps/local/web/src/app/AnnualWorkspaceGate.tsx', import.meta.url);
+const workspacePath = new URL('../apps/local/web/src/app/WorkspaceView.tsx', import.meta.url);
 const clientPath = new URL('../apps/local/web/src/app/tax-ledger-client.ts', import.meta.url);
 
 test('US-IL-001: ledger anual visible conserva estructura factual y filtros exactos', async () => {
@@ -42,10 +43,22 @@ test('US-IL-006: cambio anual invalida respuestas visuales stale y preserva iden
   assert.match(source, /entry\.ownerRecordId/);
 });
 
-test('US-IL-001: la vista se monta bajo el AnnualWorkspace activo', async () => {
-  const overview = await readFile(overviewPath, 'utf8');
-  assert.match(overview, /AnnualIncomeLedgerSection/);
-  assert.match(overview, /commercialYear=\{commercialYear\}/);
+test('US-IL-001: ledger vive como surface del único AppShell bajo el AnnualWorkspace activo', async () => {
+  const gate = await readFile(gatePath, 'utf8');
+  assert.match(gate, /AppShell/);
+  assert.match(gate, /PrimaryNav/);
+  assert.match(gate, /ContextHeader/);
+  assert.match(gate, /surface === 'annual-ledger'/);
+  assert.match(gate, /<AnnualIncomeLedgerSection commercialYear=\{catalog\.activeCommercialYear\}/);
+});
+
+test('React profile dogfood: WorkspaceView deja de poseer sidebar y segundo selector anual', async () => {
+  const workspace = await readFile(workspacePath, 'utf8');
+  assert.match(workspace, /WorkspaceView\(\{ tab \}/);
+  assert.doesNotMatch(workspace, /className="sidebar"/);
+  assert.doesNotMatch(workspace, /className="app-shell"/);
+  assert.doesNotMatch(workspace, /className="year-picker"/);
+  assert.match(workspace, /Gestionado desde el contexto anual activo/);
 });
 
 test('US-IL-006: el cliente del ledger continúa siendo estrictamente read-only', async () => {
