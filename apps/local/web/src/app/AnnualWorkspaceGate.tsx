@@ -1,17 +1,49 @@
 import { useEffect, useMemo, useState } from 'react';
-import WorkspaceView from './WorkspaceView';
+import {
+  AppShell,
+  ContextHeader,
+  ContextHeaderItem,
+  PrimaryNav,
+  PrimaryNavGroup,
+  PrimaryNavItem
+} from '@adumun/react-components';
+import WorkspaceView, { type WorkspaceTab } from './WorkspaceView';
 import AnnualWorkspaceOverviewSection from './AnnualWorkspaceOverviewSection';
+import AnnualIncomeLedgerSection from './AnnualIncomeLedgerSection';
 import ApplicabilityProfileSection from './ApplicabilityProfileSection';
 import { priorYearInitializationClient, type PriorYearInitializationPreview } from './prior-year-initialization-client';
 import { api, ApiRequestError, type AnnualWorkspaceList, type AnnualWorkspaceOption } from '../api';
 import './annual-workspace.css';
+import './ptl-shell.css';
+
+type PtlSurface = 'annual-overview' | 'annual-ledger' | 'tax-profile' | WorkspaceTab;
 
 function derivedTaxYearLabel(commercialYear: number) {
   return `AT${commercialYear + 1}`;
 }
 
+const workspaceSurfaces: readonly [WorkspaceTab, string][] = [
+  ['dashboard', 'Estimación anual'],
+  ['incomes', 'Ingresos laborales'],
+  ['fees', 'Boletas de honorarios'],
+  ['mortgages', 'Créditos hipotecarios'],
+  ['apv', 'APV'],
+  ['scenarios', 'Escenarios']
+];
+
+const systemSurfaces: readonly [WorkspaceTab, string][] = [
+  ['settings', 'Configuración tributaria'],
+  ['sources', 'Fuentes oficiales'],
+  ['logs', 'Bitácora']
+];
+
+function isWorkspaceTab(surface: PtlSurface): surface is WorkspaceTab {
+  return !['annual-overview', 'annual-ledger', 'tax-profile'].includes(surface);
+}
+
 export default function AnnualWorkspaceGate() {
   const [catalog, setCatalog] = useState<AnnualWorkspaceList | null>(null);
+  const [surface, setSurface] = useState<PtlSurface>('annual-overview');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
@@ -58,11 +90,11 @@ export default function AnnualWorkspaceGate() {
   const selectWorkspace = async (option: AnnualWorkspaceOption) => {
     if (!catalog || option.workspace.commercialYear === catalog.activeCommercialYear) return;
     if (option.support.state === 'UNSUPPORTED') {
-      setError(`El año comercial ${option.workspace.commercialYear} no tiene un rule set completo y no puede abrirse de forma segura.`);
+      setError(`El año comercial ${option.workspace.commercialYear} no tiene un conjunto de reglas completo y no puede abrirse de forma segura.`);
       return;
     }
     const acceptWarnings = option.support.state === 'SUPPORTED_WITH_WARNINGS'
-      ? window.confirm(`El año comercial ${option.workspace.commercialYear} tiene reglas operativas, pero su provenance no está completa. ¿Abrir de todas formas?`)
+      ? window.confirm(`El año comercial ${option.workspace.commercialYear} tiene reglas operativas, pero su procedencia no está completa. ¿Abrir de todas formas?`)
       : false;
     if (option.support.state === 'SUPPORTED_WITH_WARNINGS' && !acceptWarnings) return;
 
@@ -94,7 +126,7 @@ export default function AnnualWorkspaceGate() {
   };
 
   const runPriorYearInitialization = async (acceptWarnings = false) => {
-    if (sourceYear == null || !initializationPreview) throw new Error('Selecciona un año fuente válido y espera el preview de inicialización.');
+    if (sourceYear == null || !initializationPreview) throw new Error('Selecciona un año fuente válido y espera la vista previa de inicialización.');
     await priorYearInitializationClient.initialize({
       sourceCommercialYear: sourceYear,
       targetCommercialYear: candidateYear,
@@ -110,11 +142,11 @@ export default function AnnualWorkspaceGate() {
     }
     const duplicate = catalog?.workspaces.find(item => item.workspace.commercialYear === candidateYear);
     if (duplicate) {
-      setError(`El año comercial ${candidateYear} ya existe. Puedes abrir ese workspace desde el selector.`);
+      setError(`El año comercial ${candidateYear} ya existe. Puedes abrir ese período desde el selector.`);
       return;
     }
     if (creationMode === 'PRIOR' && (!initializationPreview || initializationPreview.targetAlreadyExists)) {
-      setError('No se puede inicializar mientras el preview no sea válido.');
+      setError('No se puede inicializar mientras la vista previa no sea válida.');
       return;
     }
 
@@ -153,36 +185,58 @@ export default function AnnualWorkspaceGate() {
 
   const sourceOptions = catalog.workspaces.filter(item => item.workspace.commercialYear !== candidateYear);
 
-  return <div className="annual-workspace-gate">
-    <section className="annual-workspace-header" aria-label="Contexto anual activo">
-      <div className="annual-workspace-field">
-        <small>Año comercial</small>
-        <select
-          value={catalog.activeCommercialYear}
-          disabled={busy}
-          onChange={event => {
-            const option = catalog.workspaces.find(item => item.workspace.commercialYear === Number(event.target.value));
-            if (option) selectWorkspace(option);
-          }}
-        >
-          {catalog.workspaces.map(({ workspace, support }) => <option key={workspace.id} value={workspace.commercialYear}>
-            {workspace.commercialYear}{support.state === 'UNSUPPORTED' ? ' · sin reglas compatibles' : support.state === 'SUPPORTED_WITH_WARNINGS' ? ' · revisar reglas' : ''}
-          </option>)}
-        </select>
-      </div>
-      <div className="annual-workspace-derived">
-        <small>Operación Renta</small>
-        <strong>{activeOption.workspace.derivedTaxYearLabel}</strong>
-      </div>
-      <div className="annual-workspace-derived">
-        <small>Estado</small>
-        <strong>En preparación</strong>
-      </div>
-      <button className="annual-workspace-create" disabled={busy} onClick={openCreate}>+ Crear año</button>
-      {busy && <span className="annual-workspace-progress">Cambiando contexto…</span>}
-    </section>
+  const navigation = <PrimaryNav
+    label="Navegación principal"
+    brand={<div className="ptl-brand"><span>PTL</span><div><strong>Personal Tax Ledger</strong><small>Impuestos personales · Chile</small></div></div>}
+    footer={<div className="ptl-nav-context"><strong>{catalog.activeCommercialYear}</strong><span>{activeOption.workspace.derivedTaxYearLabel}</span><small>Período activo</small></div>}
+  >
+    <PrimaryNavGroup label="Año tributario">
+      <PrimaryNavItem current={surface === 'annual-overview'} onSelect={() => setSurface('annual-overview')}>Año tributario</PrimaryNavItem>
+      <PrimaryNavItem current={surface === 'annual-ledger'} onSelect={() => setSurface('annual-ledger')}>Ingresos del año</PrimaryNavItem>
+      <PrimaryNavItem current={surface === 'tax-profile'} onSelect={() => setSurface('tax-profile')}>Perfil del año</PrimaryNavItem>
+    </PrimaryNavGroup>
+    <PrimaryNavGroup label="Trabajo">
+      {workspaceSurfaces.map(([key, label]) => <PrimaryNavItem key={key} current={surface === key} onSelect={() => setSurface(key)}>{label}</PrimaryNavItem>)}
+    </PrimaryNavGroup>
+    <PrimaryNavGroup label="Sistema">
+      {systemSurfaces.map(([key, label]) => <PrimaryNavItem key={key} current={surface === key} onSelect={() => setSurface(key)}>{label}</PrimaryNavItem>)}
+    </PrimaryNavGroup>
+  </PrimaryNav>;
 
-    {error && <div className="annual-workspace-error">{error}<button onClick={() => setError('')}>×</button></div>}
+  const contextHeader = <ContextHeader
+    title="Contexto anual"
+    subtitle="El período activo aplica a todas las secciones de la aplicación."
+    actions={<button className="annual-workspace-create" disabled={busy} onClick={openCreate}>+ Crear año</button>}
+  >
+    <ContextHeaderItem label="Año comercial">
+      <select
+        value={catalog.activeCommercialYear}
+        disabled={busy}
+        aria-label="Año comercial activo"
+        onChange={event => {
+          const option = catalog.workspaces.find(item => item.workspace.commercialYear === Number(event.target.value));
+          if (option) void selectWorkspace(option);
+        }}
+      >
+        {catalog.workspaces.map(({ workspace, support }) => <option key={workspace.id} value={workspace.commercialYear}>
+          {workspace.commercialYear}{support.state === 'UNSUPPORTED' ? ' · sin reglas compatibles' : support.state === 'SUPPORTED_WITH_WARNINGS' ? ' · revisar reglas' : ''}
+        </option>)}
+      </select>
+    </ContextHeaderItem>
+    <ContextHeaderItem label="Operación Renta"><strong>{activeOption.workspace.derivedTaxYearLabel}</strong></ContextHeaderItem>
+    <ContextHeaderItem label="Estado"><span className="ptl-context-status">En preparación</span></ContextHeaderItem>
+    {busy ? <ContextHeaderItem label="Actualización"><span>Cambiando período…</span></ContextHeaderItem> : null}
+  </ContextHeader>;
+
+  return <div className="ptl-application">
+    <AppShell navigation={navigation} header={contextHeader} mainLabel="Área de trabajo de Personal Tax Ledger">
+      {error && <div className="annual-workspace-error">{error}<button onClick={() => setError('')}>×</button></div>}
+
+      {surface === 'annual-overview' && <AnnualWorkspaceOverviewSection commercialYear={catalog.activeCommercialYear} />}
+      {surface === 'annual-ledger' && <AnnualIncomeLedgerSection commercialYear={catalog.activeCommercialYear} />}
+      {surface === 'tax-profile' && <ApplicabilityProfileSection commercialYear={catalog.activeCommercialYear} />}
+      {isWorkspaceTab(surface) && <WorkspaceView key={catalog.activeCommercialYear} tab={surface} />}
+    </AppShell>
 
     {createOpen && <div className="annual-workspace-modal-backdrop" role="presentation">
       <section className="annual-workspace-modal" role="dialog" aria-modal="true" aria-labelledby="create-annual-workspace-title">
@@ -229,10 +283,10 @@ export default function AnnualWorkspaceGate() {
             <li>montos realizados ni movimientos de ledger</li>
             <li>boletas, retenciones ni PPM</li>
             <li>evidencia documental ni conciliaciones SII</li>
-            <li>readiness/cierre del año anterior</li>
+            <li>estado de preparación o cierre del año anterior</li>
             <li>resultados calculados ni proyecciones históricas</li>
           </ul>
-          <small>Lo reutilizado conserva provenance del año fuente y queda sujeto a revisión.</small>
+          <small>Lo reutilizado conserva la procedencia del año fuente y queda sujeto a revisión.</small>
         </div>}
 
         <div className="annual-workspace-modal-actions">
@@ -241,10 +295,6 @@ export default function AnnualWorkspaceGate() {
         </div>
       </section>
     </div>}
-
-    <AnnualWorkspaceOverviewSection commercialYear={catalog.activeCommercialYear} />
-    <ApplicabilityProfileSection commercialYear={catalog.activeCommercialYear} />
-    <WorkspaceView key={catalog.activeCommercialYear} />
   </div>;
 }
 
