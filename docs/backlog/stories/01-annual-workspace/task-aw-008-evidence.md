@@ -3,7 +3,7 @@
 **Type:** Task  
 **Role:** QUALITY_ENABLER  
 **Priority:** P0  
-**Status:** IN_REVIEW  
+**Status:** DONE  
 **Date:** 2026-09-13  
 **Branch:** `chore/block-01-terminal-regression-gate`
 
@@ -56,24 +56,29 @@ The terminal suite complements rather than replaces specialized tests already co
 - SQLite initialization provenance;
 - architecture boundaries and desktop syntax checks.
 
+## Canonical validation
+
+Fresh `make validate` on `chore/block-01-terminal-regression-gate` is green:
+
+- typecheck: PASS;
+- tests: **185/185 PASS, 0 fail**;
+- desktop check: PASS;
+- architecture check: PASS;
+- architecture: 10 internal packages, no cycles, no legacy server/web roots, core/contracts boundaries preserved, application without sqlite-adapter access.
+
+All five Block 01 cross-feature terminal scenarios passed in the canonical run.
+
 ## DoD review
 
-At implementation time:
-
 - all functional Stories `PTL-US-AW-001..006` are DONE;
-- all enabling Tasks `PTL-TASK-AW-001..007` are DONE;
-- the Block 01 dependency graph has no remaining functional blocker;
+- all enabling Tasks `PTL-TASK-AW-001..008` are DONE;
+- the Block 01 dependency graph has no remaining functional or quality blocker;
 - `commercialYear` remains canonical and Operación Renta derived;
 - no cross-year rebinding path is intentionally permitted;
 - prior-year reuse remains explicit/allowlisted and non-transactional;
-- overview remains outside tax outcome/readiness/reconciliation semantics.
+- overview remains outside tax outcome/readiness/reconciliation semantics;
+- terminal validation is green across typecheck, tests, desktop and architecture gates.
 
-## Closure gate
+## Closure verdict
 
-Canonical closure still requires a fresh full run from this branch:
-
-```text
-make validate
-```
-
-Until that gate is green, `PTL-TASK-AW-008` and Block 01 remain **IN_REVIEW**.
+`PTL-TASK-AW-008` is **DONE**. Block 01 satisfies its terminal automated regression/DoD gate and is ready for formal closure after merge of this evidence branch.
