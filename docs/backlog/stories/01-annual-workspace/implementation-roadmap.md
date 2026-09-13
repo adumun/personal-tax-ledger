@@ -1,6 +1,6 @@
 # Block 01 — Annual Workspace — Implementation Roadmap
 
-**Status:** `GO / TERMINAL REGRESSION GATE IN REVIEW`  
+**Status:** `CLOSED / TERMINAL GATE PASSED`  
 **Date:** 2026-09-13  
 **Scope:** `Block 01 — Annual Workspace & Tax Profile`
 
@@ -8,7 +8,7 @@
 
 Replace the implicit/global year setting with a first-class `AnnualTaxWorkspace` that becomes the visible, persistent and safe parent context for later TAX capabilities while preserving current behavior.
 
-## Current validated baseline
+## Final validated baseline
 
 - `PTL-SPIKE-AW-001` — DONE; five-dimension applicability allowlist closed.
 - `PTL-TASK-AW-001` — DONE; `make validate` 115/115.
@@ -21,12 +21,11 @@ Replace the implicit/global year setting with a first-class `AnnualTaxWorkspace`
 - `PTL-US-AW-004` — DONE; `make validate` 164/164.
 - `PTL-TASK-AW-006 + PTL-US-AW-005` — DONE; `make validate` 169/169, desktop/architecture PASS.
 - `PTL-TASK-AW-004 + PTL-US-AW-003` — DONE; canonical rerun PASS after reconciling the obsolete AW-002 frontend assertion.
+- `PTL-TASK-AW-008` — DONE; terminal `make validate` **185/185**, desktop check PASS, architecture check PASS.
 
 ## Terminal Block 01 gate — AW-008
 
-`PTL-TASK-AW-008` is implemented on `chore/block-01-terminal-regression-gate` and remains **IN_REVIEW** until a fresh canonical `make validate` passes.
-
-The new `test/block-01-regression.test.mjs` is intentionally cross-feature rather than a duplicate of every Story suite. It verifies the composition-level invariants most likely to regress across feature boundaries:
+`PTL-TASK-AW-008` is closed. The cross-feature suite verifies the composition-level invariants most likely to regress across feature boundaries:
 
 1. explicit AnnualWorkspace authority, duplicate protection and unsupported-year blocking;
 2. stale mutation rejection after active year changes;
@@ -34,7 +33,7 @@ The new `test/block-01-regression.test.mjs` is intentionally cross-feature rathe
 4. Annual Workspace Overview remains structural and excludes tax-result/readiness/SII/optimization semantics;
 5. prior-year initialization stays allowlisted, auditable and idempotent.
 
-Specialized suites remain responsible for SQLite migration/materialization, frontend stale-response suppression, rollback failure paths, adapter persistence and UI-specific contracts.
+Specialized suites continue to cover SQLite migration/materialization, frontend stale-response suppression, rollback failure paths, adapter persistence and UI-specific contracts.
 
 ## Critical safety chain
 
@@ -45,7 +44,7 @@ PTL-TASK-AW-005 [DONE]
         ↓
 PTL-US-AW-006   [DONE]
         ↓
-PTL-TASK-AW-008 [IN REVIEW / TERMINAL QUALITY GATE]
+PTL-TASK-AW-008 [DONE]
 ```
 
 ## Established technical invariants
@@ -84,4 +83,4 @@ PTL-TASK-AW-008 [IN REVIEW / TERMINAL QUALITY GATE]
 
 ## Decision
 
-`GO / IN_REVIEW` for `PTL-TASK-AW-008`. A green canonical validation is now the only remaining requirement to close Block 01.
+**CLOSED.** Block 01 — Annual Workspace & Tax Profile has completed its functional slices, enabling work, cross-feature regression gate and effective DoD validation.
