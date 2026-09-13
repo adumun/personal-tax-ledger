@@ -1,6 +1,6 @@
 # Block 01 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / WAVE A READY`
+**Status:** `IMPLEMENTING / WAVE A ACTIVE`
 
 This file separates actor-visible Stories from technical enabling work according to `STD-WMS-001` / `STD-WMS-TYPES-001`. No `Technical Story` type is introduced.
 
@@ -12,7 +12,7 @@ This file separates actor-visible Stories from technical enabling work according
 **Role:** ENABLER  
 **Size:** M  
 **Priority:** P0  
-**Status:** IN_REVIEW
+**Status:** DONE
 
 Define a first-class annual workspace contract keyed by `commercialYear` and suitable for all TAX capabilities.
 
@@ -35,7 +35,7 @@ Constraints:
 - the contract does not absorb income/evidence/calculation entities;
 - lifecycle must be compatible with future TAX-11 without implementing close/reopen here.
 
-Validation/closure evidence: [`task-aw-001-evidence.md`](task-aw-001-evidence.md).
+Validation/closure evidence: [`task-aw-001-evidence.md`](task-aw-001-evidence.md). Canonical `make validate` passes with 115/115 tests and architecture checks clean.
 
 **Enables:** AW-001, AW-002, AW-006.
 
@@ -47,7 +47,7 @@ Validation/closure evidence: [`task-aw-001-evidence.md`](task-aw-001-evidence.md
 **Role:** ENABLER  
 **Size:** M  
 **Priority:** P0  
-**Status:** READY AFTER TASK-AW-001
+**Status:** READY
 
 Introduce workspace persistence/read APIs and migrate the existing implicit year model without losing current year-scoped data.
 
@@ -173,7 +173,8 @@ lastUpdatedAt
 **Type:** Task  
 **Role:** ENABLER  
 **Size:** S  
-**Priority:** P0
+**Priority:** P0  
+**Status:** READY
 
 Define provider-neutral behavior for creating/opening a commercial year for which PTL lacks a compatible rule set.
 
@@ -241,7 +242,7 @@ Rejected from the profile because they belong to or are derivable from other dom
 
 ```mermaid
 flowchart LR
-  T1[AW-TASK-001\nWorkspace contract] --> T2[AW-TASK-002\nPersistence migration]
+  T1[AW-TASK-001\nWorkspace contract DONE] --> T2[AW-TASK-002\nPersistence migration READY]
   T1 --> T5[AW-TASK-005\nContext propagation]
   T1 --> U1[AW-US-001\nSelect workspace]
   T2 --> U1
@@ -287,15 +288,15 @@ flowchart LR
 
 ## Fast lane waves
 
-### Wave A — Foundation — READY / IN REVIEW
+### Wave A — Foundation — ACTIVE
 
 - SPIKE-001 — DONE
-- TASK-001 — IN_REVIEW (focused tests 4/4; full `make validate` pending complete checkout)
+- TASK-001 — DONE (`make validate`: 115/115 tests; desktop and architecture checks pass)
 - TASK-007 — READY
 
 ### Wave B — Persistence & context
 
-- TASK-002 — READY after TASK-001 (`M` after migration review)
+- TASK-002 — READY (`M` after migration review)
 - TASK-003
 - TASK-005
 
@@ -327,7 +328,7 @@ flowchart LR
 This sequence remains mandatory and must not be postponed:
 
 ```text
-TASK-001
+TASK-001 [DONE]
  -> TASK-005
  -> US-006
  -> TASK-008
@@ -335,9 +336,10 @@ TASK-001
 
 ## Block readiness verdict
 
-**Wave A is READY.** The two immediate start gates are closed:
+**Wave A is ACTIVE and AW-001 is closed.** The two original start gates and the AW-001 canonical validation gate are closed:
 
 1. `PTL-SPIKE-AW-001` has a documented decision and no remaining Block 01 uncertainty;
-2. SQLite schema/migration behavior has been inspected against the real implementation and `TASK-AW-002` has a deterministic migration plan.
+2. SQLite schema/migration behavior has been inspected against the real implementation and `TASK-AW-002` has a deterministic migration plan;
+3. `PTL-TASK-AW-001` passed full canonical repository validation and is DONE.
 
-The complete block is not declared DONE/READY as a whole; downstream Stories still depend on their enabling Tasks and effective DoR. Implementation may proceed through the defined fast lane while preserving the safety chain.
+`PTL-TASK-AW-002` and `PTL-TASK-AW-007` are now independently READY. The complete block is not declared DONE/READY as a whole; downstream Stories still depend on their enabling Tasks and effective DoR. Implementation may proceed through the defined fast lane while preserving the safety chain.
