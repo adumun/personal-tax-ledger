@@ -13,8 +13,13 @@ export type TaxLedgerAmountTotal = {
 export type AnnualTaxLedgerResult = {
   annualWorkspaceId: string;
   commercialYear: number;
+  filters: {
+    entryKind: string | null;
+    ownerAggregate: string | null;
+    recognitionState: string | null;
+  };
   entries: unknown[];
-  summary: {
+  factualSummary: {
     entryCount: number;
     recognitionCounts: Record<string, number>;
     totalsByCurrency: Record<string, Record<'gross' | 'withholding' | 'ppm' | 'net', TaxLedgerAmountTotal>>;
