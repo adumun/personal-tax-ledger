@@ -36,15 +36,19 @@ export function createSqlitePriorYearInitializationRepository(delegate, database
     return target;
   }
 
+  async function getByTargetWorkspaceId(targetWorkspaceId) {
+    const { db } = await resolveDatabase();
+    return mapRow(db.prepare(`
+      SELECT target_workspace_id, source_workspace_id, source_commercial_year,
+             target_commercial_year, categories_json, initialized_at
+      FROM annual_workspace_initializations
+      WHERE target_workspace_id = ?
+    `).get(String(targetWorkspaceId)));
+  }
+
   return assertPriorYearInitializationRepositoryContract({
     async getByTargetWorkspaceId(_context, targetWorkspaceId) {
-      const { db } = await resolveDatabase();
-      return mapRow(db.prepare(`
-        SELECT target_workspace_id, source_workspace_id, source_commercial_year,
-               target_commercial_year, categories_json, initialized_at
-        FROM annual_workspace_initializations
-        WHERE target_workspace_id = ?
-      `).get(String(targetWorkspaceId)));
+      return getByTargetWorkspaceId(targetWorkspaceId);
     },
 
     async create(_context, record) {
@@ -62,7 +66,7 @@ export function createSqlitePriorYearInitializationRepository(delegate, database
         JSON.stringify(record.categories),
         record.initializedAt
       );
-      return this.getByTargetWorkspaceId(_context, record.targetWorkspaceId);
+      return getByTargetWorkspaceId(record.targetWorkspaceId);
     }
   });
 }
