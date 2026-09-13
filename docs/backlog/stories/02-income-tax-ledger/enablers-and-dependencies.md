@@ -1,6 +1,6 @@
 # Block 02 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / IL-001 CLOSED / IL-002 READY`
+**Status:** `IMPLEMENTING / IL-002 IN REVIEW`
 
 ## Spikes
 
@@ -60,14 +60,18 @@ Evidence: [`task-il-001-evidence.md`](task-il-001-evidence.md). Canonical `make 
 **Role:** ENABLER  
 **Priority:** P0  
 **Size:** M  
-**Status:** READY
+**Status:** IN_REVIEW
 
-Implement initial providers for:
+Implemented on `feat/block-02-ledger-projection-providers`:
 
-- `income_sources`;
-- `fee_receipts`.
+- `income_sources` provider preserving owner authority and input-mode amount semantics;
+- `fee_receipts` provider preserving canonical BHE amounts;
+- existing `ISSUE_DATE` / `PAID_ONLY` recognition policy reused without redefinition;
+- cancelled BHE projected as `EXCLUDED`;
+- trusted annual context enforced;
+- both providers expose only `list(context)` and never mutate owner aggregates.
 
-Providers may read aggregate repositories/use cases, but the projection must not write back or duplicate facts.
+Evidence: [`task-il-002-evidence.md`](task-il-002-evidence.md). Closure gate: canonical `make validate`.
 
 ---
 
@@ -132,7 +136,7 @@ Terminal Block 02 regression gate. It must prove:
 ```mermaid
 flowchart LR
   S1[SPIKE-IL-001\nDONE] --> T1[TASK-IL-001\nDONE]
-  T1 --> T2[TASK-IL-002\nREADY]
+  T1 --> T2[TASK-IL-002\nIN REVIEW]
   T2 --> T3[TASK-IL-003]
   T3 --> T4[TASK-IL-004]
   T3 --> U1[US-IL-001]
@@ -160,7 +164,7 @@ Current P0 critical path:
 ```text
 SPIKE-IL-001 [DONE]
  -> TASK-IL-001 [DONE]
- -> TASK-IL-002 [READY]
+ -> TASK-IL-002 [IN REVIEW]
  -> TASK-IL-003
  -> TASK-IL-004
  -> US-IL-001 + US-IL-006
