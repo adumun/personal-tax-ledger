@@ -53,3 +53,13 @@ export function createAnnualWorkspaceOverviewUseCases(options: {
   mortgageUseCases: Record<string, AsyncUseCase>;
   supportedYearPolicyUseCases: Record<string, AsyncUseCase>;
 }): Record<string, AsyncUseCase>;
+export const PRIOR_YEAR_REUSABLE_CATEGORY: Readonly<{ APPLICABILITY_PROFILE: 'APPLICABILITY_PROFILE' }>;
+export const PRIOR_YEAR_FORBIDDEN_COPY: readonly string[];
+export function createPriorYearInitializationUseCases(options: {
+  annualWorkspaceRepository: unknown;
+  annualWorkspaceFlowUseCases: Record<string, AsyncUseCase>;
+  settingsUseCases: Record<string, AsyncUseCase>;
+  taxApplicabilityProfileRepository: unknown;
+  initializationRepository: unknown;
+  now?: () => string;
+}): Record<string, AsyncUseCase>;
