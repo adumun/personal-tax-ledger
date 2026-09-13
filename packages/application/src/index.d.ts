@@ -34,3 +34,8 @@ export function createSupportedYearPolicyUseCases(options: {
   taxRuleSourceRepository: unknown;
   requiredRuleKeys?: readonly string[];
 }): Record<string, AsyncUseCase>;
+export function createTaxApplicabilityProfileUseCases(options: {
+  repository: unknown;
+  resolveActiveContext?: ResolveActiveAnnualContext;
+  now?: () => string;
+}): Record<string, AsyncUseCase>;
