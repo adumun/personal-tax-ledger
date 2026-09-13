@@ -1,6 +1,6 @@
 # Block 01 — Annual Workspace — Implementation Roadmap
 
-**Status:** `GO / REFINING`  
+**Status:** `GO / IMPLEMENTING WAVE A`  
 **Date:** 2026-09-12  
 **Scope:** first implementation push for `Block 01 — Annual Workspace & Tax Profile`
 
@@ -14,14 +14,24 @@ This roadmap is an implementation specification, not an execution board. Day-to-
 
 `GO`.
 
+The two immediate start gates were resolved on 2026-09-12:
+
+- `PTL-SPIKE-AW-001` — DONE; five-dimension applicability allowlist accepted;
+- SQLite migration assessment — PASS; additive/idempotent workspace materialization is viable and `PTL-TASK-AW-002` is revised `L -> M`.
+
+Evidence:
+
+- [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md)
+- [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md)
+
 Do not wait for Blocks 02–11 to be fully refined. Block 01 is a foundational enabler and delaying it increases migration cost because later income, evidence, expense, reconciliation, projection, health and closure capabilities all need a stable annual parent context.
 
 ## Deep dependency path
 
 ```text
-PTL-TASK-AW-001  AnnualTaxWorkspace contract          [M]
+PTL-TASK-AW-001  AnnualTaxWorkspace contract          [M]  IN_PROGRESS
         ↓
-PTL-TASK-AW-002  Persistence + migration              [L]
+PTL-TASK-AW-002  Persistence + migration              [M]  READY AFTER AW-001
         ↓
 PTL-US-AW-002    Create annual workspace              [M]
         ↓
@@ -38,7 +48,7 @@ This is the current deepest hard-dependency chain. It is not yet a temporal CPM 
 
 ### For `PTL-US-AW-004`
 
-- `PTL-SPIKE-AW-001 — Validate minimum annual applicability dimensions` `[S]`
+- `PTL-SPIKE-AW-001 — Validate minimum annual applicability dimensions` `[S]` — **DONE**
 - `PTL-TASK-AW-003 — TaxApplicabilityProfile schema and repository` `[M]`
 
 ### For `PTL-US-AW-002`
@@ -70,19 +80,17 @@ open edit form in 2025
 
 ## Fast lane
 
-### Wave A — Foundation
+### Wave A — Foundation — READY / ACTIVE
 
-Run these as early as possible and largely in parallel after contract alignment:
-
-1. `PTL-SPIKE-AW-001`
-2. `PTL-TASK-AW-001`
-3. `PTL-TASK-AW-007`
+1. `PTL-SPIKE-AW-001` — **DONE**
+2. `PTL-TASK-AW-001` — **IN_PROGRESS**
+3. `PTL-TASK-AW-007` — **READY**
 
 ### Wave B — Persistence & safe context
 
-1. `PTL-TASK-AW-002`
-2. `PTL-TASK-AW-003`
-3. `PTL-TASK-AW-005`
+1. `PTL-TASK-AW-002` `[M]` — READY after AW-001; migration gate closed, implementation intentionally not started before that contract closes
+2. `PTL-TASK-AW-003` `[M]`
+3. `PTL-TASK-AW-005` `[L]`
 
 ### Vertical Slice 1 — First usable value
 
@@ -116,46 +124,78 @@ This branch is useful but MUST NOT block the first vertical slice.
 
 This is a planning estimate, not a delivery commitment.
 
-| Work | Initial estimate |
-|---|---:|
-| `SPIKE-AW-001` | 1–3 h |
-| `TASK-AW-001` | 0.5–1 day |
-| `TASK-AW-002` | 1–2 days |
-| `TASK-AW-007` | 2–4 h |
-| `TASK-AW-003` | 0.5–1 day |
-| `TASK-AW-005` | 1–2 days |
-| `US-AW-001 + US-AW-002` | 0.5–1.5 days |
-| `US-AW-004` | 0.5–1 day |
-| `TASK-AW-006 + US-AW-005` | 0.5–1.5 days |
-| `TASK-AW-004 + US-AW-003` | 0.5–1 day |
-| `TASK-AW-008` | 1–2 days |
+| Work | Initial estimate | Current assessment |
+|---|---:|---:|
+| `SPIKE-AW-001` | 1–3 h | DONE |
+| `TASK-AW-001` | 0.5–1 day | unchanged |
+| `TASK-AW-002` | 1–2 days | **0.5–1 day / M**, subject to legacy-fixture validation |
+| `TASK-AW-007` | 2–4 h | unchanged |
+| `TASK-AW-003` | 0.5–1 day | unchanged |
+| `TASK-AW-005` | 1–2 days | unchanged |
+| `US-AW-001 + US-AW-002` | 0.5–1.5 days | unchanged |
+| `US-AW-004` | 0.5–1 day | unchanged |
+| `TASK-AW-006 + US-AW-005` | 0.5–1.5 days | unchanged |
+| `TASK-AW-004 + US-AW-003` | 0.5–1 day | unchanged |
+| `TASK-AW-008` | 1–2 days | unchanged |
 
 Because several branches are parallelizable, these values MUST NOT be added linearly.
 
-Initial end-to-end estimate for one focused implementer: **5–8 effective implementation days**, conditional on the SQLite migration being straightforward and no major hidden structural debt being discovered.
+The original end-to-end estimate of **5–8 effective implementation days** remains a reasonable planning envelope. The migration review reduces uncertainty but does not justify compressing the entire block estimate before the safety-context work (`TASK-AW-005` / `US-AW-006`) is implemented and evidenced.
 
-## Why the estimate is plausible
+## Validated implementation baseline
 
-The repository already has material year scoping:
+The repository really does have material year scoping, but the exact mechanics matter:
 
-- `settings.year`;
-- `taxYear` on multiple domain/application contracts;
-- year-filtered incomes, fee receipts, mortgages and annual records;
-- year-scoped tax parameters;
-- `listYears()` / year switching behavior;
-- separate SQLite repositories for core aggregates.
+- `settings.year` is persisted as JSON in the singleton settings row and remains the current active-year compatibility source;
+- `taxYear`/`tax_year` scopes income sources, fee receipts, fee expense settings, mortgages, mortgage annual records and tax catalogs;
+- the current SQLite schema evolves at startup through `CREATE ... IF NOT EXISTS`, `PRAGMA table_info` and additive `ALTER TABLE`; there is no persisted ordered migration-version framework;
+- `listYears()` currently unions user-data years and rule-catalog years, so it cannot be reused blindly for workspace materialization;
+- seeded `tax_parameters` / `tax_rule_sources` years represent rule availability, not proof that the user owns a workspace for that year;
+- existing fact tables do not need to be copied or rewritten to materialize `AnnualTaxWorkspace` metadata.
 
-Therefore the work is primarily to make annual context first-class and safe rather than retrofit the notion of year into a year-agnostic product.
+Detailed evidence is in [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md).
 
-## Start gates
+## Resolved start gates
 
-Before implementation moves beyond Wave A:
+### A — Applicability profile
 
-1. resolve `PTL-SPIKE-AW-001`;
-2. inspect the actual schema/migration mechanism in `packages/sqlite-adapter/src/database/database.mjs`;
-3. define deterministic migration from current `settings.year`/existing years into `AnnualTaxWorkspace` without duplication or loss;
-4. preserve current year-scoped behavior for income, fee receipts, mortgages and tax parameters;
-5. implement `TASK-AW-005` / `US-AW-006` alongside annual navigation, not afterward.
+`PASS / CLOSED`.
+
+Accepted Block 01 dimensions:
+
+```text
+DEPENDENT_INCOME
+DOMESTIC_FEE_INCOME
+FOREIGN_SERVICE_INCOME
+APV_CONTRIBUTIONS
+MORTGAGE_INTEREST
+```
+
+Removed from the profile:
+
+- actual-expense evaluation/election;
+- AFP/health applicability flag.
+
+The profile remains expectation/applicability, never actual tax facts. Canonical-fact conflicts produce `NEEDS_REVIEW`, not destructive reconciliation.
+
+### B — SQLite migration mechanism
+
+`PASS / CLOSED`.
+
+Deterministic materialization must use:
+
+```text
+settings.year
++ income_sources.tax_year
++ fee_receipts.tax_year
++ fee_expense_settings.tax_year
++ mortgage_loans.tax_year
++ mortgage_annual_records.tax_year
+```
+
+It must not create user workspaces solely from `tax_parameters` or `tax_rule_sources` seed years.
+
+`settings.year` remains the active workspace during compatibility migration. No tax facts are copied implicitly.
 
 ## Explicitly not on this path
 
@@ -198,6 +238,8 @@ with no regression in current income, BHE, mortgage or tax-parameter behavior.
 - [`user-stories.md`](user-stories.md)
 - [`design-contract.md`](design-contract.md)
 - [`enablers-and-dependencies.md`](enablers-and-dependencies.md)
+- [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md)
+- [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md)
 - [`../../story-definition-and-implementation-readiness.md`](../../story-definition-and-implementation-readiness.md)
 - [`../../tax-management-expansion.md`](../../tax-management-expansion.md)
 
