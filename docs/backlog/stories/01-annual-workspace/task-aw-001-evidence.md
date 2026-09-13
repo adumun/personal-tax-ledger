@@ -1,7 +1,7 @@
 # PTL-TASK-AW-001 — Validation Evidence
 
 **Type:** Task  
-**Status:** IN_REVIEW  
+**Status:** DONE  
 **Date:** 2026-09-12  
 **Branch:** `feat/block-01-annual-workspace-foundation`  
 **PR:** `#11`
@@ -30,19 +30,9 @@ core/contracts -> no internal package dependencies
 
 The implementation keeps `core` free from SQLite/UI/HTTP details. Application coordination currently depends only on `contracts`; domain construction/validation remains in `core`.
 
-## Targeted validation
+## Focused validation
 
-Executed an isolated Node 24-compatible module harness containing the exact new Block 01 domain/port/application contracts and the focused test scenarios.
-
-Result:
-
-```text
-TAP version 13
-1..4
-# tests 4
-# pass 4
-# fail 0
-```
+An isolated Node 24-compatible module harness containing the exact new Block 01 domain/port/application contracts and the focused test scenarios passed 4/4.
 
 Validated:
 
@@ -51,25 +41,26 @@ Validated:
 3. application use cases delegate a validated workspace through the repository port;
 4. future lifecycle state `CLOSED` is rejected rather than invented in Block 01.
 
-A first targeted run exposed a test/architecture mismatch after removing an unnecessary application-to-core construction dependency. The test was corrected to validate the intended boundary instead of reintroducing coupling. The second run passed 4/4.
+A first targeted run exposed a test/architecture mismatch after removing an unnecessary application-to-core construction dependency. The test was corrected to validate the intended boundary instead of reintroducing coupling. The corrected focused run passed 4/4.
 
 ## Canonical repository gate
 
-The repository defines `make validate` as the canonical aggregate validation entrypoint (`typecheck`, tests, desktop check and architecture check).
+The repository defines `make validate` as the canonical aggregate validation entrypoint.
 
-No GitHub Actions workflow run was available for PR `#11`, and the current execution environment does not have a complete repository checkout, so the full repository-wide `make validate` has **not** been claimed as executed.
+A complete local checkout executed the gate successfully after fetching and switching to `feat/block-01-annual-workspace-foundation`.
 
-This is why `PTL-TASK-AW-001` remains `IN_REVIEW`, not `DONE`, despite the focused tests passing.
-
-## Remaining closure condition
-
-Before clean closure/merge:
+Observed result:
 
 ```text
-make validate
+npm run typecheck --workspaces --if-present     PASS
+node --test test/*.test.mjs                     PASS — 115 tests / 115 pass / 0 fail
+npm run desktop:check                           PASS
+npm run architecture:check                      PASS
 ```
 
-must pass from a complete checkout (or equivalent repository execution environment), with any resulting regression fixed in the same PR.
+Architecture output confirmed 10 internal packages, no cycles, no legacy server/web roots, core/contracts without internal dependencies, application without sqlite-adapter access, and reusable packages without legacy-root imports.
+
+This closes the remaining validation condition. `PTL-TASK-AW-001` is therefore `DONE`.
 
 ## Scope deviations
 
@@ -77,8 +68,20 @@ None from `design-contract.md` or the Block 01 domain boundary.
 
 One implementation refinement was made during review: application stopped constructing the core aggregate directly and now coordinates through the repository port, preserving the existing package boundary and avoiding an unnecessary package dependency change.
 
+## Closure decision
+
+`DONE`.
+
+Closure basis:
+
+- promised contract output delivered;
+- focused behavior tests pass;
+- canonical repository validation passes;
+- architecture boundaries pass;
+- no unresolved AW-001 implementation uncertainty remains.
+
 ## Next nodes
 
-- `PTL-TASK-AW-007` remains READY and can proceed in parallel inside Wave A.
-- `PTL-TASK-AW-002` remains blocked on clean closure of `PTL-TASK-AW-001`; its migration analysis is already PASS and its current size is M.
-- Critical safety chain after AW-001: `TASK-AW-005 -> US-AW-006 -> TASK-AW-008`.
+- `PTL-TASK-AW-002` is now READY; its SQLite migration analysis is PASS and current size is M.
+- `PTL-TASK-AW-007` remains READY and can proceed in parallel.
+- Critical safety chain continues with `TASK-AW-005 -> US-AW-006 -> TASK-AW-008`.
