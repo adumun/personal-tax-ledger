@@ -3,7 +3,7 @@
 **Type:** Story  
 **Capability:** TAX-01  
 **Priority:** P0  
-**Status:** IN_REVIEW  
+**Status:** DONE  
 **Date:** 2026-09-13  
 **Branch:** `feat/block-01-annual-workspace-overview`
 
@@ -46,6 +46,17 @@ The active annual context now exposes an `Año tributario` overview that summari
 
 The screen does not expose refund/payment estimates, readiness percentage, Annual Tax Health, SII reconciliation or optimization recommendations.
 
-## Closure gate
+## Canonical validation
 
-Canonical `make validate` remains mandatory. Until it passes, `PTL-US-AW-005` remains **IN_REVIEW**.
+`make validate` executed from a complete local checkout on 2026-09-13:
+
+- typecheck: PASS;
+- tests: **169/169 PASS, 0 fail**;
+- desktop check: PASS;
+- architecture check: PASS.
+
+The AW-005-specific frontend/application tests passed for structural copy, empty-state semantics, annual reload and absence of fake economic `$0` values.
+
+## Closure
+
+`PTL-US-AW-005` is **DONE**. The remaining functional Block 01 slice is prior-year initialization (`PTL-TASK-AW-004 + PTL-US-AW-003`).
