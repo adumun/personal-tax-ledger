@@ -1,6 +1,6 @@
 # Block 01 — Annual Workspace — Implementation Roadmap
 
-**Status:** `GO / PRIOR-YEAR INITIALIZATION IN REVIEW`  
+**Status:** `GO / ALL FUNCTIONAL SLICES CLOSED / AW-008 READY`  
 **Date:** 2026-09-13  
 **Scope:** `Block 01 — Annual Workspace & Tax Profile`
 
@@ -20,12 +20,9 @@ Replace the implicit/global year setting with a first-class `AnnualTaxWorkspace`
 - `PTL-TASK-AW-003` — DONE; `make validate` 155/155.
 - `PTL-US-AW-004` — DONE; `make validate` 164/164.
 - `PTL-TASK-AW-006 + PTL-US-AW-005` — DONE; `make validate` 169/169, desktop/architecture PASS.
+- `PTL-TASK-AW-004 + PTL-US-AW-003` — DONE; canonical `make validate` rerun PASS after the obsolete AW-002 assertion was reconciled with the now-enabled AW-003 flow.
 
-## Current implementation — prior-year initialization
-
-`PTL-TASK-AW-004 + PTL-US-AW-003` are implemented on `feat/block-01-prior-year-initialization` and remain **IN_REVIEW** until canonical validation passes.
-
-### Closed implementation decisions
+## Prior-year initialization — closed contract
 
 The reusable-category allowlist currently contains exactly:
 
@@ -35,21 +32,9 @@ APPLICABILITY_PROFILE
 
 The profile is copied as a revisable proposal into the target workspace. No generic table-driven copy is allowed.
 
-Provenance is persisted separately from `TaxApplicabilityProfile v1`:
+Provenance is persisted separately from `TaxApplicabilityProfile v1` in `annual_workspace_initializations` with source/target workspace/year, actual category set and timestamp.
 
-```text
-annual_workspace_initializations
-  target_workspace_id
-  source_workspace_id
-  source_commercial_year
-  target_commercial_year
-  categories_json
-  initialized_at
-```
-
-This keeps tax declaration semantics separate from copy/audit provenance.
-
-### Explicitly forbidden copy
+Explicitly forbidden copy remains:
 
 - realized amounts;
 - BHE/fee receipts;
@@ -60,12 +45,7 @@ This keeps tax declaration semantics separate from copy/audit provenance.
 - readiness/closure state;
 - calculated results or historical projections.
 
-### Failure/idempotency semantics
-
-- unsupported categories fail before target creation;
-- partial failure after target creation removes the target workspace and restores the previously active year;
-- identical source/target/category provenance is idempotent;
-- a conflicting pre-existing target remains explicit conflict.
+Failure/idempotency semantics are validated: unsupported categories fail before creation; partial failure removes the target and restores the previous active year; identical provenance is idempotent; conflicting existing targets remain explicit conflicts.
 
 ## Critical safety chain
 
@@ -76,7 +56,7 @@ PTL-TASK-AW-005 [DONE]
         ↓
 PTL-US-AW-006   [DONE]
         ↓
-PTL-TASK-AW-008 [REACHED / WAITING ONLY ON PRIOR-YEAR INITIALIZATION VALIDATION]
+PTL-TASK-AW-008 [READY / TERMINAL QUALITY GATE]
 ```
 
 ## AW-008 readiness
@@ -91,9 +71,9 @@ PTL-TASK-AW-008 [REACHED / WAITING ONLY ON PRIOR-YEAR INITIALIZATION VALIDATION]
 | duplicate-year behavior | AVAILABLE |
 | tri-state applicability profile | AVAILABLE |
 | workspace overview projection | AVAILABLE |
-| prior-year initialization allowlist | IN_REVIEW via TASK-AW-004/US-AW-003 |
+| prior-year initialization allowlist/provenance/idempotency/rollback | AVAILABLE |
 
-AW-008 remains unopened as a long-lived partial PR. A clean validation of this slice makes AW-008 immediately executable as the terminal quality gate.
+AW-008 is now the immediate executable node. It must consolidate complete Block 01 regression evidence and effective DoD/dogfood review; it must not add new feature semantics.
 
 ## Established technical invariants
 
@@ -107,7 +87,7 @@ AW-008 remains unopened as a long-lived partial PR. A clean validation of this s
 - `TaxApplicabilityProfile` is expectation/applicability only and is versioned independently of canonical facts.
 - `NO + canonical fact PRESENT => NEEDS_REVIEW`; facts remain authoritative.
 - Annual Workspace Overview is structural only and contains no tax outcome/readiness/SII/optimization semantics.
-- prior-year initialization is allowlisted and records provenance separately from copied proposals.
+- prior-year initialization is explicit, allowlisted, auditable and non-transactional.
 
 ## Canonical evidence
 
@@ -130,4 +110,4 @@ AW-008 remains unopened as a long-lived partial PR. A clean validation of this s
 
 ## Decision
 
-`GO / IN_REVIEW` for `PTL-TASK-AW-004 + PTL-US-AW-003`. Canonical `make validate` is the only remaining closure gate before `PTL-TASK-AW-008`.
+`GO` for `PTL-TASK-AW-008`. No remaining functional dependency blocks terminal Block 01 closure.
