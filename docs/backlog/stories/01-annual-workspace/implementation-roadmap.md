@@ -1,7 +1,7 @@
 # Block 01 — Annual Workspace — Implementation Roadmap
 
 **Status:** `GO / IMPLEMENTING WAVE B`  
-**Date:** 2026-09-12  
+**Date:** 2026-09-13  
 **Scope:** first implementation push for `Block 01 — Annual Workspace & Tax Profile`
 
 ## Objective
@@ -14,12 +14,14 @@ This roadmap is an implementation specification, not an execution board. Day-to-
 
 `GO`.
 
-The original start gates and the AW-001 validation gate are resolved:
+The foundational gates and persistence are closed, and the safety chain is actively being implemented:
 
 - `PTL-SPIKE-AW-001` — DONE; five-dimension applicability allowlist accepted;
-- SQLite migration assessment — PASS; additive/idempotent workspace materialization is viable and `PTL-TASK-AW-002` is revised `L -> M`;
+- SQLite migration assessment — PASS;
 - `PTL-TASK-AW-001` — DONE; canonical `make validate` passes with 115/115 tests plus desktop and architecture checks;
-- `PTL-TASK-AW-002` — IN_PROGRESS on `feat/block-01-annual-workspace-persistence`.
+- `PTL-TASK-AW-002` — DONE; canonical `make validate` passes with 118/118 tests plus desktop and architecture checks; merged to `master`;
+- `PTL-TASK-AW-005` — IN_REVIEW on `feat/block-01-trusted-workspace-context`; implementation complete, canonical validation pending;
+- `PTL-TASK-AW-007` — READY in parallel.
 
 Evidence:
 
@@ -27,6 +29,7 @@ Evidence:
 - [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md)
 - [`task-aw-001-evidence.md`](task-aw-001-evidence.md)
 - [`task-aw-002-evidence.md`](task-aw-002-evidence.md)
+- [`task-aw-005-evidence.md`](task-aw-005-evidence.md)
 
 Do not wait for Blocks 02–11 to be fully refined. Block 01 is a foundational enabler and delaying it increases migration cost because later income, evidence, expense, reconciliation, projection, health and closure capabilities all need a stable annual parent context.
 
@@ -35,7 +38,7 @@ Do not wait for Blocks 02–11 to be fully refined. Block 01 is a foundational e
 ```text
 PTL-TASK-AW-001  AnnualTaxWorkspace contract          [M]  DONE
         ↓
-PTL-TASK-AW-002  Persistence + migration              [M]  IN_PROGRESS
+PTL-TASK-AW-002  Persistence + migration              [M]  DONE
         ↓
 PTL-US-AW-002    Create annual workspace              [M]
         ↓
@@ -46,7 +49,7 @@ PTL-US-AW-005    Workspace overview                   [M]
 PTL-TASK-AW-008  Block-level regression suite         [M]
 ```
 
-This is the current deepest hard-dependency chain. It is not yet a temporal CPM result because estimates remain relative/preliminary.
+The safety chain is a separate mandatory path and currently takes precedence over introducing visible year navigation.
 
 ## Mandatory parallel inputs
 
@@ -64,7 +67,7 @@ This is the current deepest hard-dependency chain. It is not yet a temporal CPM 
 ```text
 PTL-TASK-AW-001  [DONE]
         ↓
-PTL-TASK-AW-005  Trusted workspace context propagation [L]
+PTL-TASK-AW-005  Trusted workspace context propagation [L] [IN_REVIEW]
         ↓
 PTL-US-AW-006    Strict year isolation                 [M]
         ↓
@@ -82,25 +85,41 @@ open edit form in 2025
   -> record is incorrectly written into 2026
 ```
 
+AW-005 now implements both sides of this protection:
+
+```text
+backend/application
+  -> trusted AnnualWorkspaceContext
+  -> year mismatch validation
+  -> persisted entity-year validation
+  -> active-context revalidation immediately before mutation
+
+frontend
+  -> workspace generation changes on annual transition
+  -> older async responses are discarded
+```
+
 ## Fast lane
 
 ### Wave A — Foundation — ACTIVE
 
 1. `PTL-SPIKE-AW-001` — **DONE**
-2. `PTL-TASK-AW-001` — **DONE**; canonical `make validate` passes: 115/115 tests, desktop check and architecture check clean
+2. `PTL-TASK-AW-001` — **DONE**; canonical validation passed
 3. `PTL-TASK-AW-007` — **READY**
 
-### Wave B — Persistence & safe context — STARTED
+### Wave B — Persistence & safe context — ACTIVE
 
-1. `PTL-TASK-AW-002` `[M]` — **IN_PROGRESS**; SQLite metadata repository/migration implemented in first slice, full `make validate` pending
-2. `PTL-TASK-AW-003` `[M]`
-3. `PTL-TASK-AW-005` `[L]`
+1. `PTL-TASK-AW-002` `[M]` — **DONE**; persistence/migration merged and validated
+2. `PTL-TASK-AW-003` `[M]` — not started
+3. `PTL-TASK-AW-005` `[L]` — **IN_REVIEW**; implementation persisted in PR #13, `make validate` pending
 
 ### Vertical Slice 1 — First usable value
 
 1. `PTL-US-AW-001 — Select workspace`
 2. `PTL-US-AW-002 — Create workspace`
 3. `PTL-US-AW-006 — Strict year isolation`
+
+`PTL-US-AW-006` is the next critical node immediately after clean closure of AW-005.
 
 The first visible target is achieved when PTL no longer treats year only as a hidden/global setting and instead exposes a safe annual workspace context.
 
@@ -132,11 +151,12 @@ This is a planning estimate, not a delivery commitment.
 |---|---:|---:|
 | `SPIKE-AW-001` | 1–3 h | DONE |
 | `TASK-AW-001` | 0.5–1 day | DONE; canonical validation passed |
-| `TASK-AW-002` | 1–2 days | **0.5–1 day / M**, IN_PROGRESS, full validation pending |
+| `TASK-AW-002` | 1–2 days | DONE; validated as M implementation |
 | `TASK-AW-007` | 2–4 h | READY |
 | `TASK-AW-003` | 0.5–1 day | unchanged |
-| `TASK-AW-005` | 1–2 days | unchanged |
+| `TASK-AW-005` | 1–2 days | IN_REVIEW; implementation complete, canonical validation pending |
 | `US-AW-001 + US-AW-002` | 0.5–1.5 days | unchanged |
+| `US-AW-006` | included in vertical-slice estimate | next critical node after AW-005 |
 | `US-AW-004` | 0.5–1 day | unchanged |
 | `TASK-AW-006 + US-AW-005` | 0.5–1.5 days | unchanged |
 | `TASK-AW-004 + US-AW-003` | 0.5–1 day | unchanged |
@@ -144,22 +164,21 @@ This is a planning estimate, not a delivery commitment.
 
 Because several branches are parallelizable, these values MUST NOT be added linearly.
 
-The original end-to-end estimate of **5–8 effective implementation days** remains a reasonable planning envelope. The migration review reduces uncertainty but does not justify compressing the entire block estimate before the safety-context work (`PTL-TASK-AW-005` / `PTL-US-AW-006`) is implemented and evidenced.
+The original end-to-end estimate of **5–8 effective implementation days** remains a reasonable planning envelope. AW-005 has reduced the largest safety uncertainty, but the estimate should not be compressed before US-AW-006 demonstrates the behavior through the actual navigation/editing flow.
 
 ## Validated implementation baseline
 
-The repository really does have material year scoping, but the exact mechanics matter:
+The repository has material year scoping, and the following mechanics are now established:
 
-- `settings.year` is persisted as JSON in the singleton settings row and remains the current active-year compatibility source;
-- `taxYear`/`tax_year` scopes income sources, fee receipts, fee expense settings, mortgages, mortgage annual records and tax catalogs;
-- the current SQLite schema evolves at startup through `CREATE ... IF NOT EXISTS`, `PRAGMA table_info` and additive `ALTER TABLE`; there is no persisted ordered migration-version framework;
-- `listYears()` currently unions user-data years and rule-catalog years, so it cannot be reused blindly for workspace materialization;
-- seeded `tax_parameters` / `tax_rule_sources` years represent rule availability, not proof that the user owns a workspace for that year;
-- existing fact tables do not need to be copied or rewritten to materialize `AnnualTaxWorkspace` metadata.
+- `settings.year` remains the current active-year compatibility source during Block 01 migration;
+- `AnnualTaxWorkspace` metadata is first-class and persistent;
+- workspace materialization uses only active settings + actual user-data years, never rule-catalog seed years alone;
+- materialization is additive/idempotent and can safely rerun after a legacy year switch;
+- existing fact tables are not copied or rewritten by workspace migration;
+- application operations for income, BHE/fee configuration, mortgages, annual mortgage records and active-year tax parameters consume a trusted `AnnualWorkspaceContext` on the AW-005 branch;
+- `tax_rule_sources` remains a provider/rule catalog and is not treated as user workspace ownership.
 
-Detailed evidence is in [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md).
-
-## Resolved start gates
+## Resolved gates
 
 ### A — Applicability profile
 
@@ -175,18 +194,11 @@ APV_CONTRIBUTIONS
 MORTGAGE_INTEREST
 ```
 
-Removed from the profile:
-
-- actual-expense evaluation/election;
-- AFP/health applicability flag.
-
-The profile remains expectation/applicability, never actual tax facts. Canonical-fact conflicts produce `NEEDS_REVIEW`, not destructive reconciliation.
-
 ### B — SQLite migration mechanism
 
 `PASS / CLOSED`.
 
-Deterministic materialization must use:
+Deterministic materialization uses:
 
 ```text
 settings.year
@@ -197,15 +209,11 @@ settings.year
 + mortgage_annual_records.tax_year
 ```
 
-It must not create user workspaces solely from `tax_parameters` or `tax_rule_sources` seed years.
-
-`settings.year` remains the active workspace during compatibility migration. No tax facts are copied implicitly.
+It does not create user workspaces solely from `tax_parameters` or `tax_rule_sources` seed years.
 
 ### C — AnnualTaxWorkspace contract validation
 
 `PASS / CLOSED`.
-
-Canonical repository validation executed successfully:
 
 ```text
 make validate
@@ -215,19 +223,44 @@ make validate
   -> architecture:check PASS
 ```
 
-`PTL-TASK-AW-001` is DONE and no longer blocks persistence/migration.
+### D — Annual workspace persistence/migration validation
 
-## AW-002 implementation checkpoint
+`PASS / CLOSED`.
 
-The persistence branch currently adds:
+```text
+make validate
+  -> typecheck PASS
+  -> tests 118/118 PASS
+  -> desktop:check PASS
+  -> architecture:check PASS
+```
 
-- `createSqliteAnnualTaxWorkspaceRepository`;
-- additive `annual_tax_workspaces` metadata persistence;
-- deterministic compatibility materialization from active settings + user-data years only;
-- idempotent conflict handling by `commercial_year`;
-- focused tests for phantom rule years, idempotence and no implicit fact copying.
+`PTL-TASK-AW-002` is DONE and merged to `master`.
 
-The closure gate is full repository `make validate` from a complete checkout.
+## AW-005 implementation checkpoint
+
+The trusted-context branch currently delivers:
+
+- explicit `AnnualWorkspaceContext` with `annualWorkspaceId` and `commercialYear`;
+- dynamic active-context resolver based on `settings.year` + `AnnualTaxWorkspaceRepository`;
+- application-boundary year validation across mutable annual domains;
+- update/delete validation against the persisted entity's own year;
+- second active-context check immediately before mutation to catch request races;
+- HTTP `409 workspace_year_mismatch` conflict semantics;
+- stale frontend response suppression through annual-workspace generation;
+- automatic annual workspace/year enrichment of execution logs;
+- compatibility materialization after legacy `settings.year` switching;
+- focused tests for stale input, race revalidation, cross-year entity access, tax parameters, logging and HTTP conflict semantics.
+
+Evidence: [`task-aw-005-evidence.md`](task-aw-005-evidence.md).
+
+Closure gate:
+
+```text
+make validate
+```
+
+Until it passes, AW-005 remains `IN_REVIEW` and PR #13 remains Draft.
 
 ## Explicitly not on this path
 
@@ -274,6 +307,7 @@ with no regression in current income, BHE, mortgage or tax-parameter behavior.
 - [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md)
 - [`task-aw-001-evidence.md`](task-aw-001-evidence.md)
 - [`task-aw-002-evidence.md`](task-aw-002-evidence.md)
+- [`task-aw-005-evidence.md`](task-aw-005-evidence.md)
 - [`../../story-definition-and-implementation-readiness.md`](../../story-definition-and-implementation-readiness.md)
 - [`../../tax-management-expansion.md`](../../tax-management-expansion.md)
 
