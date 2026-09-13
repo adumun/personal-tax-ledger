@@ -6,6 +6,7 @@ import {
 } from '@personal-tax-ledger/contracts';
 import {
   createActiveAnnualWorkspaceContextResolver,
+  createExecutionLogUseCases,
   createIncomeUseCases
 } from '@personal-tax-ledger/application';
 import { handleRequestError } from '@personal-tax-ledger/http-api';
@@ -81,6 +82,31 @@ test('stale write 2025 es rechazado cuando el workspace activo ya cambió a 2026
   assert.equal(createCalls, 0, 'la escritura stale no debe alcanzar el repositorio');
 });
 
+test('una mutación iniciada con contexto 2025 se revalida y se bloquea si el activo cambia a 2026 antes de persistir', async () => {
+  let activeYear = 2025;
+  let createCalls = 0;
+  const repository = {
+    async list() { return []; },
+    async get() { return null; },
+    async create() { createCalls += 1; return null; },
+    async update() { throw new Error('not used'); },
+    async remove() { throw new Error('not used'); },
+    async copy() { throw new Error('not used'); }
+  };
+  const resolveActiveContext = async () => createAnnualWorkspaceContext(baseContext, annualWorkspace(activeYear));
+  const useCases = createIncomeUseCases({ repository, resolveActiveContext });
+  const requestContext2025 = createAnnualWorkspaceContext(baseContext, annualWorkspace(2025));
+
+  activeYear = 2026;
+  await assert.rejects(
+    () => useCases.createIncomeSource(requestContext2025, { name: 'Request atrasado', taxYear: 2025 }),
+    error => error?.code === 'workspace_year_mismatch'
+      && error.expectedCommercialYear === 2026
+      && error.actualCommercialYear === 2025
+  );
+  assert.equal(createCalls, 0, 'la revalidación activa debe ocurrir antes del repositorio');
+});
+
 test('update/delete de una entidad perteneciente a otro año se bloquea aunque el request omita cambiar el id', async () => {
   let updateCalls = 0;
   let removeCalls = 0;
@@ -105,6 +131,34 @@ test('update/delete de una entidad perteneciente a otro año se bloquea aunque e
   );
   assert.equal(updateCalls, 0);
   assert.equal(removeCalls, 0);
+});
+
+test('la bitácora enriquece operaciones materiales con annualWorkspaceId y commercialYear', async () => {
+  let persisted;
+  const repository = {
+    async create(context, entry) {
+      persisted = { context, entry };
+      return { id: 1, ...entry };
+    },
+    async list() { return { items: [], total: 0, page: 1, pageSize: 20 }; }
+  };
+  const active2026 = createAnnualWorkspaceContext(baseContext, annualWorkspace(2026));
+  const useCases = createExecutionLogUseCases({
+    repository,
+    resolveActiveContext: async () => active2026
+  });
+
+  await useCases.createExecutionLog(baseContext, {
+    kind: 'ASYNC',
+    operation: 'SAVE_INCOME',
+    status: 'OK',
+    auditMessage: 'id=7'
+  });
+
+  assert.equal(persisted.context.commercialYear, 2026);
+  assert.match(persisted.entry.auditMessage, /id=7/);
+  assert.match(persisted.entry.auditMessage, /annualWorkspaceId=annual-tax-workspace-2026/);
+  assert.match(persisted.entry.auditMessage, /commercialYear=2026/);
 });
 
 test('workspace_year_mismatch se expone como conflicto HTTP 409 con años esperado y recibido', () => {
