@@ -7,7 +7,9 @@ import {
 import {
   createActiveAnnualWorkspaceContextResolver,
   createExecutionLogUseCases,
+  createFeeReceiptUseCases,
   createIncomeUseCases,
+  createMortgageUseCases,
   createTaxParameterUseCases
 } from '@personal-tax-ledger/application';
 import { handleRequestError } from '@personal-tax-ledger/http-api';
@@ -132,6 +134,51 @@ test('update/delete de una entidad perteneciente a otro año se bloquea aunque e
   );
   assert.equal(updateCalls, 0);
   assert.equal(removeCalls, 0);
+});
+
+test('AW-006: BHE rechaza alta stale 2025 bajo workspace activo 2026 antes de persistir', async () => {
+  let createCalls = 0;
+  const repository = {
+    async list() { return []; },
+    async get() { return null; },
+    async create() { createCalls += 1; return null; },
+    async update() { return null; },
+    async remove() { return false; },
+    async duplicate() { return null; }
+  };
+  const active2026 = createAnnualWorkspaceContext(baseContext, annualWorkspace(2026));
+  const useCases = createFeeReceiptUseCases({ repository, resolveActiveContext: async () => active2026 });
+
+  await assert.rejects(
+    () => useCases.createFeeReceipt(active2026, { taxYear: 2025, clientName: 'Cliente histórico' }),
+    error => error?.code === 'workspace_year_mismatch'
+      && error.expectedCommercialYear === 2026
+      && error.actualCommercialYear === 2025
+  );
+  assert.equal(createCalls, 0);
+});
+
+test('AW-006: hipotecario de 2025 no puede editarse desde workspace 2026 aunque el payload intente rebinding', async () => {
+  let updateCalls = 0;
+  const repository = {
+    async list() { return []; },
+    async get() { return { id: 'mortgage-2025', taxYear: 2025, institutionName: 'Banco', propertyAlias: 'Casa' }; },
+    async create() { return null; },
+    async update() { updateCalls += 1; return null; },
+    async remove() { return false; }
+  };
+  const active2026 = createAnnualWorkspaceContext(baseContext, annualWorkspace(2026));
+  const useCases = createMortgageUseCases({ repository, resolveActiveContext: async () => active2026 });
+
+  await assert.rejects(
+    () => useCases.updateMortgageLoan(active2026, 'mortgage-2025', {
+      taxYear: 2026,
+      institutionName: 'Banco',
+      propertyAlias: 'Casa'
+    }),
+    error => error?.code === 'workspace_year_mismatch'
+  );
+  assert.equal(updateCalls, 0, 'un crédito persistido en otro año no se puede reubicar con un update incidental');
 });
 
 test('tax_parameters respeta el workspace anual activo y bloquea edición cruzada', async () => {
