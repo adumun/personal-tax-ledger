@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / FIRST ENABLER READY`  
+**Status:** `GO / FIRST ENABLER IN REVIEW`  
 **Date:** 2026-09-13
 
 ## Baseline inherited from Block 01
@@ -37,12 +37,12 @@ This means Block 02 starts with contracts/read models, not with a schema migrati
 
 ### Slice IL-A — Domestic annual ledger foundation
 
-1. `PTL-TASK-IL-001 — TaxLedgerEntry projection contract`
-2. `PTL-TASK-IL-002 — Aggregate projection providers`
-3. `PTL-TASK-IL-003 — Annual ledger query/read model`
-4. `PTL-TASK-IL-004 — Ledger HTTP/client surface`
-5. `PTL-US-IL-001 — Unified annual income ledger`
-6. `PTL-US-IL-006 — Traceability/authority/year isolation`
+1. `PTL-TASK-IL-001 — TaxLedgerEntry projection contract` — **IN_REVIEW**;
+2. `PTL-TASK-IL-002 — Aggregate projection providers`;
+3. `PTL-TASK-IL-003 — Annual ledger query/read model`;
+4. `PTL-TASK-IL-004 — Ledger HTTP/client surface`;
+5. `PTL-US-IL-001 — Unified annual income ledger`;
+6. `PTL-US-IL-006 — Traceability/authority/year isolation`.
 
 This slice is P0 and does not wait for foreign-currency work.
 
@@ -83,7 +83,7 @@ It produces canonical factual projections that those later capabilities consume.
 ## Current executable node
 
 ```text
-PTL-TASK-IL-001 — TaxLedgerEntry projection contract
+PTL-TASK-IL-001 — IN_REVIEW
 ```
 
-No unresolved P0 product decision blocks this task.
+Closure gate: fresh canonical `make validate`. On green, the next P0 node is `PTL-TASK-IL-002 — Aggregate projection providers`.
