@@ -13,6 +13,7 @@ export { createSnapshotUseCases } from './features/snapshots/snapshot-use-cases.
 export { createSystemUseCases } from './features/system/system-use-cases.mjs';
 export {
   createAnnualWorkspaceUseCases,
+  createAnnualWorkspaceFlowUseCases,
   createActiveAnnualWorkspaceContextResolver
 } from './features/annual-workspace/annual-workspace-use-cases.mjs';
 export { createSupportedYearPolicyUseCases } from './features/annual-workspace/supported-year-policy-use-cases.mjs';
