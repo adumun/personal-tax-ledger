@@ -1,14 +1,11 @@
-const MIN_COMMERCIAL_YEAR = 1900;
-const MAX_COMMERCIAL_YEAR = 9998;
-
 export const ANNUAL_TAX_WORKSPACE_LIFECYCLE = Object.freeze({
   PREPARING: 'PREPARING'
 });
 
 export function normalizeCommercialYear(value) {
   const commercialYear = Number(value);
-  if (!Number.isInteger(commercialYear) || commercialYear < MIN_COMMERCIAL_YEAR || commercialYear > MAX_COMMERCIAL_YEAR) {
-    throw new TypeError('AnnualTaxWorkspace requiere commercialYear entero válido');
+  if (!Number.isSafeInteger(commercialYear) || commercialYear <= 0 || commercialYear >= Number.MAX_SAFE_INTEGER) {
+    throw new TypeError('AnnualTaxWorkspace requiere commercialYear entero positivo válido');
   }
   return commercialYear;
 }
