@@ -1,6 +1,6 @@
 # Block 02 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / IL-002 IN REVIEW`
+**Status:** `IMPLEMENTING / IL-002 CLOSED / IL-003 READY`
 
 ## Spikes
 
@@ -60,9 +60,9 @@ Evidence: [`task-il-001-evidence.md`](task-il-001-evidence.md). Canonical `make 
 **Role:** ENABLER  
 **Priority:** P0  
 **Size:** M  
-**Status:** IN_REVIEW
+**Status:** DONE
 
-Implemented on `feat/block-02-ledger-projection-providers`:
+Closed implementation:
 
 - `income_sources` provider preserving owner authority and input-mode amount semantics;
 - `fee_receipts` provider preserving canonical BHE amounts;
@@ -71,7 +71,7 @@ Implemented on `feat/block-02-ledger-projection-providers`:
 - trusted annual context enforced;
 - both providers expose only `list(context)` and never mutate owner aggregates.
 
-Evidence: [`task-il-002-evidence.md`](task-il-002-evidence.md). Closure gate: canonical `make validate`.
+Evidence: [`task-il-002-evidence.md`](task-il-002-evidence.md). Canonical `make validate`: **195/195**, desktop/architecture PASS.
 
 ---
 
@@ -81,7 +81,7 @@ Evidence: [`task-il-002-evidence.md`](task-il-002-evidence.md). Closure gate: ca
 **Role:** ENABLER  
 **Priority:** P0  
 **Size:** M  
-**Status:** BLOCKED_BY_IL_002
+**Status:** READY
 
 Compose provider entries into one deterministic annual ledger with filters, ordering and factual totals.
 
@@ -136,8 +136,8 @@ Terminal Block 02 regression gate. It must prove:
 ```mermaid
 flowchart LR
   S1[SPIKE-IL-001\nDONE] --> T1[TASK-IL-001\nDONE]
-  T1 --> T2[TASK-IL-002\nIN REVIEW]
-  T2 --> T3[TASK-IL-003]
+  T1 --> T2[TASK-IL-002\nDONE]
+  T2 --> T3[TASK-IL-003\nREADY]
   T3 --> T4[TASK-IL-004]
   T3 --> U1[US-IL-001]
   T4 --> U1
@@ -164,8 +164,8 @@ Current P0 critical path:
 ```text
 SPIKE-IL-001 [DONE]
  -> TASK-IL-001 [DONE]
- -> TASK-IL-002 [IN REVIEW]
- -> TASK-IL-003
+ -> TASK-IL-002 [DONE]
+ -> TASK-IL-003 [READY]
  -> TASK-IL-004
  -> US-IL-001 + US-IL-006
 ```
