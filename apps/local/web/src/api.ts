@@ -20,14 +20,72 @@ export class ApiRequestError extends Error {
   }
 }
 
-async function request<T>(url: string, options?: RequestInit): Promise<T> {
+export class StaleWorkspaceResponseError extends Error {
+  readonly code = 'stale_workspace_response';
+  constructor(
+    readonly requestGeneration: number,
+    readonly activeGeneration: number,
+    readonly url: string
+  ) {
+    super('Se descartó una respuesta perteneciente a un workspace anual anterior');
+    this.name = 'StaleWorkspaceResponseError';
+  }
+}
+
+let workspaceGeneration = 0;
+let activeCommercialYear: number | null = null;
+
+function normalizeCommercialYear(value: unknown): number | null {
+  const year = Number(value);
+  return Number.isSafeInteger(year) && year > 0 ? year : null;
+}
+
+function observeActiveCommercialYear(value: unknown) {
+  const year = normalizeCommercialYear(value);
+  if (year == null) return;
+  if (activeCommercialYear == null) {
+    activeCommercialYear = year;
+    return;
+  }
+  if (activeCommercialYear !== year) {
+    activeCommercialYear = year;
+    workspaceGeneration += 1;
+  }
+}
+
+function beginWorkspaceTransition(value: unknown) {
+  const targetYear = normalizeCommercialYear(value);
+  const previous = { year: activeCommercialYear, generation: workspaceGeneration };
+  if (targetYear != null && targetYear !== activeCommercialYear) {
+    activeCommercialYear = targetYear;
+    workspaceGeneration += 1;
+  }
+  return { ...previous, targetYear, transitionGeneration: workspaceGeneration };
+}
+
+function rollbackWorkspaceTransition(transition: ReturnType<typeof beginWorkspaceTransition>) {
+  if (
+    transition.targetYear != null
+    && activeCommercialYear === transition.targetYear
+    && workspaceGeneration === transition.transitionGeneration
+  ) {
+    activeCommercialYear = transition.year;
+    workspaceGeneration += 1;
+  }
+}
+
+async function request<T>(url: string, options?: RequestInit, guardWorkspaceGeneration = true): Promise<T> {
+  const requestGeneration = workspaceGeneration;
   const response = await fetch(url, { headers: { 'content-type': 'application/json', ...(options?.headers || {}) }, ...options });
   if (!response.ok) {
     const body = await response.json().catch(() => ({ code: 'unexpected', message: response.statusText }));
     throw new ApiRequestError(apiErrorResponse(body as ApiError));
   }
-  if (response.status === 204) return undefined as T;
-  return response.json();
+  const result = response.status === 204 ? undefined as T : await response.json() as T;
+  if (guardWorkspaceGeneration && requestGeneration !== workspaceGeneration) {
+    throw new StaleWorkspaceResponseError(requestGeneration, workspaceGeneration, url);
+  }
+  return result;
 }
 
 function qs(params: Record<string, string | number | undefined | null>): string {
@@ -41,14 +99,28 @@ function qs(params: Record<string, string | number | undefined | null>): string 
 }
 
 export const api = {
-  bootstrap: async () => bootstrapResponse(await request<{ settings: Settings; sources: IncomeSource[]; references: Reference[] }>('/api/bootstrap')) as unknown as { settings: Settings; sources: IncomeSource[]; references: Reference[] },
-  listYears: async () => yearsResponse(await request<unknown>('/api/years')),
+  bootstrap: async () => {
+    const data = bootstrapResponse(await request<{ settings: Settings; sources: IncomeSource[]; references: Reference[] }>('/api/bootstrap')) as unknown as { settings: Settings; sources: IncomeSource[]; references: Reference[] };
+    observeActiveCommercialYear(data.settings.year);
+    return data;
+  },
+  listYears: async () => yearsResponse(await request<unknown>('/api/years', undefined, false)),
   listIncomes: (taxYear?: number) => request<IncomeSource[]>(`/api/incomes${qs({ taxYear })}`),
   createIncome: (source: IncomeSource) => request<IncomeSource>('/api/incomes', { method: 'POST', body: JSON.stringify(incomeSourceRequest(source)) }),
   updateIncome: (source: IncomeSource) => request<IncomeSource>(`/api/incomes/${source.id}`, { method: 'PUT', body: JSON.stringify(incomeSourceRequest(source)) }),
   deleteIncome: (id: number) => request<void>(`/api/incomes/${id}`, { method: 'DELETE' }),
   copyIncomes: (fromTaxYear: number, toTaxYear: number) => request<IncomeSource[]>('/api/incomes/copy', { method: 'POST', body: JSON.stringify({ fromTaxYear, toTaxYear }) }),
-  updateSettings: (settings: Settings) => request<Settings>('/api/settings', { method: 'PUT', body: JSON.stringify(settingsRequest(settings)) }),
+  updateSettings: async (settings: Settings) => {
+    const transition = beginWorkspaceTransition(settings.year);
+    try {
+      const updated = await request<Settings>('/api/settings', { method: 'PUT', body: JSON.stringify(settingsRequest(settings)) });
+      observeActiveCommercialYear(updated.year);
+      return updated;
+    } catch (error) {
+      rollbackWorkspaceTransition(transition);
+      throw error;
+    }
+  },
 
   // Fee receipts
   listFeeReceipts: (filters: { taxYear?: number | string; clientName?: string; status?: string; paymentStatus?: string; withholdingMode?: string } = {}) =>
@@ -61,7 +133,7 @@ export const api = {
 
   // Fee expense settings
   listFeeExpenseSettings: () => request<FeeExpenseSettings[]>('/api/fee-expense-settings'),
-   upsertFeeExpenseSettings: (settings: FeeExpenseSettings) => request<FeeExpenseSettings>('/api/fee-expense-settings', { method: 'PUT', body: JSON.stringify(feeExpenseSettingsRequest(settings)) }),
+  upsertFeeExpenseSettings: (settings: FeeExpenseSettings) => request<FeeExpenseSettings>('/api/fee-expense-settings', { method: 'PUT', body: JSON.stringify(feeExpenseSettingsRequest(settings)) }),
   getFeeExpenseSettings: (taxYear: number) => request<FeeExpenseSettings>(`/api/fee-expense-settings/${taxYear}`),
 
   // Mortgages
@@ -87,15 +159,15 @@ export const api = {
 
   // Tax rule sources
   listTaxRuleSources: (filters: { ruleKey?: string; taxYear?: number } = {}) =>
-    request<TaxRuleSource[]>(`/api/tax-rule-sources${qs(taxRuleSourceFilters(filters))}`),
-  createTaxRuleSource: (s: TaxRuleSource) => request<TaxRuleSource>('/api/tax-rule-sources', { method: 'POST', body: JSON.stringify(taxRuleSourceRequest(s)) }),
-  deleteTaxRuleSource: (id: string) => request<void>(`/api/tax-rule-sources/${id}`, { method: 'DELETE' }),
+    request<TaxRuleSource[]>(`/api/tax-rule-sources${qs(taxRuleSourceFilters(filters))}`, undefined, false),
+  createTaxRuleSource: (s: TaxRuleSource) => request<TaxRuleSource>('/api/tax-rule-sources', { method: 'POST', body: JSON.stringify(taxRuleSourceRequest(s)) }, false),
+  deleteTaxRuleSource: (id: string) => request<void>(`/api/tax-rule-sources/${id}`, { method: 'DELETE' }, false),
 
   // Execution log (bitácora)
   listExecutionLogs: (filters: { kind?: string; status?: string; operation?: string; q?: string; page?: number; pageSize?: number } = {}) =>
-    request<ExecutionLogPage>(`/api/logs${qs(executionLogFilters(filters))}`).then(value => executionLogPageResponse(value as unknown as Partial<import('@personal-tax-ledger/api-contracts').ExecutionLogPageResponse>) as unknown as ExecutionLogPage),
+    request<ExecutionLogPage>(`/api/logs${qs(executionLogFilters(filters))}`, undefined, false).then(value => executionLogPageResponse(value as unknown as Partial<import('@personal-tax-ledger/api-contracts').ExecutionLogPageResponse>) as unknown as ExecutionLogPage),
   createExecutionLog: (entry: { kind: 'SYNC' | 'ASYNC'; operation: string; status: 'OK' | 'ERROR'; message?: string | null; auditMessage?: string | null; durationMs?: number }) =>
-    request<ExecutionLog>('/api/logs', { method: 'POST', body: JSON.stringify(executionLogRequest(entry)) }),
+    request<ExecutionLog>('/api/logs', { method: 'POST', body: JSON.stringify(executionLogRequest(entry)) }, false),
 
   // Simulation
   simulate: (payload: { sources?: IncomeSource[]; settings?: Partial<Settings>; extraApv?: { annualAmount: number; regime: 'A' | 'B' | 'NONE' }; feeReceipts?: FeeReceipt[]; mortgages?: MortgageLoan[]; annualRecords?: MortgageAnnualRecord[] }) =>
