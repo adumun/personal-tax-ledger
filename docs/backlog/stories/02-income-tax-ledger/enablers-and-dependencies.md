@@ -1,6 +1,6 @@
 # Block 02 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / FIRST ENABLER IN REVIEW`
+**Status:** `IMPLEMENTING / IL-001 CLOSED / IL-002 READY`
 
 ## Spikes
 
@@ -38,9 +38,9 @@ No automatic FX provider is authorized by Block 02 until this spike closes.
 **Role:** ENABLER  
 **Priority:** P0  
 **Size:** M  
-**Status:** IN_REVIEW
+**Status:** DONE
 
-Implemented on `docs/block-02-income-tax-ledger-refinement`:
+Closed contract:
 
 - immutable provider-neutral `TaxLedgerEntry` projection;
 - explicit owner aggregate identity;
@@ -50,7 +50,7 @@ Implemented on `docs/block-02-income-tax-ledger-refinement`:
 - read-only `TaxLedgerProvider.list(context)` port;
 - no generic ledger mutation contract or persistence store.
 
-Evidence: [`task-il-001-evidence.md`](task-il-001-evidence.md). Closure gate: canonical `make validate`.
+Evidence: [`task-il-001-evidence.md`](task-il-001-evidence.md). Canonical `make validate`: **190/190**, desktop/architecture PASS.
 
 ---
 
@@ -60,7 +60,7 @@ Evidence: [`task-il-001-evidence.md`](task-il-001-evidence.md). Closure gate: ca
 **Role:** ENABLER  
 **Priority:** P0  
 **Size:** M  
-**Status:** BLOCKED_BY_IL_001
+**Status:** READY
 
 Implement initial providers for:
 
@@ -77,7 +77,7 @@ Providers may read aggregate repositories/use cases, but the projection must not
 **Role:** ENABLER  
 **Priority:** P0  
 **Size:** M  
-**Status:** BLOCKED_BY_IL_001_IL_002
+**Status:** BLOCKED_BY_IL_002
 
 Compose provider entries into one deterministic annual ledger with filters, ordering and factual totals.
 
@@ -131,8 +131,8 @@ Terminal Block 02 regression gate. It must prove:
 
 ```mermaid
 flowchart LR
-  S1[SPIKE-IL-001\nDONE] --> T1[TASK-IL-001\nIN REVIEW]
-  T1 --> T2[TASK-IL-002]
+  S1[SPIKE-IL-001\nDONE] --> T1[TASK-IL-001\nDONE]
+  T1 --> T2[TASK-IL-002\nREADY]
   T2 --> T3[TASK-IL-003]
   T3 --> T4[TASK-IL-004]
   T3 --> U1[US-IL-001]
@@ -159,8 +159,8 @@ Current P0 critical path:
 
 ```text
 SPIKE-IL-001 [DONE]
- -> TASK-IL-001 [IN REVIEW]
- -> TASK-IL-002
+ -> TASK-IL-001 [DONE]
+ -> TASK-IL-002 [READY]
  -> TASK-IL-003
  -> TASK-IL-004
  -> US-IL-001 + US-IL-006
