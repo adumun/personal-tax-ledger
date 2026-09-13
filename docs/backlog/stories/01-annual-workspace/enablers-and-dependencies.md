@@ -1,6 +1,6 @@
 # Block 01 — Enablers, Spikes & Dependencies
 
-**Status:** `DOGFOOD / REFINING`
+**Status:** `IMPLEMENTING / WAVE A READY`
 
 This file separates actor-visible Stories from technical enabling work according to `STD-WMS-001` / `STD-WMS-TYPES-001`. No `Technical Story` type is introduced.
 
@@ -11,7 +11,8 @@ This file separates actor-visible Stories from technical enabling work according
 **Type:** Task  
 **Role:** ENABLER  
 **Size:** M  
-**Priority:** P0
+**Priority:** P0  
+**Status:** IN_PROGRESS
 
 Define a first-class annual workspace contract keyed by `commercialYear` and suitable for all TAX capabilities.
 
@@ -42,19 +43,25 @@ Constraints:
 
 **Type:** Task  
 **Role:** ENABLER  
-**Size:** L  
-**Priority:** P0
+**Size:** M  
+**Priority:** P0  
+**Status:** READY AFTER TASK-AW-001
 
 Introduce workspace persistence/read APIs and migrate the existing implicit year model without losing current year-scoped data.
 
 Required outcomes:
 
-- discover existing distinct commercial years from persisted domain data/settings;
-- materialize or map compatible workspace records deterministically;
+- discover existing distinct commercial years from persisted user/domain data and `settings.year`;
+- do not materialize user workspaces solely from seeded rule-catalog years;
+- materialize compatible workspace records deterministically;
 - preserve current active year selection;
 - no duplicate income/BHE/mortgage records;
 - migration is rerunnable/idempotent or explicitly versioned;
 - backup/restore compatibility is considered with existing local workspace behavior.
+
+Migration review and sizing evidence: [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md).
+
+**Sizing change:** `L -> M` after schema inspection showed an additive/idempotent migration with no required fact-table rewrite. Escalate to L only if implementation discovers incompatible legacy schema variants or a non-additive migration becomes necessary.
 
 **Enables:** AW-001, AW-002, AW-006.
 
@@ -81,7 +88,7 @@ TaxApplicabilityProfile
     updatedAt
 ```
 
-Do not duplicate amounts or computed tax values.
+The accepted Block 01 dimension allowlist is defined by [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md). Do not duplicate amounts or computed tax values.
 
 **Enables:** AW-003, AW-004, AW-005.
 
@@ -208,26 +215,25 @@ Create tests covering:
 **Type:** Spike  
 **Size:** S  
 **Priority:** P0  
-**Timebox:** 1 focused discovery session
+**Status:** DONE  
+**Closed:** 2026-09-12
 
-**Decision question:** What is the smallest annual applicability profile that is useful to TAX Readiness without duplicating facts owned by later capabilities?
+Decision and evidence: [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md).
 
-### Inputs
+Accepted dimensions:
 
-- canonical TAX-01..12 definitions;
-- real mixed-income use case;
-- current PTL implemented modules;
-- future readiness/reconciliation requirements.
+- `DEPENDENT_INCOME`;
+- `DOMESTIC_FEE_INCOME`;
+- `FOREIGN_SERVICE_INCOME`;
+- `APV_CONTRIBUTIONS`;
+- `MORTGAGE_INTEREST`.
 
-### Expected output
+Rejected from the profile because they belong to or are derivable from other domains:
 
-- accepted dimension list;
-- rationale for each dimension;
-- fields rejected as derived/duplicated;
-- versioning/extensibility rule;
-- change request to AW-004/design if needed.
+- actual-expense evaluation/election;
+- AFP/health information applicability.
 
-The current seven dimensions in AW-004 are a dogfood candidate, not silently final normative truth.
+`Applicability profile != actual tax facts` remains the governing invariant.
 
 ## Dependency graph
 
@@ -246,7 +252,7 @@ flowchart LR
   T3[AW-TASK-003\nApplicability profile] --> U3
   T4[AW-TASK-004\nInitialization service] --> U3
 
-  S1[AW-SPIKE-001\nProfile dimensions] --> U4[AW-US-004\nApplicability profile]
+  S1[AW-SPIKE-001\nProfile dimensions DONE] --> U4[AW-US-004\nApplicability profile]
   U2 --> U4
   T3 --> U4
 
@@ -273,58 +279,50 @@ flowchart LR
 | TASK-001 | ENABLES | US-001/002/006 | canonical workspace identity |
 | TASK-002 | INFRA_DEPENDS_ON | US-001/002/006 | persistence/migration |
 | TASK-003 | DATA_DEPENDS_ON | US-003/004/005 | profile model |
-| SPIKE-001 | RULE_DEPENDS_ON | US-004 | profile scope must be validated |
+| SPIKE-001 | RULE_DEPENDS_ON | US-004 | profile scope resolved 2026-09-12 |
 | TASK-005 | ENABLES | US-006 | safe active context |
 | US-004 | ENABLES | US-005 | overview needs profile status |
 
-## Provisional implementation waves
+## Fast lane waves
 
-### Wave A — Foundation
+### Wave A — Foundation — READY / IN PROGRESS
 
-- TASK-001
-- TASK-007
-- SPIKE-001
-
-Can run mostly in parallel after contract alignment.
+- SPIKE-001 — DONE
+- TASK-001 — IN_PROGRESS
+- TASK-007 — READY
 
 ### Wave B — Persistence & context
 
-- TASK-002
+- TASK-002 — READY after TASK-001 (`M` after migration review)
 - TASK-003
 - TASK-005
 
-### Wave C — First user value
+### Vertical Slice 1 — First usable value
 
 - US-001
 - US-002
+- US-006
+
+### Vertical Slice 2 — Applicability & overview
+
 - US-004
+- TASK-006
+- US-005
 
-### Wave D — Derived flows
+### P1 parallel branch
 
-- TASK-004 + US-003
-- TASK-006 + US-005
-- US-006 can begin once TASK-005 exists and should not wait for AW-005.
+- TASK-004
+- US-003
 
-### Wave E — Closure evidence
+### Closure
 
 - TASK-008
-- DoR/DoD review
-- update proposed standards with dogfood findings.
+- effective DoR/DoD review
+- dogfood evidence and deviations
 
-## Provisional dependency-critical path
+## Critical safety chain
 
-Without effort estimates, this is **not yet CPM**. It is only the deepest hard-dependency chain currently identified:
-
-```text
-TASK-001
- -> TASK-002
- -> US-002
- -> US-004
- -> US-005
- -> TASK-008
-```
-
-A second likely critical safety chain is:
+This sequence remains mandatory and must not be postponed:
 
 ```text
 TASK-001
@@ -333,17 +331,11 @@ TASK-001
  -> TASK-008
 ```
 
-After relative estimates are reviewed, compute weighted critical path and identify parallel workstreams.
-
 ## Block readiness verdict
 
-The block is **not yet READY for implementation as a whole**.
+**Wave A is READY.** The two immediate start gates are closed:
 
-Reasons:
+1. `PTL-SPIKE-AW-001` has a documented decision and no remaining Block 01 uncertainty;
+2. SQLite schema/migration behavior has been inspected against the real implementation and `TASK-AW-002` has a deterministic migration plan.
 
-1. `PTL-SPIKE-AW-001` must resolve the minimum applicability-profile dimensions.
-2. relative sizing needs team/implementer review;
-3. migration details must be validated against the actual persistence schema;
-4. proposed Story/UI standards are being dogfooded and may require adjustment.
-
-However, `TASK-001`, `TASK-007` and `SPIKE-001` are sufficiently specified to enter refinement immediately.
+The complete block is not declared DONE/READY as a whole; downstream Stories still depend on their enabling Tasks and effective DoR. Implementation may proceed through the defined fast lane while preserving the safety chain.
