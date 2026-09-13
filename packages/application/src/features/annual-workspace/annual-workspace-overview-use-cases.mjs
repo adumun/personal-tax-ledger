@@ -19,7 +19,7 @@ export function createAnnualWorkspaceOverviewUseCases({
   if (typeof incomeUseCases?.listIncomeSources !== 'function') throw new TypeError('Overview requiere income use cases');
   if (typeof feeReceiptUseCases?.listFeeReceipts !== 'function') throw new TypeError('Overview requiere fee receipt use cases');
   if (typeof mortgageUseCases?.listMortgageLoans !== 'function') throw new TypeError('Overview requiere mortgage use cases');
-  if (typeof supportedYearPolicyUseCases?.evaluateSupportedYear !== 'function') throw new TypeError('Overview requiere supported-year policy');
+  if (typeof supportedYearPolicyUseCases?.getSupportedYearState !== 'function') throw new TypeError('Overview requiere supported-year policy');
 
   return {
     async getAnnualWorkspaceOverview(context) {
@@ -30,7 +30,7 @@ export function createAnnualWorkspaceOverviewUseCases({
         incomeUseCases.listIncomeSources(scoped),
         feeReceiptUseCases.listFeeReceipts(scoped),
         mortgageUseCases.listMortgageLoans(scoped),
-        supportedYearPolicyUseCases.evaluateSupportedYear(scoped.commercialYear)
+        supportedYearPolicyUseCases.getSupportedYearState(scoped.commercialYear)
       ]);
       if (!workspace) throw Object.assign(new Error('Annual workspace activo no encontrado'), { code: 'active_workspace_not_found' });
 
