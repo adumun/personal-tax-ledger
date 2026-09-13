@@ -15,3 +15,4 @@ export {
   createAnnualWorkspaceUseCases,
   createActiveAnnualWorkspaceContextResolver
 } from './features/annual-workspace/annual-workspace-use-cases.mjs';
+export { createSupportedYearPolicyUseCases } from './features/annual-workspace/supported-year-policy-use-cases.mjs';

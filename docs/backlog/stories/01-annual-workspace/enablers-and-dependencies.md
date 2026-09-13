@@ -114,17 +114,19 @@ Build a structural read model for AW-005 without turning it into Annual Tax Heal
 **Role:** ENABLER  
 **Size:** S  
 **Priority:** P0  
-**Status:** READY
+**Status:** DONE
 
-Define provider-neutral behavior for creating/opening a commercial year for which PTL lacks a compatible rule set.
-
-Required states:
+Provider-neutral year support policy is implemented with three states:
 
 - `SUPPORTED`;
 - `SUPPORTED_WITH_WARNINGS`;
 - `UNSUPPORTED`.
 
-The policy must consume rule/configuration capabilities instead of hard-coding UI-only year limits.
+Support is evaluated from exact-year tax-parameter coverage and exact-year rule provenance. The legacy `defaultTaxParameters()` fallback to 2026 does not make another year supported.
+
+Current seeded behavior is data-driven: 2026 resolves to `SUPPORTED`; a year with no exact rule set (for example 2027) resolves to `UNSUPPORTED`.
+
+Evidence: [`task-aw-007-evidence.md`](task-aw-007-evidence.md). Canonical `make validate` passed with 136/136 tests plus desktop and architecture checks.
 
 **Enables:** AW-002.
 
@@ -185,7 +187,7 @@ flowchart LR
 
   T1 --> U2[AW-US-002\nCreate workspace]
   T2 --> U2
-  T7[AW-TASK-007\nREADY] --> U2
+  T7[AW-TASK-007\nDONE] --> U2
 
   U2 --> U3[AW-US-003\nInitialize prior]
   T3[AW-TASK-003\nREADY] --> U3
@@ -216,17 +218,17 @@ flowchart LR
 - TASK-AW-002 — DONE
 - TASK-AW-005 — DONE
 - US-AW-006 — DONE (`make validate`: 131/131, desktop/architecture clean)
+- TASK-AW-007 — DONE (`make validate`: 136/136, desktop/architecture clean)
 
 ### Next executable P0 path
 
-1. `PTL-TASK-AW-007 — Supported-year and rule-availability policy` — READY
-2. `PTL-US-AW-001 — Select workspace`
-3. `PTL-US-AW-002 — Create workspace`
-4. `PTL-TASK-AW-003 — TaxApplicabilityProfile`
-5. `PTL-US-AW-004 — Applicability Profile`
-6. `PTL-TASK-AW-006 + PTL-US-AW-005 — Workspace overview`
-7. P1 initialization branch (`AW-004 + US-AW-003`)
-8. `PTL-TASK-AW-008` final regression closure
+1. `PTL-US-AW-001 — Select workspace`
+2. `PTL-US-AW-002 — Create workspace`
+3. `PTL-TASK-AW-003 — TaxApplicabilityProfile`
+4. `PTL-US-AW-004 — Applicability Profile`
+5. `PTL-TASK-AW-006 + PTL-US-AW-005 — Workspace overview`
+6. P1 initialization branch (`AW-004 + US-AW-003`)
+7. `PTL-TASK-AW-008` final regression closure
 
 ## Critical safety chain
 
@@ -237,8 +239,8 @@ TASK-AW-001 [DONE]
  -> TASK-AW-008 [REACHED, NOT YET CLOSABLE]
 ```
 
-The safety invariant is now implemented and validated. AW-008 remains the final block-level gate, not the next feature implementation while required block behaviors are still absent.
+The safety invariant is implemented and validated. AW-008 remains the final block-level gate, not the next feature implementation while required block behaviors are still absent.
 
 ## Block readiness verdict
 
-The highest-value next executable dependency is `PTL-TASK-AW-007`, because it is P0/READY and unblocks explicit annual workspace creation (`US-AW-002`). This advances the first usable vertical slice without opening a partial long-lived AW-008 PR.
+`PTL-TASK-AW-007` is closed. The next executable P0 work is the first user-visible annual-workspace slice: `PTL-US-AW-001 — Select workspace` plus `PTL-US-AW-002 — Create workspace`.
