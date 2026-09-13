@@ -3,6 +3,7 @@ export type AnnualWorkspaceContext = WorkspaceContext & { annualWorkspaceId: str
 export type ResolveActiveAnnualContext = () => Promise<AnnualWorkspaceContext>;
 type AsyncUseCase = (...args: unknown[]) => Promise<unknown>;
 type YearScopedOptions = { repository: unknown; resolveActiveContext?: ResolveActiveAnnualContext };
+export type TaxLedgerProvider = { list(context: AnnualWorkspaceContext): Promise<unknown[]> };
 
 export function createIncomeUseCases(options: YearScopedOptions): Record<string, AsyncUseCase>;
 export function createSettingsUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
@@ -63,3 +64,10 @@ export function createPriorYearInitializationUseCases(options: {
   initializationRepository: unknown;
   now?: () => string;
 }): Record<string, AsyncUseCase>;
+export function createIncomeSourceTaxLedgerProvider(options: {
+  incomeUseCases: { listIncomeSources(context: AnnualWorkspaceContext, taxYear?: number): Promise<unknown[]> };
+}): TaxLedgerProvider;
+export function createFeeReceiptTaxLedgerProvider(options: {
+  feeReceiptUseCases: { listFeeReceipts(context: AnnualWorkspaceContext, filters?: Record<string, unknown>): Promise<unknown[]> };
+  settingsUseCases: { getSettings(context: AnnualWorkspaceContext): Promise<Record<string, unknown>> };
+}): TaxLedgerProvider;
