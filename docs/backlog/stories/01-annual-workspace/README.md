@@ -1,6 +1,6 @@
 # Block 01 — Annual Workspace & Tax Profile
 
-**Status:** `DOGFOOD / IMPLEMENTING WAVE B`  
+**Status:** `DOGFOOD / FIRST VISIBLE SLICE CLOSED`  
 **Primary capability:** `TAX-01 — Annual Tax Workspace`  
 **Related capabilities:** `TAX-02`, `TAX-06`, `TAX-09`, `TAX-10`, `TAX-11`, `TAX-12`  
 **Story standard:** `STD-WMS-STORY-001@0.1.0-draft`  
@@ -14,39 +14,37 @@ The block is deliberately narrow: it establishes annual identity, year selection
 
 ## Current execution status
 
-The Block 01 fast lane has advanced through persistence and into trusted annual context propagation:
+The Block 01 fast lane has closed its foundation, safety chain and first visible annual-workspace slice:
 
-- [`PTL-SPIKE-AW-001`](spike-aw-001-applicability-profile.md) — **DONE**; minimum Block 01 applicability profile resolved to five dimensions;
-- [`SQLite migration assessment`](sqlite-migration-assessment.md) — **PASS**; actual startup schema evolution and deterministic workspace materialization path verified;
-- `PTL-TASK-AW-001` — **DONE**; canonical `make validate` passed with 115/115 tests plus `desktop:check` and `architecture:check`; evidence in [`task-aw-001-evidence.md`](task-aw-001-evidence.md);
-- `PTL-TASK-AW-002` — **DONE**; canonical `make validate` passed with 118/118 tests plus `desktop:check` and `architecture:check`; AnnualTaxWorkspace SQLite persistence/materialization merged to `master`; evidence in [`task-aw-002-evidence.md`](task-aw-002-evidence.md);
-- `PTL-TASK-AW-005` — **IN_REVIEW** on `feat/block-01-trusted-workspace-context`; trusted annual identity, application-boundary isolation, stale-write revalidation, frontend stale-response suppression and annual audit traceability are implemented; full `make validate` remains the closure gate; evidence in [`task-aw-005-evidence.md`](task-aw-005-evidence.md);
-- `PTL-TASK-AW-007` — **READY** in parallel.
+- [`PTL-SPIKE-AW-001`](spike-aw-001-applicability-profile.md) — **DONE**; five applicability dimensions closed;
+- [`SQLite migration assessment`](sqlite-migration-assessment.md) — **PASS**;
+- `PTL-TASK-AW-001` — **DONE**; `make validate` 115/115;
+- `PTL-TASK-AW-002` — **DONE**; `make validate` 118/118;
+- `PTL-TASK-AW-005` — **DONE**; `make validate` 127/127;
+- `PTL-US-AW-006` — **DONE**; `make validate` 131/131;
+- `PTL-TASK-AW-007` — **DONE**; `make validate` 136/136;
+- `PTL-US-AW-001` — **DONE**; persisted-only AnnualWorkspace selection, derived AT and protected reload validated;
+- `PTL-US-AW-002` — **DONE**; explicit empty workspace creation, support-policy enforcement, duplicate blocking and failure compensation validated;
+- canonical validation for the visible slice: **149/149 tests**, plus `desktop:check` and `architecture:check` PASS.
 
-The safety chain is actively being executed:
-
-```text
-PTL-TASK-AW-001 [DONE]
- -> PTL-TASK-AW-005 [IN_REVIEW]
- -> PTL-US-AW-006
- -> PTL-TASK-AW-008
-```
+The next executable P0 node is `PTL-TASK-AW-003 — TaxApplicabilityProfile schema and repository`, followed by `PTL-US-AW-004 — Applicability Profile`.
 
 ## Existing implementation baseline
 
-The application already:
+The application now:
 
-- stores `settings.year`;
-- loads incomes, fee receipts, mortgages, tax parameters and simulation by selected year;
-- allows changing the year from `Configuración tributaria`;
-- can copy income sources from the nearest previous year;
-- versions tax parameters by year;
-- persists first-class `AnnualTaxWorkspace` metadata without copying tax facts;
-- resolves a trusted `AnnualWorkspaceContext` for active-year application operations on the AW-005 branch.
+- persists first-class `AnnualTaxWorkspace` metadata;
+- exposes a persistent Annual Workspace context header;
+- lists/selects only persisted annual workspaces;
+- derives Operación Renta from `commercialYear`;
+- creates a new annual workspace explicitly through `Empezar vacío`;
+- validates year support through AW-007 rather than UI ranges or fallback defaults;
+- keeps `settings.year` only as compatibility active pointer during migration;
+- reloads year-scoped data under trusted annual context;
+- rejects stale/cross-year writes and stale responses;
+- preserves year isolation for income, BHE and mortgage operations.
 
-Block 01 must preserve those working capabilities while replacing implicit/global year context with a first-class workspace contract.
-
-The schema review established that rule-catalog seed years are not equivalent to user workspaces. `tax_parameters` / `tax_rule_sources` may inform supported-year policy but do not independently authorize workspace materialization. Active-year `tax_parameters` are year-isolated as mutable configuration; `tax_rule_sources` remains a provider/rule catalog outside workspace ownership.
+Rule-catalog seed years remain distinct from user workspaces. `tax_parameters` / `tax_rule_sources` can determine supported-year policy but do not independently authorize workspace materialization.
 
 ## Annual identity convention
 
@@ -55,7 +53,7 @@ PTL MUST distinguish:
 - **Commercial year**: year in which income/events occur, e.g. `2026`;
 - **Tax year / Operación Renta**: filing year derived from the commercial year, e.g. `AT2027`.
 
-Canonical workspace identity is keyed by `commercialYear`. `taxYearLabel` is derived for presentation and must not create a second independently editable year.
+Canonical workspace identity is keyed by `commercialYear`. The AT label is derived and never independently editable.
 
 ```text
 commercialYear = 2026
@@ -66,30 +64,30 @@ operationRenta = AT2027
 
 | ID | Story | UI impact | Fidelity | Status |
 |---|---|---|---|---|
-| `PTL-US-AW-001` | Select and enter an annual workspace | `NEW_SECTION`, `FLOW_CHANGE` | L1 | REFINING |
-| `PTL-US-AW-002` | Create a new annual workspace | `NEW_SCREEN`, `FLOW_CHANGE` | L2 | REFINING |
+| `PTL-US-AW-001` | Select and enter an annual workspace | `NEW_SECTION`, `FLOW_CHANGE` | L1 | DONE |
+| `PTL-US-AW-002` | Create a new annual workspace | `NEW_SCREEN`, `FLOW_CHANGE` | L2 | DONE |
 | `PTL-US-AW-003` | Initialize a year from a prior year without copying tax facts | `FLOW_CHANGE`, `STATE_CHANGE` | L2 | REFINING |
 | `PTL-US-AW-004` | Define the annual tax applicability profile | `NEW_SECTION`, `FIELD_ADDITION` | L2 | REFINING |
 | `PTL-US-AW-005` | Understand the selected workspace context and completeness | `NEW_SCREEN`, `STATE_CHANGE` | L2 | REFINING |
-| `PTL-US-AW-006` | Preserve strict year isolation during navigation and editing | `STATE_CHANGE` | L1 | REFINING |
+| `PTL-US-AW-006` | Preserve strict year isolation during navigation and editing | `STATE_CHANGE` | L1 | DONE |
 
 Detailed contracts: [`user-stories.md`](user-stories.md).
 
 ## Design contract
 
-The structural and interaction contract for this block is in [`design-contract.md`](design-contract.md).
+The structural and interaction contract is in [`design-contract.md`](design-contract.md).
 
-Key decision: introduce a dedicated **Año tributario** surface and a persistent workspace context header. The existing `Configuración tributaria` surface keeps tax-rule/parameter editing but stops being the primary owner of year navigation.
+The persistent **Workspace Context Header** is now the visible authority for annual navigation/creation. `Configuración tributaria` remains focused on tax parameters/rules and no longer owns year switching.
 
-`DESIGN-AW-004` is reconciled with the closed Spike and exposes only the five accepted applicability dimensions.
+`DESIGN-AW-004` remains reconciled with the closed Spike and exposes only the five accepted applicability dimensions.
 
 ## Enablers and dependency model
 
-Technical Tasks, Spikes, dependency edges, statuses and the block critical paths are in [`enablers-and-dependencies.md`](enablers-and-dependencies.md).
+Technical Tasks, Spikes, dependency edges, statuses and critical paths are in [`enablers-and-dependencies.md`](enablers-and-dependencies.md).
 
 ## Implementation roadmap
 
-The current `GO / IMPLEMENTING WAVE B` decision, fast lane, updated effort assessment, safety-critical chain and resolved gates are in [`implementation-roadmap.md`](implementation-roadmap.md).
+The current execution order and resolved gates are in [`implementation-roadmap.md`](implementation-roadmap.md).
 
 The roadmap is a versioned implementation specification. It does not replace GitHub Issues/Jira as the execution board.
 
@@ -118,24 +116,12 @@ The roadmap is a versioned implementation specification. It does not replace Git
 - readiness score, annual health and closing/reopening workflow (`Block 09`);
 - AI/Cloud processing (`Block 10`).
 
-## Dogfood questions to validate the standards
+## Block closure path
 
-This block must produce evidence for the proposed ADÜMÜN standards:
+Remaining implementation sequence:
 
-1. Is the Story template sufficient without becoming repetitive?
-2. Are L1/L2 design artifacts enough for both a simple year selector and a multi-step create/init flow?
-3. Do typed dependencies expose real blockers more clearly than generic `depends_on`?
-4. Can enabling `Task` work replace invented `Technical Story` types without loss of planning clarity?
-5. Can we derive a useful critical path once relative effort is added?
-
-## Block completion criteria
-
-This documentation block is considered refined enough for dependency/estimation review when:
-
-- all six Stories have observable acceptance criteria;
-- every Story declares canonical data impact and UI impact;
-- design surfaces/states are explicit;
-- every known technical prerequisite is represented as Task or Spike;
-- dependency edges form an acyclic graph;
-- unresolved decisions are explicit rather than delegated to the implementer;
-- no Story is marked `READY` merely because documentation exists; effective DoR must still be reviewed.
+1. `PTL-TASK-AW-003` — TaxApplicabilityProfile schema/repository;
+2. `PTL-US-AW-004` — Applicability Profile;
+3. `PTL-TASK-AW-006 + PTL-US-AW-005` — workspace overview;
+4. P1 `PTL-TASK-AW-004 + PTL-US-AW-003` — allowlisted prior-year initialization;
+5. `PTL-TASK-AW-008` — block-level regression closure and effective DoD/dogfood review.
