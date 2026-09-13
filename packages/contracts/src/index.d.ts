@@ -162,3 +162,34 @@ export interface PriorYearInitializationRepository {
 }
 export const PRIOR_YEAR_INITIALIZATION_REPOSITORY_METHODS: readonly string[];
 export function assertPriorYearInitializationRepositoryContract(repository: unknown): PriorYearInitializationRepository;
+
+export type TaxLedgerEntryKind = 'DEPENDENT_INCOME' | 'DOMESTIC_FEE_INCOME' | 'OTHER_INCOME_SOURCE';
+export type TaxLedgerOwnerAggregate = 'INCOME_SOURCE' | 'FEE_RECEIPT';
+export type TaxLedgerRecognitionState = 'RECOGNIZED' | 'PENDING' | 'EXCLUDED';
+export type TaxLedgerAmounts = {
+  currency: string;
+  gross: number | null;
+  withholding: number | null;
+  ppm: number | null;
+  net: number | null;
+};
+export type TaxLedgerEntry = {
+  ledgerEntryId: string;
+  annualWorkspaceId: string;
+  commercialYear: number;
+  entryKind: TaxLedgerEntryKind;
+  ownerAggregate: TaxLedgerOwnerAggregate;
+  ownerRecordId: string;
+  occurredOn: string | null;
+  periodRef: string;
+  recognitionState: TaxLedgerRecognitionState;
+  amounts: TaxLedgerAmounts;
+  counterpartySummary: string | null;
+  provenanceSummary: Readonly<Record<string, unknown>> | null;
+  updatedAt: string;
+};
+export interface TaxLedgerProvider {
+  list(context: AnnualWorkspaceContext): Promise<TaxLedgerEntry[]>;
+}
+export const TAX_LEDGER_PROVIDER_METHODS: readonly ['list'];
+export function assertTaxLedgerProviderContract(provider: unknown): TaxLedgerProvider;
