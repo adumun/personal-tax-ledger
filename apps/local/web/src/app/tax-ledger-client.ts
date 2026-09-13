@@ -10,6 +10,28 @@ export type TaxLedgerAmountTotal = {
   missingCount: number;
 };
 
+export type TaxLedgerEntry = {
+  ledgerEntryId: string;
+  annualWorkspaceId: string;
+  commercialYear: number;
+  entryKind: string;
+  ownerAggregate: string;
+  ownerRecordId: string;
+  occurredOn: string | null;
+  periodRef: string | null;
+  recognitionState: string;
+  amounts: {
+    currency: string;
+    gross: number | null;
+    withholding: number | null;
+    ppm: number | null;
+    net: number | null;
+  };
+  counterpartySummary: string | Record<string, string | null> | null;
+  provenanceSummary: unknown;
+  updatedAt: string | null;
+};
+
 export type AnnualTaxLedgerResult = {
   annualWorkspaceId: string;
   commercialYear: number;
@@ -18,7 +40,7 @@ export type AnnualTaxLedgerResult = {
     ownerAggregate: string | null;
     recognitionState: string | null;
   };
-  entries: unknown[];
+  entries: TaxLedgerEntry[];
   factualSummary: {
     entryCount: number;
     recognitionCounts: Record<string, number>;
