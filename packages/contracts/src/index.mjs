@@ -21,3 +21,4 @@ export { REFERENCE_REPOSITORY_METHODS, assertReferenceRepositoryContract } from 
 export { YEAR_REPOSITORY_METHODS, assertYearRepositoryContract } from './features/years/year.mjs';
 export { SNAPSHOT_REPOSITORY_METHODS, assertSnapshotRepositoryContract } from './features/snapshots/snapshot.mjs';
 export { ANNUAL_TAX_WORKSPACE_REPOSITORY_METHODS, assertAnnualTaxWorkspaceRepositoryContract } from './features/annual-workspace/annual-tax-workspace.mjs';
+export { TAX_APPLICABILITY_PROFILE_REPOSITORY_METHODS, assertTaxApplicabilityProfileRepositoryContract } from './features/annual-workspace/tax-applicability-profile.mjs';
