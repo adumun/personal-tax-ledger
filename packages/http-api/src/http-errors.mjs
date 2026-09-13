@@ -19,6 +19,15 @@ export function apiError(res, status, code, message, fieldErrors = null) {
 }
 
 export function handleRequestError(res, error) {
+  if (error?.code === 'workspace_year_mismatch') {
+    return apiError(res, 409, error.code, error.message, {
+      expectedCommercialYear: error.expectedCommercialYear,
+      actualCommercialYear: error.actualCommercialYear
+    });
+  }
+  if (error?.code === 'active_workspace_not_found') {
+    return apiError(res, 409, error.code, error.message);
+  }
   if (error instanceof ApiValidationError) return apiError(res, 400, error.code, error.message, error.fieldErrors);
   if (error?.name === 'ValidationError') return apiError(res, 400, error.code, error.message, error.fieldErrors);
   return apiError(res, 400, 'unexpected', error instanceof Error ? error.message : 'Error inesperado');

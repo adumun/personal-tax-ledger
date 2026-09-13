@@ -1,6 +1,6 @@
 # Block 01 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / WAVE A ACTIVE`
+**Status:** `IMPLEMENTING / WAVE B ACTIVE`
 
 This file separates actor-visible Stories from technical enabling work according to `STD-WMS-001` / `STD-WMS-TYPES-001`. No `Technical Story` type is introduced.
 
@@ -47,7 +47,7 @@ Validation/closure evidence: [`task-aw-001-evidence.md`](task-aw-001-evidence.md
 **Role:** ENABLER  
 **Size:** M  
 **Priority:** P0  
-**Status:** IN_PROGRESS
+**Status:** DONE
 
 Introduce workspace persistence/read APIs and migrate the existing implicit year model without losing current year-scoped data.
 
@@ -58,13 +58,15 @@ Required outcomes:
 - materialize compatible workspace records deterministically;
 - preserve current active year selection;
 - no duplicate income/BHE/mortgage records;
-- migration is rerunnable/idempotent or explicitly versioned;
-- backup/restore compatibility is considered with existing local workspace behavior.
+- migration is rerunnable/idempotent;
+- backup/restore compatibility is preserved with existing local workspace behavior.
 
 Migration review and sizing evidence: [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md).  
-Implementation evidence: [`task-aw-002-evidence.md`](task-aw-002-evidence.md).
+Implementation/validation evidence: [`task-aw-002-evidence.md`](task-aw-002-evidence.md).
 
-**Sizing change:** `L -> M` after schema inspection showed an additive/idempotent migration with no required fact-table rewrite. Escalate to L only if implementation discovers incompatible legacy schema variants or a non-additive migration becomes necessary.
+Canonical `make validate` passed with 118/118 tests plus desktop and architecture checks. The implementation is merged to `master`.
+
+**Sizing change:** `L -> M` after schema inspection showed an additive/idempotent migration with no required fact-table rewrite.
 
 **Enables:** AW-001, AW-002, AW-006.
 
@@ -123,7 +125,8 @@ The service must be category-aware and safe as the domain expands.
 **Type:** Task  
 **Role:** ENABLER  
 **Size:** L  
-**Priority:** P0
+**Priority:** P0  
+**Status:** IN_REVIEW
 
 Ensure UI, application services and year-scoped persistence operations consume a stable active-workspace identity and protect against stale async writes.
 
@@ -134,6 +137,21 @@ Required concerns:
 - mismatch validation at application boundary;
 - year is logged in material operations;
 - open forms cannot silently rebind to another year.
+
+Implemented on `feat/block-01-trusted-workspace-context`:
+
+- `AnnualWorkspaceContext` binds `annualWorkspaceId + commercialYear` to the generic owner context;
+- active context is resolved from `settings.year` and persisted workspace metadata per request;
+- income, fee, mortgage, annual-record and active-year tax-parameter operations validate annual identity in application;
+- mutations re-resolve active context immediately before persistence to block request races;
+- cross-year conflicts expose HTTP `409 workspace_year_mismatch`;
+- frontend workspace generation suppresses responses from a prior active year;
+- execution logs include `annualWorkspaceId` and `commercialYear` centrally;
+- legacy `settings.year` switching remains compatible through idempotent metadata rematerialization.
+
+Evidence: [`task-aw-005-evidence.md`](task-aw-005-evidence.md).
+
+Closure gate: full repository `make validate`. Until it passes, this Task remains `IN_REVIEW`.
 
 **Enables:** AW-006 and safe downstream TAX blocks.
 
@@ -243,8 +261,8 @@ Rejected from the profile because they belong to or are derivable from other dom
 
 ```mermaid
 flowchart LR
-  T1[AW-TASK-001\nWorkspace contract DONE] --> T2[AW-TASK-002\nPersistence migration IN PROGRESS]
-  T1 --> T5[AW-TASK-005\nContext propagation]
+  T1[AW-TASK-001\nWorkspace contract DONE] --> T2[AW-TASK-002\nPersistence migration DONE]
+  T1 --> T5[AW-TASK-005\nContext propagation IN REVIEW]
   T1 --> U1[AW-US-001\nSelect workspace]
   T2 --> U1
 
@@ -295,11 +313,11 @@ flowchart LR
 - TASK-001 — DONE (`make validate`: 115/115 tests; desktop and architecture checks pass)
 - TASK-007 — READY
 
-### Wave B — Persistence & context — STARTED
+### Wave B — Persistence & context — ACTIVE
 
-- TASK-002 — IN_PROGRESS (`M`; additive/idempotent SQLite metadata migration under implementation)
-- TASK-003
-- TASK-005
+- TASK-002 — DONE (`make validate`: 118/118 tests; desktop and architecture checks pass)
+- TASK-003 — not started
+- TASK-005 — IN_REVIEW (trusted context implementation complete; canonical validation pending)
 
 ### Vertical Slice 1 — First usable value
 
@@ -330,13 +348,13 @@ This sequence remains mandatory and must not be postponed:
 
 ```text
 TASK-001 [DONE]
- -> TASK-005
+ -> TASK-005 [IN_REVIEW]
  -> US-006
  -> TASK-008
 ```
 
 ## Block readiness verdict
 
-Wave A is active and Wave B has started with `PTL-TASK-AW-002`.
+Wave B is active. Persistence is closed and trusted annual context propagation is in review. The next critical node after a clean AW-005 closure is `PTL-US-AW-006 — Strict year isolation`.
 
 The complete block is not declared DONE/READY as a whole; downstream Stories still depend on their enabling Tasks and effective DoR. Implementation proceeds through the defined fast lane while preserving the safety chain.

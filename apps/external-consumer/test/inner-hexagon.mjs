@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { simulatePortfolio, defaultSettings, monthlySalaryFromGross } from '@personal-tax-ledger/core';
-import { LOCAL_WORKSPACE_CONTEXT } from '@personal-tax-ledger/contracts';
+import { LOCAL_WORKSPACE_CONTEXT, createAnnualWorkspaceContext } from '@personal-tax-ledger/contracts';
 import { createIncomeUseCases, createSystemUseCases } from '@personal-tax-ledger/application';
 
 function createInMemoryIncomeRepository() {
@@ -53,11 +53,24 @@ function createInMemoryIncomeRepository() {
   };
 }
 
+function annualWorkspace(year) {
+  return {
+    id: `annual-tax-workspace-${year}`,
+    commercialYear: year,
+    lifecycleState: 'PREPARING',
+    createdAt: '2026-09-13T00:00:00.000Z',
+    updatedAt: '2026-09-13T00:00:00.000Z',
+    ruleVersionRef: null
+  };
+}
+
 export async function runInnerHexagonSmoke() {
   const incomeRepository = createInMemoryIncomeRepository();
   const incomeUseCases = createIncomeUseCases({ repository: incomeRepository });
+  const context2026 = createAnnualWorkspaceContext(LOCAL_WORKSPACE_CONTEXT, annualWorkspace(2026));
+  const context2027 = createAnnualWorkspaceContext(LOCAL_WORKSPACE_CONTEXT, annualWorkspace(2027));
 
-  const salary = await incomeUseCases.createIncomeSource(LOCAL_WORKSPACE_CONTEXT, {
+  const salary = await incomeUseCases.createIncomeSource(context2026, {
     name: 'Sueldo',
     kind: 'SALARY',
     amount: monthlySalaryFromGross(2500000),
@@ -67,7 +80,7 @@ export async function runInnerHexagonSmoke() {
   });
   assert.equal(salary.id, 1);
 
-  const sources = await incomeUseCases.listIncomeSources(LOCAL_WORKSPACE_CONTEXT, 2026);
+  const sources = await incomeUseCases.listIncomeSources(context2026, 2026);
   assert.equal(sources.length, 1);
   assert.equal(sources[0].name, 'Sueldo');
 
@@ -75,12 +88,13 @@ export async function runInnerHexagonSmoke() {
   assert.equal(typeof simulation.totals.annualTax, 'number');
   assert.equal(simulation.totals.annualTax, 0);
 
-  const copied = await incomeUseCases.copyIncomeSources(LOCAL_WORKSPACE_CONTEXT, 2026, 2027);
+  const copied = await incomeUseCases.copyIncomeSources(context2027, 2026, 2027);
   assert.equal(copied.length, 1);
   assert.equal(copied[0].taxYear, 2027);
 
   const systemUseCases = createSystemUseCases({
     context: LOCAL_WORKSPACE_CONTEXT,
+    resolveAnnualContext: async () => context2026,
     settingsUseCases: { getSettings: async () => ({ year: 2026 }) },
     incomeUseCases,
     referenceUseCases: { listReferences: async () => [] },

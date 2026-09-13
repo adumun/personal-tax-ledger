@@ -97,3 +97,24 @@ test('crear un workspace persiste solo metadata anual y no copia hechos tributar
     fixture.close();
   }
 });
+
+test('un cambio legacy de settings.year materializa el nuevo workspace activo sin reiniciar el repositorio', async () => {
+  const fixture = createFixture();
+  try {
+    const initialYear = Number(fixture.database.getSettings().year);
+    const targetYear = initialYear + 1;
+    const repository = createSqliteAnnualTaxWorkspaceRepository(undefined, fixture.database);
+
+    assert.equal((await repository.getByCommercialYear(initialYear)).commercialYear, initialYear);
+    assert.equal(await repository.getByCommercialYear(targetYear), null);
+
+    fixture.database.updateSettings({ ...fixture.database.getSettings(), year: targetYear });
+
+    const materialized = await repository.getByCommercialYear(targetYear);
+    assert.equal(materialized.commercialYear, targetYear);
+    assert.equal(materialized.derivedTaxYearLabel, `AT${targetYear + 1}`);
+    assert.equal(fixture.database.listIncomeSources(targetYear).length, 0, 'compatibilidad legacy crea solo metadata, no hechos');
+  } finally {
+    fixture.close();
+  }
+});

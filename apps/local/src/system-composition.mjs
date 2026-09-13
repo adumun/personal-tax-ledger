@@ -8,6 +8,7 @@ import { defaultSettings } from '@personal-tax-ledger/core/defaults';
 export function createSystemComposition(dependencies) {
   const useCases = createSystemUseCases({
     context: LOCAL_WORKSPACE_CONTEXT,
+    resolveAnnualContext: dependencies.resolveAnnualContext,
     settingsUseCases: dependencies.settingsUseCases,
     incomeUseCases: dependencies.incomeUseCases,
     referenceUseCases: dependencies.referenceUseCases,

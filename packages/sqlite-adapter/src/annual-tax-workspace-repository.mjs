@@ -77,14 +77,14 @@ function normalizeRepositoryArgs(contextOrValue, maybeValue) {
 
 export function createSqliteAnnualTaxWorkspaceRepository(delegate, database) {
   let resolved;
-  let initialized = false;
 
   async function resolveDatabase() {
     const target = delegate || database || (resolved ??= createSqliteDatabase());
-    if (!initialized) {
-      ensureSchemaAndMaterialize(target);
-      initialized = true;
-    }
+    // Materialization is intentionally rerunnable. This preserves the legacy
+    // settings.year switch during Block 01 migration: if settings.year changes
+    // after repository initialization, the new active year becomes metadata on
+    // the next workspace lookup without copying any tax facts.
+    ensureSchemaAndMaterialize(target);
     return target;
   }
 

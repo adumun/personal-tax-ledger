@@ -11,4 +11,7 @@ export { createReferenceUseCases } from './features/references/reference-use-cas
 export { createYearUseCases } from './features/years/year-use-cases.mjs';
 export { createSnapshotUseCases } from './features/snapshots/snapshot-use-cases.mjs';
 export { createSystemUseCases } from './features/system/system-use-cases.mjs';
-export { createAnnualWorkspaceUseCases } from './features/annual-workspace/annual-workspace-use-cases.mjs';
+export {
+  createAnnualWorkspaceUseCases,
+  createActiveAnnualWorkspaceContextResolver
+} from './features/annual-workspace/annual-workspace-use-cases.mjs';
