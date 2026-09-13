@@ -3,6 +3,7 @@ import {
   assertContextCommercialYear,
   assertMortgageRepositoryContract
 } from '@personal-tax-ledger/contracts';
+import { createActiveWorkspaceGuard } from '../../shared/active-workspace-guard.mjs';
 
 function assertEntityInActiveYear(context, entity, operation) {
   if (!entity) return null;
@@ -10,8 +11,9 @@ function assertEntityInActiveYear(context, entity, operation) {
   return entity;
 }
 
-export function createMortgageUseCases({ repository }) {
+export function createMortgageUseCases({ repository, resolveActiveContext }) {
   assertMortgageRepositoryContract(repository);
+  const assertContextStillActive = createActiveWorkspaceGuard(resolveActiveContext);
   return {
     async listMortgageLoans(context, filters = {}) {
       assertAnnualWorkspaceContext(context);
@@ -27,6 +29,7 @@ export function createMortgageUseCases({ repository }) {
     async createMortgageLoan(context, input) {
       assertAnnualWorkspaceContext(context);
       assertContextCommercialYear(context, input?.taxYear, 'createMortgageLoan');
+      await assertContextStillActive(context, 'createMortgageLoan');
       return repository.create(context, input);
     },
     async updateMortgageLoan(context, id, input) {
@@ -35,6 +38,7 @@ export function createMortgageUseCases({ repository }) {
       const current = await repository.get(context, id);
       if (!current) return null;
       assertEntityInActiveYear(context, current, 'updateMortgageLoan');
+      await assertContextStillActive(context, 'updateMortgageLoan');
       return repository.update(context, id, input);
     },
     async deleteMortgageLoan(context, id) {
@@ -42,6 +46,7 @@ export function createMortgageUseCases({ repository }) {
       const current = await repository.get(context, id);
       if (!current) return false;
       assertEntityInActiveYear(context, current, 'deleteMortgageLoan');
+      await assertContextStillActive(context, 'deleteMortgageLoan');
       return repository.remove(context, id);
     }
   };
