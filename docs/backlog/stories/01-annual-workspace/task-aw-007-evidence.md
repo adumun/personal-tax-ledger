@@ -3,7 +3,7 @@
 **Type:** Task  
 **Role:** ENABLER  
 **Priority:** P0  
-**Status:** IN_REVIEW  
+**Status:** DONE  
 **Date:** 2026-09-13  
 **Branch:** `feat/block-01-supported-year-policy`
 
@@ -11,7 +11,7 @@
 
 Provide a provider-neutral policy that tells annual-workspace creation/opening whether PTL has sufficient tax-rule capability for a requested commercial year.
 
-The policy must not infer support from UI year ranges, current calendar year, or the existence of rule-catalog seed years alone.
+The policy does not infer support from UI year ranges, current calendar year, or the existence of rule-catalog seed years alone.
 
 ## States
 
@@ -80,6 +80,22 @@ For a requested `commercialYear`, it reads exact-year parameters and source prov
 4. real SQLite seed state distinguishes 2026 from a year with no exact rules;
 5. injected repositories prove the application policy is provider-neutral.
 
+## Canonical validation
+
+`make validate` passed from a complete local checkout on 2026-09-13:
+
+```text
+typecheck            PASS
+tests                136/136 PASS
+fail                 0
+desktop:check        PASS
+architecture:check   PASS
+```
+
+AW-007-specific tests all passed, including the real SQLite policy distinction and the provider-neutral injected-repository scenario.
+
+Architecture remained clean: 10 internal packages, no cycles, no legacy server/web roots, core/contracts free of internal infrastructure dependencies, application without sqlite-adapter access, and packages without legacy-root imports.
+
 ## Explicit non-goals
 
 AW-007 does not:
@@ -90,14 +106,8 @@ AW-007 does not:
 - define an arbitrary supported year range;
 - declare a year supported because `defaultTaxParameters()` can fall back to another year.
 
-## Closure gate
+## Closure verdict
 
-Canonical validation remains:
+`PTL-TASK-AW-007` is **DONE**.
 
-```text
-make validate
-```
-
-Until that passes, `PTL-TASK-AW-007` remains **IN_REVIEW**.
-
-After clean closure, this policy becomes a resolved input for `PTL-US-AW-002 — Create annual workspace`.
+The policy is now a resolved input for `PTL-US-AW-002 — Create annual workspace` and may also be consumed when opening/selecting a workspace so unsupported rule capability is never hidden from the user.
