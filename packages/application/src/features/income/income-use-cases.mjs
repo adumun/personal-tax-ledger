@@ -3,6 +3,7 @@ import {
   assertContextCommercialYear,
   assertIncomeRepositoryContract
 } from '@personal-tax-ledger/contracts';
+import { createActiveWorkspaceGuard } from '../../shared/active-workspace-guard.mjs';
 
 function assertEntityInActiveYear(context, entity, operation) {
   if (!entity) return null;
@@ -10,8 +11,9 @@ function assertEntityInActiveYear(context, entity, operation) {
   return entity;
 }
 
-export function createIncomeUseCases({ repository }) {
+export function createIncomeUseCases({ repository, resolveActiveContext }) {
   assertIncomeRepositoryContract(repository);
+  const assertContextStillActive = createActiveWorkspaceGuard(resolveActiveContext);
   return {
     async listIncomeSources(context, taxYear) {
       assertAnnualWorkspaceContext(context);
@@ -25,6 +27,7 @@ export function createIncomeUseCases({ repository }) {
     async createIncomeSource(context, input) {
       assertAnnualWorkspaceContext(context);
       assertContextCommercialYear(context, input?.taxYear, 'createIncomeSource');
+      await assertContextStillActive(context, 'createIncomeSource');
       return repository.create(context, input);
     },
     async updateIncomeSource(context, id, input) {
@@ -33,6 +36,7 @@ export function createIncomeUseCases({ repository }) {
       const current = await repository.get(context, id);
       if (!current) return null;
       assertEntityInActiveYear(context, current, 'updateIncomeSource');
+      await assertContextStillActive(context, 'updateIncomeSource');
       return repository.update(context, id, input);
     },
     async deleteIncomeSource(context, id) {
@@ -40,11 +44,13 @@ export function createIncomeUseCases({ repository }) {
       const current = await repository.get(context, id);
       if (!current) return false;
       assertEntityInActiveYear(context, current, 'deleteIncomeSource');
+      await assertContextStillActive(context, 'deleteIncomeSource');
       return repository.remove(context, id);
     },
     async copyIncomeSources(context, fromTaxYear, toTaxYear) {
       assertAnnualWorkspaceContext(context);
       assertContextCommercialYear(context, toTaxYear, 'copyIncomeSources.target');
+      await assertContextStillActive(context, 'copyIncomeSources');
       return repository.copy(context, fromTaxYear, toTaxYear);
     }
   };
