@@ -1,4 +1,3 @@
-import { createAnnualTaxWorkspace, normalizeCommercialYear } from '@personal-tax-ledger/core';
 import { assertAnnualTaxWorkspaceRepositoryContract } from '@personal-tax-ledger/contracts';
 
 export function createAnnualWorkspaceUseCases({ repository }) {
@@ -10,11 +9,10 @@ export function createAnnualWorkspaceUseCases({ repository }) {
     },
 
     async getWorkspaceByCommercialYear(context, commercialYear) {
-      return repository.getByCommercialYear(context, normalizeCommercialYear(commercialYear));
+      return repository.getByCommercialYear(context, commercialYear);
     },
 
-    async createWorkspace(context, input) {
-      const workspace = createAnnualTaxWorkspace(input);
+    async createWorkspace(context, workspace) {
       return repository.create(context, workspace);
     }
   };
