@@ -14,10 +14,11 @@ This roadmap is an implementation specification, not an execution board. Day-to-
 
 `GO`.
 
-The two immediate start gates were resolved on 2026-09-12:
+The original start gates and the AW-001 validation gate are resolved:
 
 - `PTL-SPIKE-AW-001` — DONE; five-dimension applicability allowlist accepted;
-- SQLite migration assessment — PASS; additive/idempotent workspace materialization is viable and `PTL-TASK-AW-002` is revised `L -> M`.
+- SQLite migration assessment — PASS; additive/idempotent workspace materialization is viable and `PTL-TASK-AW-002` is revised `L -> M`;
+- `PTL-TASK-AW-001` — DONE; canonical `make validate` passes with 115/115 tests plus desktop and architecture checks.
 
 Evidence:
 
@@ -30,9 +31,9 @@ Do not wait for Blocks 02–11 to be fully refined. Block 01 is a foundational e
 ## Deep dependency path
 
 ```text
-PTL-TASK-AW-001  AnnualTaxWorkspace contract          [M]  IN_REVIEW
+PTL-TASK-AW-001  AnnualTaxWorkspace contract          [M]  DONE
         ↓
-PTL-TASK-AW-002  Persistence + migration              [M]  READY AFTER AW-001
+PTL-TASK-AW-002  Persistence + migration              [M]  READY
         ↓
 PTL-US-AW-002    Create annual workspace              [M]
         ↓
@@ -54,12 +55,12 @@ This is the current deepest hard-dependency chain. It is not yet a temporal CPM 
 
 ### For `PTL-US-AW-002`
 
-- `PTL-TASK-AW-007 — Supported-year and rule-availability policy` `[S]`
+- `PTL-TASK-AW-007 — Supported-year and rule-availability policy` `[S]` — **READY**
 
 ## Critical safety chain
 
 ```text
-PTL-TASK-AW-001
+PTL-TASK-AW-001  [DONE]
         ↓
 PTL-TASK-AW-005  Trusted workspace context propagation [L]
         ↓
@@ -81,15 +82,15 @@ open edit form in 2025
 
 ## Fast lane
 
-### Wave A — Foundation — READY / IN REVIEW
+### Wave A — Foundation — ACTIVE
 
 1. `PTL-SPIKE-AW-001` — **DONE**
-2. `PTL-TASK-AW-001` — **IN_REVIEW**; focused contract validation 4/4 passed, full repository `make validate` remains the closure gate
+2. `PTL-TASK-AW-001` — **DONE**; canonical `make validate` passes: 115/115 tests, desktop check and architecture check clean
 3. `PTL-TASK-AW-007` — **READY**
 
 ### Wave B — Persistence & safe context
 
-1. `PTL-TASK-AW-002` `[M]` — READY after AW-001; migration gate closed, implementation intentionally not started before that contract closes
+1. `PTL-TASK-AW-002` `[M]` — **READY**; migration gate closed
 2. `PTL-TASK-AW-003` `[M]`
 3. `PTL-TASK-AW-005` `[L]`
 
@@ -128,9 +129,9 @@ This is a planning estimate, not a delivery commitment.
 | Work | Initial estimate | Current assessment |
 |---|---:|---:|
 | `SPIKE-AW-001` | 1–3 h | DONE |
-| `TASK-AW-001` | 0.5–1 day | IN_REVIEW; focused validation passed |
-| `TASK-AW-002` | 1–2 days | **0.5–1 day / M**, subject to legacy-fixture validation |
-| `TASK-AW-007` | 2–4 h | unchanged |
+| `TASK-AW-001` | 0.5–1 day | DONE; canonical validation passed |
+| `TASK-AW-002` | 1–2 days | **0.5–1 day / M**, READY, subject to legacy-fixture validation |
+| `TASK-AW-007` | 2–4 h | READY |
 | `TASK-AW-003` | 0.5–1 day | unchanged |
 | `TASK-AW-005` | 1–2 days | unchanged |
 | `US-AW-001 + US-AW-002` | 0.5–1.5 days | unchanged |
@@ -197,6 +198,22 @@ settings.year
 It must not create user workspaces solely from `tax_parameters` or `tax_rule_sources` seed years.
 
 `settings.year` remains the active workspace during compatibility migration. No tax facts are copied implicitly.
+
+### C — AnnualTaxWorkspace contract validation
+
+`PASS / CLOSED`.
+
+Canonical repository validation executed successfully:
+
+```text
+make validate
+  -> typecheck PASS
+  -> tests 115/115 PASS
+  -> desktop:check PASS
+  -> architecture:check PASS
+```
+
+`PTL-TASK-AW-001` is DONE and no longer blocks persistence/migration.
 
 ## Explicitly not on this path
 
