@@ -3,7 +3,7 @@
 **Type:** Story  
 **Capability:** TAX-01  
 **Priority:** P0  
-**Status:** IN_REVIEW  
+**Status:** DONE  
 **Date:** 2026-09-13  
 **Branch:** `feat/block-01-visible-annual-workspace`
 
@@ -101,12 +101,15 @@ Creation accepts only `mode: EMPTY` in this Story. Other initialization modes ar
   - prior-year initialization remains unavailable;
   - explicit annual-workspace endpoint is used instead of implicit settings mutation.
 
-## Closure gate
+## Canonical validation
 
-Canonical repository validation remains mandatory:
+`make validate` passed from a complete local checkout on 2026-09-13:
 
-```text
-make validate
-```
+- typecheck: PASS;
+- tests: **149/149 PASS, 0 fail**;
+- `desktop:check`: PASS;
+- `architecture:check`: PASS.
 
-Until it passes, `PTL-US-AW-002` remains **IN_REVIEW**.
+AW-002-specific tests all passed, including duplicate rejection, `UNSUPPORTED`, explicit warnings, metadata-only creation, activation and compensation on failure.
+
+`PTL-US-AW-002` is **DONE**.
