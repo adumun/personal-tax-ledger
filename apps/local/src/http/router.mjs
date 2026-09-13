@@ -31,6 +31,7 @@ export function createHttpRouter({ composition, webDist }) {
   const routeAnnualWorkspaceOverview = composition.createAnnualWorkspaceOverviewRouter({ json, apiError });
   const routePriorYearInitialization = composition.createPriorYearInitializationRouter({ readBody: readJsonBody, json, apiError });
   const routeApplicabilityProfile = composition.createTaxApplicabilityProfileRouter({ readBody: readJsonBody, json, apiError });
+  const routeTaxLedger = composition.createTaxLedgerRouter({ json, apiError });
   const routeIncomes = composition.createIncomeRouter({ getSettings, queryYear, readBody: readJsonBody, json, apiError, validateSource });
   const routeSettings = composition.createSettingsRouter({ readBody: readJsonBody, json });
   const routeExecutionLogs = composition.createExecutionLogRouter({ readBody: readJsonBody, json, apiError });
@@ -53,6 +54,7 @@ export function createHttpRouter({ composition, webDist }) {
       if (await routeAnnualWorkspaceOverview({ req, res, path, url })) return;
       if (await routePriorYearInitialization({ req, res, path, url })) return;
       if (await routeApplicabilityProfile({ req, res, path, url })) return;
+      if (await routeTaxLedger({ req, res, path, url })) return;
       if (await routeYears({ req, res, path })) return;
       if (await routeExecutionLogs({ req, res, path, url })) return;
       if (await routeSettings({ req, res, path })) return;

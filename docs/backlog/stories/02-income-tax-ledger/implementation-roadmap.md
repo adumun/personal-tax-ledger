@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / IL-003 CLOSED / IL-004 READY`  
+**Status:** `GO / IL-004 IN REVIEW`  
 **Date:** 2026-09-13
 
 ## Baseline inherited from Block 01
@@ -22,6 +22,20 @@ Block 02 consumes these contracts rather than reintroducing a second year author
 - `PTL-TASK-IL-002` — DONE: aggregate projection providers; canonical gate **195/195**.
 - `PTL-TASK-IL-003` — DONE: deterministic annual ledger read model with exact filters, annual-context enforcement and traceable factual totals; canonical gate **200/200**, desktop/architecture PASS.
 
+## Current implementation — IL-004
+
+`PTL-TASK-IL-004 — Ledger HTTP/client surface` is implemented on `feat/block-02-ledger-http-client-surface` and remains **IN_REVIEW** until canonical validation passes.
+
+Closed implementation semantics:
+
+- explicit read-only `GET /api/tax-ledger` endpoint;
+- exact filter transport for `entryKind`, `ownerAggregate`, `recognitionState`;
+- trusted active annual context resolved by the server;
+- any non-GET ledger method rejected with HTTP 405;
+- local composition assembles the two domestic providers and annual read model;
+- frontend client exposes `list(filters)` only;
+- no generic ledger CRUD, persistence or write-back authority.
+
 ## Immediate implementation slice
 
 ### Slice IL-A — Domestic annual ledger foundation
@@ -29,7 +43,7 @@ Block 02 consumes these contracts rather than reintroducing a second year author
 1. `PTL-TASK-IL-001 — TaxLedgerEntry projection contract` — **DONE**;
 2. `PTL-TASK-IL-002 — Aggregate projection providers` — **DONE**;
 3. `PTL-TASK-IL-003 — Annual ledger query/read model` — **DONE**;
-4. `PTL-TASK-IL-004 — Ledger HTTP/client surface` — **READY**;
+4. `PTL-TASK-IL-004 — Ledger HTTP/client surface` — **IN_REVIEW**;
 5. `PTL-US-IL-001 — Unified annual income ledger`;
 6. `PTL-US-IL-006 — Traceability/authority/year isolation`.
 
@@ -46,7 +60,7 @@ Close `PTL-SPIKE-IL-002`; then implement `PTL-TASK-IL-005 + PTL-US-IL-004`. No F
 
 ### Slice IL-D — Factual annual position
 
-`PTL-US-IL-005` consumes the stable read model. IL-003 already establishes traceable factual totals without tax-result semantics.
+`PTL-US-IL-005` consumes the stable read model and HTTP/client surface. These enablers expose factual data only and do not introduce tax-result semantics.
 
 ### Terminal gate
 
@@ -59,7 +73,7 @@ Block 02 does not own evidence vault, SII reconciliation, readiness, annual tax 
 ## Current executable node
 
 ```text
-PTL-TASK-IL-004 — Ledger HTTP/client surface
+PTL-TASK-IL-004 — IN_REVIEW
 ```
 
-No unresolved P0 product decision blocks this task.
+Closure gate: fresh canonical `make validate`. On green, `PTL-US-IL-001 — Unified annual income ledger` and `PTL-US-IL-006 — Traceability/authority/year isolation` become the next P0 slice.
