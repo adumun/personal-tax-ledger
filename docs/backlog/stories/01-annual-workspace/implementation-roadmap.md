@@ -1,6 +1,6 @@
 # Block 01 — Annual Workspace — Implementation Roadmap
 
-**Status:** `GO / IMPLEMENTING WAVE A`  
+**Status:** `GO / IMPLEMENTING WAVE B`  
 **Date:** 2026-09-12  
 **Scope:** first implementation push for `Block 01 — Annual Workspace & Tax Profile`
 
@@ -18,13 +18,15 @@ The original start gates and the AW-001 validation gate are resolved:
 
 - `PTL-SPIKE-AW-001` — DONE; five-dimension applicability allowlist accepted;
 - SQLite migration assessment — PASS; additive/idempotent workspace materialization is viable and `PTL-TASK-AW-002` is revised `L -> M`;
-- `PTL-TASK-AW-001` — DONE; canonical `make validate` passes with 115/115 tests plus desktop and architecture checks.
+- `PTL-TASK-AW-001` — DONE; canonical `make validate` passes with 115/115 tests plus desktop and architecture checks;
+- `PTL-TASK-AW-002` — IN_PROGRESS on `feat/block-01-annual-workspace-persistence`.
 
 Evidence:
 
 - [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md)
 - [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md)
 - [`task-aw-001-evidence.md`](task-aw-001-evidence.md)
+- [`task-aw-002-evidence.md`](task-aw-002-evidence.md)
 
 Do not wait for Blocks 02–11 to be fully refined. Block 01 is a foundational enabler and delaying it increases migration cost because later income, evidence, expense, reconciliation, projection, health and closure capabilities all need a stable annual parent context.
 
@@ -33,7 +35,7 @@ Do not wait for Blocks 02–11 to be fully refined. Block 01 is a foundational e
 ```text
 PTL-TASK-AW-001  AnnualTaxWorkspace contract          [M]  DONE
         ↓
-PTL-TASK-AW-002  Persistence + migration              [M]  READY
+PTL-TASK-AW-002  Persistence + migration              [M]  IN_PROGRESS
         ↓
 PTL-US-AW-002    Create annual workspace              [M]
         ↓
@@ -88,9 +90,9 @@ open edit form in 2025
 2. `PTL-TASK-AW-001` — **DONE**; canonical `make validate` passes: 115/115 tests, desktop check and architecture check clean
 3. `PTL-TASK-AW-007` — **READY**
 
-### Wave B — Persistence & safe context
+### Wave B — Persistence & safe context — STARTED
 
-1. `PTL-TASK-AW-002` `[M]` — **READY**; migration gate closed
+1. `PTL-TASK-AW-002` `[M]` — **IN_PROGRESS**; SQLite metadata repository/migration implemented in first slice, full `make validate` pending
 2. `PTL-TASK-AW-003` `[M]`
 3. `PTL-TASK-AW-005` `[L]`
 
@@ -130,7 +132,7 @@ This is a planning estimate, not a delivery commitment.
 |---|---:|---:|
 | `SPIKE-AW-001` | 1–3 h | DONE |
 | `TASK-AW-001` | 0.5–1 day | DONE; canonical validation passed |
-| `TASK-AW-002` | 1–2 days | **0.5–1 day / M**, READY, subject to legacy-fixture validation |
+| `TASK-AW-002` | 1–2 days | **0.5–1 day / M**, IN_PROGRESS, full validation pending |
 | `TASK-AW-007` | 2–4 h | READY |
 | `TASK-AW-003` | 0.5–1 day | unchanged |
 | `TASK-AW-005` | 1–2 days | unchanged |
@@ -215,6 +217,18 @@ make validate
 
 `PTL-TASK-AW-001` is DONE and no longer blocks persistence/migration.
 
+## AW-002 implementation checkpoint
+
+The persistence branch currently adds:
+
+- `createSqliteAnnualTaxWorkspaceRepository`;
+- additive `annual_tax_workspaces` metadata persistence;
+- deterministic compatibility materialization from active settings + user-data years only;
+- idempotent conflict handling by `commercial_year`;
+- focused tests for phantom rule years, idempotence and no implicit fact copying.
+
+The closure gate is full repository `make validate` from a complete checkout.
+
 ## Explicitly not on this path
 
 The first push does not wait for or implement:
@@ -259,6 +273,7 @@ with no regression in current income, BHE, mortgage or tax-parameter behavior.
 - [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md)
 - [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md)
 - [`task-aw-001-evidence.md`](task-aw-001-evidence.md)
+- [`task-aw-002-evidence.md`](task-aw-002-evidence.md)
 - [`../../story-definition-and-implementation-readiness.md`](../../story-definition-and-implementation-readiness.md)
 - [`../../tax-management-expansion.md`](../../tax-management-expansion.md)
 
