@@ -1,6 +1,6 @@
 # Block 01 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / PRIOR-YEAR INITIALIZATION IN REVIEW`
+**Status:** `IMPLEMENTING / ALL FUNCTIONAL SLICES CLOSED`
 
 This file separates actor-visible Stories from technical enabling work according to `STD-WMS-001` / `STD-WMS-TYPES-001`. No `Technical Story` type is introduced.
 
@@ -42,8 +42,6 @@ Versioned `TaxApplicabilityProfile` v1 with the closed five-dimension allowlist,
 
 Evidence: [`task-aw-003-evidence.md`](task-aw-003-evidence.md). Canonical `make validate`: 155/155 plus desktop/architecture checks.
 
-**Enables:** AW-003, AW-004, AW-005.
-
 ---
 
 ### PTL-TASK-AW-004 — Allowlisted prior-year initialization service
@@ -52,19 +50,11 @@ Evidence: [`task-aw-003-evidence.md`](task-aw-003-evidence.md). Canonical `make 
 **Role:** ENABLER  
 **Size:** M  
 **Priority:** P1  
-**Status:** IN_REVIEW
+**Status:** DONE
 
-Implemented on `feat/block-01-prior-year-initialization`:
+Explicit reusable-category allowlist with `APPLICABILITY_PROFILE` as a revisable proposal; explicit forbidden-copy catalog; separate persisted provenance; idempotent repeat; rollback and prior active-year restoration after partial failure; no transactional repository discovery/inference.
 
-- explicit reusable-category allowlist;
-- Block 01 category: `APPLICABILITY_PROFILE` as revisable proposal;
-- explicit forbidden-copy catalog for facts/evidence/results;
-- persisted initialization provenance outside the profile schema;
-- idempotent repeat for identical source/target/category provenance;
-- rollback of target workspace and active-year restoration after partial failure;
-- no transactional repository discovery/inference.
-
-Evidence: [`task-aw-004-evidence.md`](task-aw-004-evidence.md). Closure gate: canonical `make validate`.
+Evidence: [`task-aw-004-evidence.md`](task-aw-004-evidence.md). Canonical `make validate`: PASS after reconciling the stale AW-002 frontend assertion.
 
 ---
 
@@ -112,19 +102,19 @@ Provider-neutral exact-year support policy with `SUPPORTED`, `SUPPORTED_WITH_WAR
 **Role:** QUALITY_ENABLER  
 **Size:** M  
 **Priority:** P0  
-**Status:** NOT_READY_FOR_CLOSURE
+**Status:** READY
 
-Final regression coverage must include:
+Terminal Block 01 quality gate. Required regression coverage is now available for:
 
-- migration from implicit-year persistence — AVAILABLE;
-- select/create year and duplicate-year behavior — AVAILABLE via AW-001/AW-002;
-- strict year isolation and stale async protection — AVAILABLE via AW-005/AW-006;
-- supported-year policy — AVAILABLE via AW-007;
-- tri-state applicability profile and conflict behavior — AVAILABLE via TASK-AW-003/US-AW-004;
-- workspace overview projection — AVAILABLE via TASK-AW-006/US-AW-005;
-- prior-year initialization allowlist — **IN_REVIEW** via TASK-AW-004/US-AW-003.
+- migration from implicit-year persistence;
+- select/create year and duplicate-year behavior;
+- strict year isolation and stale async protection;
+- supported-year policy;
+- tri-state applicability profile and conflict behavior;
+- workspace overview projection;
+- prior-year initialization allowlist, provenance, idempotency and rollback.
 
-AW-008 remains the terminal block-quality gate; it should not become a long-lived partial PR.
+AW-008 must now consolidate/verify the complete block regression contract and close effective DoD/dogfood evidence without redefining feature semantics.
 
 ## Spike
 
@@ -161,9 +151,9 @@ flowchart LR
   T2 --> U2
   T7[AW-TASK-007\nDONE] --> U2
 
-  U2 --> U3[AW-US-003\nIN REVIEW]
+  U2 --> U3[AW-US-003\nDONE]
   T3[AW-TASK-003\nDONE] --> U3
-  T4[AW-TASK-004\nIN REVIEW] --> U3
+  T4[AW-TASK-004\nDONE] --> U3
 
   S1[AW-SPIKE-001\nDONE] --> U4[AW-US-004\nDONE]
   U2 --> U4
@@ -173,7 +163,7 @@ flowchart LR
   U4 --> U5
   T6[AW-TASK-006\nDONE] --> U5
 
-  U1 --> T8[AW-TASK-008]
+  U1 --> T8[AW-TASK-008\nREADY]
   U2 --> T8
   U3 --> T8
   U4 --> T8
@@ -187,20 +177,19 @@ flowchart LR
 - TASK-AW-001 — DONE
 - TASK-AW-002 — DONE
 - TASK-AW-003 — DONE (`make validate`: 155/155)
+- TASK-AW-004 — DONE (`make validate`: PASS)
 - TASK-AW-005 — DONE
 - TASK-AW-006 — DONE (`make validate`: 169/169)
 - TASK-AW-007 — DONE
 - US-AW-001 + US-AW-002 — DONE (`make validate`: 149/149)
+- US-AW-003 — DONE (`make validate`: PASS)
 - US-AW-004 — DONE (`make validate`: 164/164)
 - US-AW-005 — DONE (`make validate`: 169/169)
 - US-AW-006 — DONE (`make validate`: 131/131)
 
 ## Current executable node
 
-1. `PTL-TASK-AW-004 — Allowlisted prior-year initialization service` — **IN_REVIEW**
-2. `PTL-US-AW-003 — Initialize from prior year` — **IN_REVIEW**
-
-After a clean canonical validation, `PTL-TASK-AW-008` becomes fully ready for terminal Block 01 regression closure.
+`PTL-TASK-AW-008 — Block-level automated regression suite` — **READY**.
 
 ## Critical safety chain
 
@@ -208,9 +197,9 @@ After a clean canonical validation, `PTL-TASK-AW-008` becomes fully ready for te
 TASK-AW-001 [DONE]
  -> TASK-AW-005 [DONE]
  -> US-AW-006 [DONE]
- -> TASK-AW-008 [REACHED, WAITING ONLY ON PRIOR-YEAR INITIALIZATION VALIDATION]
+ -> TASK-AW-008 [READY / TERMINAL GATE]
 ```
 
 ## Block readiness verdict
 
-All P0 functional behavior is closed. The final P1 functional slice is implemented and awaiting canonical validation; a clean gate advances directly to AW-008.
+All functional Block 01 Stories and enabling Tasks except the terminal quality enabler are implemented and canonically validated. AW-008 is now the sole remaining closure item.
