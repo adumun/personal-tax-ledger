@@ -12,7 +12,7 @@ This file separates actor-visible Stories from technical enabling work according
 **Role:** ENABLER  
 **Size:** M  
 **Priority:** P0  
-**Status:** IN_PROGRESS
+**Status:** IN_REVIEW
 
 Define a first-class annual workspace contract keyed by `commercialYear` and suitable for all TAX capabilities.
 
@@ -34,6 +34,8 @@ Constraints:
 - `derivedTaxYearLabel` is derived, not independently editable;
 - the contract does not absorb income/evidence/calculation entities;
 - lifecycle must be compatible with future TAX-11 without implementing close/reopen here.
+
+Validation/closure evidence: [`task-aw-001-evidence.md`](task-aw-001-evidence.md).
 
 **Enables:** AW-001, AW-002, AW-006.
 
@@ -285,10 +287,10 @@ flowchart LR
 
 ## Fast lane waves
 
-### Wave A — Foundation — READY / IN PROGRESS
+### Wave A — Foundation — READY / IN REVIEW
 
 - SPIKE-001 — DONE
-- TASK-001 — IN_PROGRESS
+- TASK-001 — IN_REVIEW (focused tests 4/4; full `make validate` pending complete checkout)
 - TASK-007 — READY
 
 ### Wave B — Persistence & context
