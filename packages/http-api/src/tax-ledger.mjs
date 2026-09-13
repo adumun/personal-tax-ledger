@@ -4,7 +4,7 @@ function optionalFilter(url, key) {
 }
 
 export function createTaxLedgerRouter({ readModel, resolveContext, json, apiError }) {
-  if (typeof readModel?.query !== 'function') throw new TypeError('readModel.query is required');
+  if (typeof readModel?.listAnnualLedger !== 'function') throw new TypeError('readModel.listAnnualLedger is required');
   if (typeof resolveContext !== 'function') throw new TypeError('resolveContext is required');
 
   return async function routeTaxLedger({ req, res, path, url }) {
@@ -21,7 +21,7 @@ export function createTaxLedgerRouter({ readModel, resolveContext, json, apiErro
         ownerAggregate: optionalFilter(url, 'ownerAggregate'),
         recognitionState: optionalFilter(url, 'recognitionState')
       };
-      json(res, 200, await readModel.query(context, filters));
+      json(res, 200, await readModel.listAnnualLedger(context, filters));
       return true;
     } catch (error) {
       const code = error?.code || 'invalid_tax_ledger_query';
