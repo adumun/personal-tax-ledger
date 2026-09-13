@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / FIRST ENABLER IN REVIEW`  
+**Status:** `GO / IL-001 CLOSED / IL-002 READY`  
 **Date:** 2026-09-13
 
 ## Baseline inherited from Block 01
@@ -27,18 +27,18 @@ PTL already supports aggregate-specific behavior for:
 
 The implementation gap is unified TAX-04 ledger semantics and a stable projection/read model.
 
-## Closed decision
+## Closed decisions and contracts
 
 `PTL-SPIKE-IL-001` is DONE: the ledger is projection-only over aggregate-owned facts.
 
-This means Block 02 starts with contracts/read models, not with a schema migration that duplicates `income_sources` and `fee_receipts`.
+`PTL-TASK-IL-001` is DONE: `TaxLedgerEntry` and the read-only `TaxLedgerProvider.list(context)` port are canonically validated. No generic ledger persistence/mutation authority exists. Canonical `make validate`: **190/190**, desktop/architecture PASS.
 
 ## Immediate implementation slice
 
 ### Slice IL-A — Domestic annual ledger foundation
 
-1. `PTL-TASK-IL-001 — TaxLedgerEntry projection contract` — **IN_REVIEW**;
-2. `PTL-TASK-IL-002 — Aggregate projection providers`;
+1. `PTL-TASK-IL-001 — TaxLedgerEntry projection contract` — **DONE**;
+2. `PTL-TASK-IL-002 — Aggregate projection providers` — **READY**;
 3. `PTL-TASK-IL-003 — Annual ledger query/read model`;
 4. `PTL-TASK-IL-004 — Ledger HTTP/client surface`;
 5. `PTL-US-IL-001 — Unified annual income ledger`;
@@ -83,7 +83,7 @@ It produces canonical factual projections that those later capabilities consume.
 ## Current executable node
 
 ```text
-PTL-TASK-IL-001 — IN_REVIEW
+PTL-TASK-IL-002 — Aggregate projection providers
 ```
 
-Closure gate: fresh canonical `make validate`. On green, the next P0 node is `PTL-TASK-IL-002 — Aggregate projection providers`.
+No unresolved P0 product decision blocks this task.
