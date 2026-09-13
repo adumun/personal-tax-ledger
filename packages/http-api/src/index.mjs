@@ -5,6 +5,7 @@ export { readJsonBody } from './read-json-body.mjs';
 export { queryInt, queryParam, queryYear } from './query-params.mjs';
 export { createAnnualWorkspaceRouter } from './annual-workspaces.mjs';
 export { createAnnualWorkspaceOverviewRouter } from './annual-workspace-overview.mjs';
+export { createPriorYearInitializationRouter } from './prior-year-initialization.mjs';
 export { createTaxApplicabilityProfileRouter } from './tax-applicability-profile.mjs';
 export { createExecutionLogRouter } from './execution-logs.mjs';
 export { createFeeExpenseSettingsRouter, createFeeReceiptRouter } from './fee-receipts.mjs';

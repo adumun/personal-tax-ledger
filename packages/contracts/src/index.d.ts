@@ -147,3 +147,18 @@ export interface TaxApplicabilityProfileRepository {
 }
 export const TAX_APPLICABILITY_PROFILE_REPOSITORY_METHODS: readonly string[];
 export function assertTaxApplicabilityProfileRepositoryContract(repository: unknown): TaxApplicabilityProfileRepository;
+
+export type PriorYearInitializationRecord = {
+  targetWorkspaceId: string;
+  sourceWorkspaceId: string;
+  sourceCommercialYear: number;
+  targetCommercialYear: number;
+  categories: string[];
+  initializedAt: string;
+};
+export interface PriorYearInitializationRepository {
+  getByTargetWorkspaceId(context: WorkspaceContext, targetWorkspaceId: string): Promise<PriorYearInitializationRecord | null>;
+  create(context: WorkspaceContext, record: PriorYearInitializationRecord): Promise<PriorYearInitializationRecord>;
+}
+export const PRIOR_YEAR_INITIALIZATION_REPOSITORY_METHODS: readonly string[];
+export function assertPriorYearInitializationRepositoryContract(repository: unknown): PriorYearInitializationRepository;

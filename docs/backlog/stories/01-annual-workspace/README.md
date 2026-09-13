@@ -1,6 +1,6 @@
 # Block 01 — Annual Workspace & Tax Profile
 
-**Status:** `DOGFOOD / OVERVIEW CLOSED`  
+**Status:** `DOGFOOD / PRIOR-YEAR INITIALIZATION IN REVIEW`  
 **Primary capability:** `TAX-01 — Annual Tax Workspace`  
 **Related capabilities:** `TAX-02`, `TAX-06`, `TAX-09`, `TAX-10`, `TAX-11`, `TAX-12`  
 **Story standard:** `STD-WMS-STORY-001@0.1.0-draft`  
@@ -27,7 +27,11 @@ Closed and canonically validated:
 - `PTL-US-AW-004` — DONE; 164/164;
 - `PTL-TASK-AW-006 + PTL-US-AW-005` — DONE; **169/169**, plus desktop/architecture checks PASS.
 
-The only remaining functional slice is `PTL-TASK-AW-004 + PTL-US-AW-003 — allowlisted prior-year initialization`. After that, `PTL-TASK-AW-008` becomes the terminal Block 01 regression/DoD gate.
+Current final functional slice:
+
+- `PTL-TASK-AW-004 + PTL-US-AW-003` — **IN_REVIEW** on `feat/block-01-prior-year-initialization`.
+
+This slice reuses only allowlisted configuration/proposal data and persists source-year provenance separately. After canonical validation, `PTL-TASK-AW-008` becomes the terminal Block 01 regression/DoD gate.
 
 ## Existing implementation baseline
 
@@ -45,7 +49,10 @@ The application now:
 - preserves year isolation for income, BHE and mortgage operations;
 - persists a versioned five-dimension applicability profile;
 - exposes `NEEDS_REVIEW` without rewriting facts;
-- exposes a structural `Año tributario` overview without tax-outcome/readiness/SII semantics.
+- exposes a structural `Año tributario` overview without tax-outcome/readiness/SII semantics;
+- implements explicit prior-year initialization preview with a closed reusable-category allowlist;
+- stores initialization provenance separately from tax declarations;
+- rolls back target workspace/active-year on partial initialization failure.
 
 Rule-catalog seed years remain distinct from user workspaces. `tax_parameters` / `tax_rule_sources` can determine supported-year policy but do not independently authorize workspace materialization.
 
@@ -69,7 +76,7 @@ operationRenta = AT2027
 |---|---|---|---|---|
 | `PTL-US-AW-001` | Select and enter an annual workspace | `NEW_SECTION`, `FLOW_CHANGE` | L1 | DONE |
 | `PTL-US-AW-002` | Create a new annual workspace | `NEW_SCREEN`, `FLOW_CHANGE` | L2 | DONE |
-| `PTL-US-AW-003` | Initialize a year from a prior year without copying tax facts | `FLOW_CHANGE`, `STATE_CHANGE` | L2 | NEXT |
+| `PTL-US-AW-003` | Initialize a year from a prior year without copying tax facts | `FLOW_CHANGE`, `STATE_CHANGE` | L2 | IN_REVIEW |
 | `PTL-US-AW-004` | Define the annual tax applicability profile | `NEW_SECTION`, `FIELD_ADDITION` | L2 | DONE |
 | `PTL-US-AW-005` | Understand the selected workspace context and completeness | `NEW_SCREEN`, `STATE_CHANGE` | L2 | DONE |
 | `PTL-US-AW-006` | Preserve strict year isolation during navigation and editing | `STATE_CHANGE` | L1 | DONE |
@@ -119,5 +126,5 @@ The current execution order and resolved gates are in [`implementation-roadmap.m
 
 Remaining implementation sequence:
 
-1. `PTL-TASK-AW-004 + PTL-US-AW-003` — allowlisted prior-year initialization;
+1. validate/close `PTL-TASK-AW-004 + PTL-US-AW-003`;
 2. `PTL-TASK-AW-008` — block-level regression closure and effective DoD/dogfood review.

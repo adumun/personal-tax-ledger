@@ -1,6 +1,6 @@
 # Block 01 — Annual Workspace — Implementation Roadmap
 
-**Status:** `GO / OVERVIEW CLOSED`  
+**Status:** `GO / ALL FUNCTIONAL SLICES CLOSED / AW-008 READY`  
 **Date:** 2026-09-13  
 **Scope:** `Block 01 — Annual Workspace & Tax Profile`
 
@@ -19,36 +19,33 @@ Replace the implicit/global year setting with a first-class `AnnualTaxWorkspace`
 - `PTL-US-AW-001 + PTL-US-AW-002` — DONE; `make validate` 149/149.
 - `PTL-TASK-AW-003` — DONE; `make validate` 155/155.
 - `PTL-US-AW-004` — DONE; `make validate` 164/164.
-- `PTL-TASK-AW-006 + PTL-US-AW-005` — DONE; `make validate` **169/169**, `desktop:check` PASS, `architecture:check` PASS.
+- `PTL-TASK-AW-006 + PTL-US-AW-005` — DONE; `make validate` 169/169, desktop/architecture PASS.
+- `PTL-TASK-AW-004 + PTL-US-AW-003` — DONE; canonical `make validate` rerun PASS after the obsolete AW-002 assertion was reconciled with the now-enabled AW-003 flow.
 
-## Current executable path — prior-year initialization
+## Prior-year initialization — closed contract
 
-The only remaining functional Block 01 slice is:
+The reusable-category allowlist currently contains exactly:
 
-1. `PTL-TASK-AW-004 — Allowlisted prior-year initialization service`;
-2. `PTL-US-AW-003 — Initialize from prior year`.
+```text
+APPLICABILITY_PROFILE
+```
 
-The implementation MUST be category allowlisted. It MUST NOT copy all rows by `tax_year` or turn historical facts into current-year facts.
+The profile is copied as a revisable proposal into the target workspace. No generic table-driven copy is allowed.
 
-### Required semantics
+Provenance is persisted separately from `TaxApplicabilityProfile v1` in `annual_workspace_initializations` with source/target workspace/year, actual category set and timestamp.
 
-Reusable configuration may include only explicitly classified reusable/proposal data, initially:
-
-- applicability profile as a revisable proposal;
-- compatible non-transactional annual settings when explicitly allowed;
-- future recurring-source templates only when a canonical template model exists.
-
-The following remain forbidden:
+Explicitly forbidden copy remains:
 
 - realized amounts;
-- BHE, retentions or PPM as current-year facts;
+- BHE/fee receipts;
+- retentions or PPM;
 - ledger movements;
 - documentary evidence;
 - SII/reconciliation state;
-- prior-year readiness/closure state;
-- calculated results or projections as current-year facts.
+- readiness/closure state;
+- calculated results or historical projections.
 
-Every copied/proposed value must retain source-year provenance and the operation must be idempotent or require explicit conflict resolution.
+Failure/idempotency semantics are validated: unsupported categories fail before creation; partial failure removes the target and restores the previous active year; identical provenance is idempotent; conflicting existing targets remain explicit conflicts.
 
 ## Critical safety chain
 
@@ -59,7 +56,7 @@ PTL-TASK-AW-005 [DONE]
         ↓
 PTL-US-AW-006   [DONE]
         ↓
-PTL-TASK-AW-008 [REACHED / WAITING ONLY ON PRIOR-YEAR INITIALIZATION]
+PTL-TASK-AW-008 [READY / TERMINAL QUALITY GATE]
 ```
 
 ## AW-008 readiness
@@ -74,9 +71,9 @@ PTL-TASK-AW-008 [REACHED / WAITING ONLY ON PRIOR-YEAR INITIALIZATION]
 | duplicate-year behavior | AVAILABLE |
 | tri-state applicability profile | AVAILABLE |
 | workspace overview projection | AVAILABLE |
-| prior-year initialization allowlist | PENDING TASK-AW-004/US-AW-003 |
+| prior-year initialization allowlist/provenance/idempotency/rollback | AVAILABLE |
 
-Opening AW-008 as a long-lived partial PR remains intentionally avoided. Once prior-year initialization is validated, AW-008 becomes the immediate terminal quality gate.
+AW-008 is now the immediate executable node. It must consolidate complete Block 01 regression evidence and effective DoD/dogfood review; it must not add new feature semantics.
 
 ## Established technical invariants
 
@@ -90,6 +87,7 @@ Opening AW-008 as a long-lived partial PR remains intentionally avoided. Once pr
 - `TaxApplicabilityProfile` is expectation/applicability only and is versioned independently of canonical facts.
 - `NO + canonical fact PRESENT => NEEDS_REVIEW`; facts remain authoritative.
 - Annual Workspace Overview is structural only and contains no tax outcome/readiness/SII/optimization semantics.
+- prior-year initialization is explicit, allowlisted, auditable and non-transactional.
 
 ## Canonical evidence
 
@@ -98,11 +96,13 @@ Opening AW-008 as a long-lived partial PR remains intentionally avoided. Once pr
 - [`task-aw-001-evidence.md`](task-aw-001-evidence.md)
 - [`task-aw-002-evidence.md`](task-aw-002-evidence.md)
 - [`task-aw-003-evidence.md`](task-aw-003-evidence.md)
+- [`task-aw-004-evidence.md`](task-aw-004-evidence.md)
 - [`task-aw-005-evidence.md`](task-aw-005-evidence.md)
 - [`task-aw-006-evidence.md`](task-aw-006-evidence.md)
 - [`task-aw-007-evidence.md`](task-aw-007-evidence.md)
 - [`us-aw-001-evidence.md`](us-aw-001-evidence.md)
 - [`us-aw-002-evidence.md`](us-aw-002-evidence.md)
+- [`us-aw-003-evidence.md`](us-aw-003-evidence.md)
 - [`us-aw-004-evidence.md`](us-aw-004-evidence.md)
 - [`us-aw-005-evidence.md`](us-aw-005-evidence.md)
 - [`us-aw-006-evidence.md`](us-aw-006-evidence.md)
@@ -110,4 +110,4 @@ Opening AW-008 as a long-lived partial PR remains intentionally avoided. Once pr
 
 ## Decision
 
-`GO` for `PTL-TASK-AW-004 + PTL-US-AW-003`. This is the final functional slice before `PTL-TASK-AW-008` closes Block 01 quality/regression evidence.
+`GO` for `PTL-TASK-AW-008`. No remaining functional dependency blocks terminal Block 01 closure.

@@ -24,3 +24,8 @@ export {
   TAX_FACT_PRESENCE
 } from './features/annual-workspace/tax-applicability-profile-review-use-cases.mjs';
 export { createAnnualWorkspaceOverviewUseCases } from './features/annual-workspace/annual-workspace-overview-use-cases.mjs';
+export {
+  createPriorYearInitializationUseCases,
+  PRIOR_YEAR_REUSABLE_CATEGORY,
+  PRIOR_YEAR_FORBIDDEN_COPY
+} from './features/annual-workspace/prior-year-initialization-use-cases.mjs';

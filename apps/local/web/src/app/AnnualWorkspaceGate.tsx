@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import WorkspaceView from './WorkspaceView';
 import AnnualWorkspaceOverviewSection from './AnnualWorkspaceOverviewSection';
 import ApplicabilityProfileSection from './ApplicabilityProfileSection';
+import { priorYearInitializationClient, type PriorYearInitializationPreview } from './prior-year-initialization-client';
 import { api, ApiRequestError, type AnnualWorkspaceList, type AnnualWorkspaceOption } from '../api';
 import './annual-workspace.css';
 
@@ -15,6 +16,10 @@ export default function AnnualWorkspaceGate() {
   const [error, setError] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
   const [candidateYear, setCandidateYear] = useState(new Date().getFullYear());
+  const [creationMode, setCreationMode] = useState<'EMPTY' | 'PRIOR'>('EMPTY');
+  const [sourceYear, setSourceYear] = useState<number | null>(null);
+  const [initializationPreview, setInitializationPreview] = useState<PriorYearInitializationPreview | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const activeOption = useMemo(
     () => catalog?.workspaces.find(item => item.workspace.commercialYear === catalog.activeCommercialYear) || null,
@@ -30,6 +35,25 @@ export default function AnnualWorkspaceGate() {
   useEffect(() => {
     reloadCatalog().catch(e => setError(errorMessage(e)));
   }, []);
+
+  useEffect(() => {
+    if (!createOpen || creationMode !== 'PRIOR' || sourceYear == null || !Number.isSafeInteger(candidateYear) || candidateYear <= 0) {
+      setInitializationPreview(null);
+      setSelectedCategories([]);
+      return;
+    }
+    let cancelled = false;
+    priorYearInitializationClient.preview(sourceYear, candidateYear)
+      .then(preview => {
+        if (cancelled) return;
+        setInitializationPreview(preview);
+        setSelectedCategories(preview.categories.filter(item => item.available && item.selectedByDefault).map(item => item.key));
+      })
+      .catch(e => {
+        if (!cancelled) setError(errorMessage(e));
+      });
+    return () => { cancelled = true; };
+  }, [createOpen, creationMode, sourceYear, candidateYear]);
 
   const selectWorkspace = async (option: AnnualWorkspaceOption) => {
     if (!catalog || option.workspace.commercialYear === catalog.activeCommercialYear) return;
@@ -57,8 +81,26 @@ export default function AnnualWorkspaceGate() {
   const openCreate = () => {
     const activeYear = catalog?.activeCommercialYear || new Date().getFullYear();
     setCandidateYear(activeYear + 1);
+    setCreationMode('EMPTY');
+    setSourceYear(activeYear);
+    setInitializationPreview(null);
+    setSelectedCategories([]);
     setError('');
     setCreateOpen(true);
+  };
+
+  const runEmptyCreation = async (acceptWarnings = false) => {
+    await api.createAnnualWorkspace(candidateYear, acceptWarnings);
+  };
+
+  const runPriorYearInitialization = async (acceptWarnings = false) => {
+    if (sourceYear == null || !initializationPreview) throw new Error('Selecciona un año fuente válido y espera el preview de inicialización.');
+    await priorYearInitializationClient.initialize({
+      sourceCommercialYear: sourceYear,
+      targetCommercialYear: candidateYear,
+      categories: selectedCategories,
+      acceptWarnings
+    });
   };
 
   const createWorkspace = async () => {
@@ -71,19 +113,25 @@ export default function AnnualWorkspaceGate() {
       setError(`El año comercial ${candidateYear} ya existe. Puedes abrir ese workspace desde el selector.`);
       return;
     }
+    if (creationMode === 'PRIOR' && (!initializationPreview || initializationPreview.targetAlreadyExists)) {
+      setError('No se puede inicializar mientras el preview no sea válido.');
+      return;
+    }
 
     setBusy(true);
     setError('');
     try {
-      await api.createAnnualWorkspace(candidateYear);
+      if (creationMode === 'PRIOR') await runPriorYearInitialization(false);
+      else await runEmptyCreation(false);
       await reloadCatalog();
       setCreateOpen(false);
     } catch (e) {
-      if (e instanceof ApiRequestError && e.code === 'tax_year_support_warning_confirmation_required') {
-        const accepted = window.confirm(`${e.message}\n\n¿Crear y abrir el año de todas formas?`);
+      if ((e as { code?: string })?.code === 'tax_year_support_warning_confirmation_required') {
+        const accepted = window.confirm(`${errorMessage(e)}\n\n¿Crear y abrir el año de todas formas?`);
         if (accepted) {
           try {
-            await api.createAnnualWorkspace(candidateYear, true);
+            if (creationMode === 'PRIOR') await runPriorYearInitialization(true);
+            else await runEmptyCreation(true);
             await reloadCatalog();
             setCreateOpen(false);
             return;
@@ -91,7 +139,7 @@ export default function AnnualWorkspaceGate() {
             setError(errorMessage(retryError));
           }
         }
-      } else if ((e as { code?: string })?.code !== 'workspace_transition_cancelled') {
+      } else if (!(e instanceof ApiRequestError && e.code === 'workspace_transition_cancelled')) {
         setError(errorMessage(e));
       }
     } finally {
@@ -102,6 +150,8 @@ export default function AnnualWorkspaceGate() {
   if (!catalog || !activeOption) {
     return <div className="annual-workspace-loading">{error || 'Cargando contexto anual…'}</div>;
   }
+
+  const sourceOptions = catalog.workspaces.filter(item => item.workspace.commercialYear !== candidateYear);
 
   return <div className="annual-workspace-gate">
     <section className="annual-workspace-header" aria-label="Contexto anual activo">
@@ -148,13 +198,46 @@ export default function AnnualWorkspaceGate() {
         </div>
         <fieldset>
           <legend>¿Cómo quieres comenzar?</legend>
-          <label><input type="radio" checked readOnly /> Empezar vacío</label>
-          <label className="disabled"><input type="radio" disabled /> Inicializar desde un año anterior <small>Disponible en el flujo AW-003.</small></label>
+          <label><input type="radio" checked={creationMode === 'EMPTY'} onChange={() => setCreationMode('EMPTY')} /> Empezar vacío</label>
+          <label><input type="radio" checked={creationMode === 'PRIOR'} onChange={() => setCreationMode('PRIOR')} /> Inicializar desde un año anterior</label>
         </fieldset>
-        <p className="annual-workspace-copy-note">Empezar vacío crea únicamente el contexto anual. No copia ingresos, boletas, hipotecas, APV, evidencia ni conciliaciones.</p>
+
+        {creationMode === 'EMPTY' && <p className="annual-workspace-copy-note">Empezar vacío crea únicamente el contexto anual. No copia ingresos, boletas, hipotecas, APV, evidencia ni conciliaciones.</p>}
+
+        {creationMode === 'PRIOR' && <div className="prior-year-initialization-preview">
+          <label>
+            <span>Año fuente</span>
+            <select value={sourceYear ?? ''} onChange={e => setSourceYear(Number(e.target.value))}>
+              {sourceOptions.map(item => <option key={item.workspace.id} value={item.workspace.commercialYear}>{item.workspace.commercialYear}</option>)}
+            </select>
+          </label>
+          <h3>Reutilizar</h3>
+          {!initializationPreview && <p>Cargando categorías reutilizables…</p>}
+          {initializationPreview?.categories.map(category => <label key={category.key} className={!category.available ? 'disabled' : ''}>
+            <input
+              type="checkbox"
+              disabled={!category.available}
+              checked={selectedCategories.includes(category.key)}
+              onChange={e => setSelectedCategories(current => e.target.checked
+                ? [...new Set([...current, category.key])]
+                : current.filter(key => key !== category.key))}
+            />
+            {category.label}{!category.available ? ' · No disponible en el año fuente' : ''}
+          </label>)}
+          <h3>No se copiarán</h3>
+          <ul>
+            <li>montos realizados ni movimientos de ledger</li>
+            <li>boletas, retenciones ni PPM</li>
+            <li>evidencia documental ni conciliaciones SII</li>
+            <li>readiness/cierre del año anterior</li>
+            <li>resultados calculados ni proyecciones históricas</li>
+          </ul>
+          <small>Lo reutilizado conserva provenance del año fuente y queda sujeto a revisión.</small>
+        </div>}
+
         <div className="annual-workspace-modal-actions">
           <button disabled={busy} onClick={() => setCreateOpen(false)}>Cancelar</button>
-          <button className="primary" disabled={busy} onClick={createWorkspace}>{busy ? 'Creando…' : 'Crear y abrir'}</button>
+          <button className="primary" disabled={busy || (creationMode === 'PRIOR' && !initializationPreview)} onClick={createWorkspace}>{busy ? 'Creando…' : creationMode === 'PRIOR' ? 'Crear e inicializar' : 'Crear y abrir'}</button>
         </div>
       </section>
     </div>}

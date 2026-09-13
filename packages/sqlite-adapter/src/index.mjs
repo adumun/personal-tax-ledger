@@ -9,5 +9,6 @@ export { createSqliteTaxParameterRepository } from './tax-parameter-repository.m
 export { createSqliteTaxRuleSourceRepository } from './tax-rule-source-repository.mjs';
 export { createSqliteAnnualTaxWorkspaceRepository } from './annual-tax-workspace-repository.mjs';
 export { createSqliteTaxApplicabilityProfileRepository } from './tax-applicability-profile-repository.mjs';
+export { createSqlitePriorYearInitializationRepository } from './prior-year-initialization-repository.mjs';
 export { createSqliteReferenceRepository, createSqliteYearRepository, createSqliteSnapshotRepository } from './support-repositories.mjs';
 export { createSqliteDatabase } from './database/database.mjs';
