@@ -1,6 +1,13 @@
 export const packageName = '@personal-tax-ledger/contracts';
 
-export { assertWorkspaceContext, LOCAL_WORKSPACE_CONTEXT } from './shared/workspace-context.mjs';
+export {
+  WorkspaceContextMismatchError,
+  assertWorkspaceContext,
+  assertAnnualWorkspaceContext,
+  createAnnualWorkspaceContext,
+  assertContextCommercialYear,
+  LOCAL_WORKSPACE_CONTEXT
+} from './shared/workspace-context.mjs';
 export { INCOME_REPOSITORY_METHODS, assertIncomeRepositoryContract } from './features/income/income-source.mjs';
 export { SETTINGS_REPOSITORY_METHODS, assertSettingsRepositoryContract } from './features/settings/settings.mjs';
 export { EXECUTION_LOG_REPOSITORY_METHODS, assertExecutionLogRepositoryContract } from './features/logs/execution-log.mjs';
