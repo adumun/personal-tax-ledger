@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / IL-002 IN REVIEW`  
+**Status:** `GO / IL-002 CLOSED / IL-003 READY`  
 **Date:** 2026-09-13
 
 ## Baseline inherited from Block 01
@@ -33,27 +33,15 @@ The implementation gap is unified TAX-04 ledger semantics and a stable projectio
 
 `PTL-TASK-IL-001` is DONE: `TaxLedgerEntry` and the read-only `TaxLedgerProvider.list(context)` port are canonically validated. No generic ledger persistence/mutation authority exists. Canonical `make validate`: **190/190**, desktop/architecture PASS.
 
-## Current implementation — IL-002
-
-`PTL-TASK-IL-002` is implemented on `feat/block-02-ledger-projection-providers` and remains **IN_REVIEW** until canonical validation passes.
-
-Closed implementation semantics:
-
-- income sources are projected without rerunning salary/APV calculations;
-- `inputMode=GROSS` populates gross only; `inputMode=NET` populates net only;
-- inactive income sources are `EXCLUDED`;
-- fee receipts reuse existing `ISSUE_DATE` / `PAID_ONLY` recognition policy;
-- cancelled BHE are always `EXCLUDED`;
-- persisted BHE gross/withholding/PPM/net values are projected directly, never recalculated;
-- both providers require trusted annual context and expose only `list(context)`.
+`PTL-TASK-IL-002` is DONE: aggregate projection providers for `income_sources` and `fee_receipts` are canonically validated. They preserve owner authority, reuse existing BHE recognition semantics, and do not recalculate salary/APV/BHE amounts. Canonical `make validate`: **195/195**, desktop/architecture PASS.
 
 ## Immediate implementation slice
 
 ### Slice IL-A — Domestic annual ledger foundation
 
 1. `PTL-TASK-IL-001 — TaxLedgerEntry projection contract` — **DONE**;
-2. `PTL-TASK-IL-002 — Aggregate projection providers` — **IN_REVIEW**;
-3. `PTL-TASK-IL-003 — Annual ledger query/read model`;
+2. `PTL-TASK-IL-002 — Aggregate projection providers` — **DONE**;
+3. `PTL-TASK-IL-003 — Annual ledger query/read model` — **READY**;
 4. `PTL-TASK-IL-004 — Ledger HTTP/client surface`;
 5. `PTL-US-IL-001 — Unified annual income ledger`;
 6. `PTL-US-IL-006 — Traceability/authority/year isolation`.
@@ -97,7 +85,7 @@ It produces canonical factual projections that those later capabilities consume.
 ## Current executable node
 
 ```text
-PTL-TASK-IL-002 — IN_REVIEW
+PTL-TASK-IL-003 — Annual ledger query/read model
 ```
 
-Closure gate: fresh canonical `make validate`. On green, `PTL-TASK-IL-003 — Annual ledger query/read model` becomes immediately executable.
+No unresolved P0 product decision blocks this task.
