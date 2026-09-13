@@ -9,6 +9,11 @@ export function createIncomeComposition(dependencies) {
   return {
     incomeRepository: repository,
     incomeUseCases: useCases,
-    createIncomeRouter: routerDependencies => createIncomeRouter({ ...routerDependencies, useCases, context: LOCAL_WORKSPACE_CONTEXT })
+    createIncomeRouter: routerDependencies => createIncomeRouter({
+      ...routerDependencies,
+      useCases,
+      context: LOCAL_WORKSPACE_CONTEXT,
+      resolveContext: dependencies?.resolveAnnualContext
+    })
   };
 }
