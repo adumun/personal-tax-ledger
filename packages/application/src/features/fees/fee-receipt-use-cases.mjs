@@ -3,6 +3,7 @@ import {
   assertContextCommercialYear,
   assertFeeReceiptRepositoryContract
 } from '@personal-tax-ledger/contracts';
+import { createActiveWorkspaceGuard } from '../../shared/active-workspace-guard.mjs';
 
 function assertEntityInActiveYear(context, entity, operation) {
   if (!entity) return null;
@@ -10,8 +11,9 @@ function assertEntityInActiveYear(context, entity, operation) {
   return entity;
 }
 
-export function createFeeReceiptUseCases({ repository }) {
+export function createFeeReceiptUseCases({ repository, resolveActiveContext }) {
   assertFeeReceiptRepositoryContract(repository);
+  const assertContextStillActive = createActiveWorkspaceGuard(resolveActiveContext);
   return {
     async listFeeReceipts(context, filters = {}) {
       assertAnnualWorkspaceContext(context);
@@ -27,6 +29,7 @@ export function createFeeReceiptUseCases({ repository }) {
     async createFeeReceipt(context, input) {
       assertAnnualWorkspaceContext(context);
       assertContextCommercialYear(context, input?.taxYear, 'createFeeReceipt');
+      await assertContextStillActive(context, 'createFeeReceipt');
       return repository.create(context, input);
     },
     async updateFeeReceipt(context, id, input) {
@@ -35,6 +38,7 @@ export function createFeeReceiptUseCases({ repository }) {
       const current = await repository.get(context, id);
       if (!current) return null;
       assertEntityInActiveYear(context, current, 'updateFeeReceipt');
+      await assertContextStillActive(context, 'updateFeeReceipt');
       return repository.update(context, id, input);
     },
     async deleteFeeReceipt(context, id) {
@@ -42,6 +46,7 @@ export function createFeeReceiptUseCases({ repository }) {
       const current = await repository.get(context, id);
       if (!current) return false;
       assertEntityInActiveYear(context, current, 'deleteFeeReceipt');
+      await assertContextStillActive(context, 'deleteFeeReceipt');
       return repository.remove(context, id);
     },
     async duplicateFeeReceipt(context, id) {
@@ -49,6 +54,7 @@ export function createFeeReceiptUseCases({ repository }) {
       const current = await repository.get(context, id);
       if (!current) return null;
       assertEntityInActiveYear(context, current, 'duplicateFeeReceipt');
+      await assertContextStillActive(context, 'duplicateFeeReceipt');
       return repository.duplicate(context, id);
     }
   };
