@@ -14,36 +14,39 @@ The block is deliberately narrow: it establishes annual identity, year selection
 
 ## Current execution status
 
-The Block 01 fast lane has advanced into persistence:
+The Block 01 fast lane has advanced through persistence and into trusted annual context propagation:
 
 - [`PTL-SPIKE-AW-001`](spike-aw-001-applicability-profile.md) — **DONE**; minimum Block 01 applicability profile resolved to five dimensions;
 - [`SQLite migration assessment`](sqlite-migration-assessment.md) — **PASS**; actual startup schema evolution and deterministic workspace materialization path verified;
 - `PTL-TASK-AW-001` — **DONE**; canonical `make validate` passed with 115/115 tests plus `desktop:check` and `architecture:check`; evidence in [`task-aw-001-evidence.md`](task-aw-001-evidence.md);
-- `PTL-TASK-AW-002` — **IN_PROGRESS** on `feat/block-01-annual-workspace-persistence`; SQLite metadata repository/materialization and focused migration tests are implemented, full `make validate` remains the closure gate; evidence in [`task-aw-002-evidence.md`](task-aw-002-evidence.md);
+- `PTL-TASK-AW-002` — **DONE**; canonical `make validate` passed with 118/118 tests plus `desktop:check` and `architecture:check`; AnnualTaxWorkspace SQLite persistence/materialization merged to `master`; evidence in [`task-aw-002-evidence.md`](task-aw-002-evidence.md);
+- `PTL-TASK-AW-005` — **IN_REVIEW** on `feat/block-01-trusted-workspace-context`; trusted annual identity, application-boundary isolation, stale-write revalidation, frontend stale-response suppression and annual audit traceability are implemented; full `make validate` remains the closure gate; evidence in [`task-aw-005-evidence.md`](task-aw-005-evidence.md);
 - `PTL-TASK-AW-007` — **READY** in parallel.
 
-The safety chain remains mandatory:
+The safety chain is actively being executed:
 
 ```text
 PTL-TASK-AW-001 [DONE]
- -> PTL-TASK-AW-005
+ -> PTL-TASK-AW-005 [IN_REVIEW]
  -> PTL-US-AW-006
  -> PTL-TASK-AW-008
 ```
 
 ## Existing implementation baseline
 
-The current application already:
+The application already:
 
 - stores `settings.year`;
 - loads incomes, fee receipts, mortgages, tax parameters and simulation by selected year;
 - allows changing the year from `Configuración tributaria`;
 - can copy income sources from the nearest previous year;
-- versions tax parameters by year.
+- versions tax parameters by year;
+- persists first-class `AnnualTaxWorkspace` metadata without copying tax facts;
+- resolves a trusted `AnnualWorkspaceContext` for active-year application operations on the AW-005 branch.
 
-This block must preserve those working capabilities while replacing implicit/global year context with a first-class workspace contract.
+Block 01 must preserve those working capabilities while replacing implicit/global year context with a first-class workspace contract.
 
-The schema review additionally established that rule-catalog seed years are not equivalent to user workspaces. `tax_parameters` / `tax_rule_sources` may inform supported-year policy but do not independently authorize workspace materialization.
+The schema review established that rule-catalog seed years are not equivalent to user workspaces. `tax_parameters` / `tax_rule_sources` may inform supported-year policy but do not independently authorize workspace materialization. Active-year `tax_parameters` are year-isolated as mutable configuration; `tax_rule_sources` remains a provider/rule catalog outside workspace ownership.
 
 ## Annual identity convention
 
