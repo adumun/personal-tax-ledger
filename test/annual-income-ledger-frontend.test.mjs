@@ -16,7 +16,9 @@ test('US-IL-001: ledger anual visible conserva estructura factual y filtros exac
   assert.match(source, /recognitionState/);
   assert.match(source, /No hay ingresos registrados para este año/);
   assert.match(source, /No registrado/);
-  assert.doesNotMatch(source, /devolución estimada|saldo por pagar|readiness/i);
+  assert.match(source, /No representa impuesto final, devolución, readiness ni conciliación con SII/);
+  assert.doesNotMatch(source, /<small>[^<]*(?:Devolución estimada|Saldo por pagar|Readiness)/i);
+  assert.doesNotMatch(source, /<h[1-6][^>]*>[^<]*(?:Devolución estimada|Saldo por pagar|Readiness)/i);
 });
 
 test('US-IL-001: renta dependiente, BHE y otros owners se distinguen sin dual-write', async () => {
