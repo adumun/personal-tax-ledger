@@ -18,7 +18,7 @@ Wave A entered implementation on 2026-09-12 after both immediate start gates pas
 
 - [`PTL-SPIKE-AW-001`](spike-aw-001-applicability-profile.md) — **DONE**; minimum Block 01 applicability profile resolved to five dimensions;
 - [`SQLite migration assessment`](sqlite-migration-assessment.md) — **PASS**; actual startup schema evolution and deterministic workspace materialization path verified;
-- `PTL-TASK-AW-001` — **IN_PROGRESS** on `feat/block-01-annual-workspace-foundation`;
+- `PTL-TASK-AW-001` — **IN_REVIEW** on `feat/block-01-annual-workspace-foundation`; focused validation is 4/4 and full repository `make validate` remains the closure gate; evidence in [`task-aw-001-evidence.md`](task-aw-001-evidence.md);
 - `PTL-TASK-AW-002` — deliberately not started until AW-001 closes; sizing revised `L -> M` after migration inspection;
 - `PTL-TASK-AW-007` — READY in Wave A.
 
