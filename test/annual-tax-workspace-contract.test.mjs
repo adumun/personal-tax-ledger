@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   ANNUAL_TAX_WORKSPACE_LIFECYCLE,
+  assertAnnualTaxWorkspace,
   createAnnualTaxWorkspace,
   deriveTaxYearLabel
 } from '@personal-tax-ledger/core';
@@ -27,22 +28,28 @@ test('commercial year is canonical and Operación Renta label is derived', () =>
 test('derived tax year label cannot become a second editable year', () => {
   const workspace = createAnnualTaxWorkspace({ ...baseWorkspace, derivedTaxYearLabel: 'AT2099' });
   assert.equal(workspace.derivedTaxYearLabel, 'AT2027');
+  assert.throws(
+    () => assertAnnualTaxWorkspace({ ...workspace, derivedTaxYearLabel: 'AT2099' }),
+    /derivedTaxYearLabel debe derivarse/
+  );
 });
 
-test('application contract delegates only through AnnualTaxWorkspace repository port', async () => {
+test('application contract delegates a validated AnnualTaxWorkspace through its repository port', async () => {
   const calls = [];
+  const workspace = createAnnualTaxWorkspace(baseWorkspace);
   const repository = {
-    async list(context) { calls.push(['list', context]); return [baseWorkspace]; },
-    async getByCommercialYear(context, year) { calls.push(['get', context, year]); return baseWorkspace; },
-    async create(context, workspace) { calls.push(['create', context, workspace]); return workspace; }
+    async list(context) { calls.push(['list', context]); return [workspace]; },
+    async getByCommercialYear(context, year) { calls.push(['get', context, year]); return workspace; },
+    async create(context, candidate) { calls.push(['create', context, candidate]); return candidate; }
   };
   const useCases = createAnnualWorkspaceUseCases({ repository });
   const context = { workspaceId: 'local-workspace', actorId: 'local-user' };
 
   assert.equal((await useCases.listWorkspaces(context)).length, 1);
-  assert.equal((await useCases.getWorkspaceByCommercialYear(context, '2026')).commercialYear, 2026);
-  const created = await useCases.createWorkspace(context, baseWorkspace);
+  assert.equal((await useCases.getWorkspaceByCommercialYear(context, 2026)).commercialYear, 2026);
+  const created = await useCases.createWorkspace(context, workspace);
   assert.equal(created.derivedTaxYearLabel, 'AT2027');
+  assert.equal(calls.at(-1)[2], workspace);
   assert.deepEqual(calls.map(call => call[0]), ['list', 'get', 'create']);
 });
 
