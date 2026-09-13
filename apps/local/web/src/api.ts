@@ -32,6 +32,14 @@ export class StaleWorkspaceResponseError extends Error {
   }
 }
 
+export class WorkspaceTransitionCancelledError extends Error {
+  readonly code = 'workspace_transition_cancelled';
+  constructor(readonly fromCommercialYear: number, readonly toCommercialYear: number) {
+    super(`Cambio de año cancelado. Continúas trabajando en ${fromCommercialYear}.`);
+    this.name = 'WorkspaceTransitionCancelledError';
+  }
+}
+
 let workspaceGeneration = 0;
 let activeCommercialYear: number | null = null;
 
@@ -53,8 +61,18 @@ function observeActiveCommercialYear(value: unknown) {
   }
 }
 
+function confirmWorkspaceTransition(targetYear: number | null) {
+  if (targetYear == null || activeCommercialYear == null || targetYear === activeCommercialYear) return;
+  const fromYear = activeCommercialYear;
+  const confirmed = typeof window === 'undefined' || window.confirm(
+    `Cambiar de año de ${fromYear} a ${targetYear} descartará cualquier formulario o cambio no guardado del año ${fromYear}.\n\n¿Descartar y cambiar?`
+  );
+  if (!confirmed) throw new WorkspaceTransitionCancelledError(fromYear, targetYear);
+}
+
 function beginWorkspaceTransition(value: unknown) {
   const targetYear = normalizeCommercialYear(value);
+  confirmWorkspaceTransition(targetYear);
   const previous = { year: activeCommercialYear, generation: workspaceGeneration };
   if (targetYear != null && targetYear !== activeCommercialYear) {
     activeCommercialYear = targetYear;
