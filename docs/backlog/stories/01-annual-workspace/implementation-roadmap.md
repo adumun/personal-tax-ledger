@@ -1,6 +1,6 @@
 # Block 01 — Annual Workspace — Implementation Roadmap
 
-**Status:** `GO / APPLICABILITY FOUNDATION IN REVIEW`  
+**Status:** `GO / OVERVIEW CLOSED`  
 **Date:** 2026-09-13  
 **Scope:** `Block 01 — Annual Workspace & Tax Profile`
 
@@ -16,45 +16,39 @@ Replace the implicit/global year setting with a first-class `AnnualTaxWorkspace`
 - `PTL-TASK-AW-005` — DONE; `make validate` 127/127.
 - `PTL-US-AW-006` — DONE; `make validate` 131/131.
 - `PTL-TASK-AW-007` — DONE; `make validate` 136/136.
-- `PTL-US-AW-001 + PTL-US-AW-002` — DONE; `make validate` **149/149**, `desktop:check` PASS, `architecture:check` PASS.
-- `PTL-TASK-AW-003` — **IN_REVIEW** on `feat/block-01-tax-applicability-profile`.
+- `PTL-US-AW-001 + PTL-US-AW-002` — DONE; `make validate` 149/149.
+- `PTL-TASK-AW-003` — DONE; `make validate` 155/155.
+- `PTL-US-AW-004` — DONE; `make validate` 164/164.
+- `PTL-TASK-AW-006 + PTL-US-AW-005` — DONE; `make validate` **169/169**, `desktop:check` PASS, `architecture:check` PASS.
 
-## Current P0 implementation — AW-003
+## Current executable path — prior-year initialization
 
-The applicability foundation now implements:
+The only remaining functional Block 01 slice is:
 
-```text
-AnnualWorkspaceContext
-  -> TaxApplicabilityProfile v1
-  -> five versioned dimensions
-  -> YES | NO | UNKNOWN
-  -> SQLite persistence by annualWorkspaceId
-```
+1. `PTL-TASK-AW-004 — Allowlisted prior-year initialization service`;
+2. `PTL-US-AW-003 — Initialize from prior year`.
 
-The exact Block 01 dimensions are:
+The implementation MUST be category allowlisted. It MUST NOT copy all rows by `tax_year` or turn historical facts into current-year facts.
 
-```text
-DEPENDENT_INCOME
-DOMESTIC_FEE_INCOME
-FOREIGN_SERVICE_INCOME
-APV_CONTRIBUTIONS
-MORTGAGE_INTEREST
-```
+### Required semantics
 
-Key invariants:
+Reusable configuration may include only explicitly classified reusable/proposal data, initially:
 
-- missing declarations normalize to `UNKNOWN`;
-- unsupported dimensions/values are rejected;
-- the profile is keyed by `annualWorkspaceId`, not a free-floating UI year;
-- save revalidates the active annual context before persistence;
-- reading an absent profile yields an in-memory all-`UNKNOWN` projection without creating facts;
-- the profile use case has no dependency on income, BHE, mortgage, APV or evidence repositories;
-- `NO` never deletes/reclassifies canonical facts;
-- profile schema is versioned from inception (`profileVersion = 1`).
+- applicability profile as a revisable proposal;
+- compatible non-transactional annual settings when explicitly allowed;
+- future recurring-source templates only when a canonical template model exists.
 
-Evidence: [`task-aw-003-evidence.md`](task-aw-003-evidence.md).
+The following remain forbidden:
 
-Closure gate remains canonical `make validate`.
+- realized amounts;
+- BHE, retentions or PPM as current-year facts;
+- ledger movements;
+- documentary evidence;
+- SII/reconciliation state;
+- prior-year readiness/closure state;
+- calculated results or projections as current-year facts.
+
+Every copied/proposed value must retain source-year provenance and the operation must be idempotent or require explicit conflict resolution.
 
 ## Critical safety chain
 
@@ -65,7 +59,7 @@ PTL-TASK-AW-005 [DONE]
         ↓
 PTL-US-AW-006   [DONE]
         ↓
-PTL-TASK-AW-008 [REACHED / NOT YET CLOSABLE]
+PTL-TASK-AW-008 [REACHED / WAITING ONLY ON PRIOR-YEAR INITIALIZATION]
 ```
 
 ## AW-008 readiness
@@ -78,35 +72,11 @@ PTL-TASK-AW-008 [REACHED / NOT YET CLOSABLE]
 | supported-year policy | AVAILABLE |
 | select/create year | AVAILABLE |
 | duplicate-year behavior | AVAILABLE |
+| tri-state applicability profile | AVAILABLE |
+| workspace overview projection | AVAILABLE |
 | prior-year initialization allowlist | PENDING TASK-AW-004/US-AW-003 |
-| tri-state applicability profile | FOUNDATION IN REVIEW via TASK-AW-003; observable UI/conflict behavior pending US-AW-004 |
-| workspace overview projection | PENDING TASK-AW-006/US-AW-005 |
 
-Opening AW-008 as a long-lived partial PR remains intentionally avoided.
-
-## Next executable path after clean AW-003 closure
-
-### 1 — Applicability Story
-
-`PTL-US-AW-004 — Applicability Profile`
-
-This Story will add the user-visible editor and `NEEDS_REVIEW` conflict projection against canonical facts. Facts remain authoritative and profile answers remain declarations only.
-
-### 2 — Overview
-
-1. `PTL-TASK-AW-006 — Annual workspace overview projection`
-2. `PTL-US-AW-005 — Workspace overview`
-
-### 3 — Prior-year initialization (P1)
-
-1. `PTL-TASK-AW-004 — Allowlisted prior-year initialization service`
-2. `PTL-US-AW-003 — Initialize from prior year`
-
-No blanket copying by `tax_year` is allowed.
-
-### 4 — Block closure
-
-`PTL-TASK-AW-008 — Block-level automated regression suite`, followed by effective DoR/DoD review and dogfood evidence.
+Opening AW-008 as a long-lived partial PR remains intentionally avoided. Once prior-year initialization is validated, AW-008 becomes the immediate terminal quality gate.
 
 ## Established technical invariants
 
@@ -117,7 +87,9 @@ No blanket copying by `tax_year` is allowed.
 - frontend generation suppresses stale annual responses.
 - exact-year rule availability governs workspace selection/creation support.
 - empty workspace creation copies no transactional facts.
-- TaxApplicabilityProfile is expectation/applicability only and is versioned independently of canonical facts.
+- `TaxApplicabilityProfile` is expectation/applicability only and is versioned independently of canonical facts.
+- `NO + canonical fact PRESENT => NEEDS_REVIEW`; facts remain authoritative.
+- Annual Workspace Overview is structural only and contains no tax outcome/readiness/SII/optimization semantics.
 
 ## Canonical evidence
 
@@ -125,14 +97,17 @@ No blanket copying by `tax_year` is allowed.
 - [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md)
 - [`task-aw-001-evidence.md`](task-aw-001-evidence.md)
 - [`task-aw-002-evidence.md`](task-aw-002-evidence.md)
+- [`task-aw-003-evidence.md`](task-aw-003-evidence.md)
 - [`task-aw-005-evidence.md`](task-aw-005-evidence.md)
-- [`us-aw-006-evidence.md`](us-aw-006-evidence.md)
+- [`task-aw-006-evidence.md`](task-aw-006-evidence.md)
 - [`task-aw-007-evidence.md`](task-aw-007-evidence.md)
 - [`us-aw-001-evidence.md`](us-aw-001-evidence.md)
 - [`us-aw-002-evidence.md`](us-aw-002-evidence.md)
-- [`task-aw-003-evidence.md`](task-aw-003-evidence.md)
+- [`us-aw-004-evidence.md`](us-aw-004-evidence.md)
+- [`us-aw-005-evidence.md`](us-aw-005-evidence.md)
+- [`us-aw-006-evidence.md`](us-aw-006-evidence.md)
 - [`enablers-and-dependencies.md`](enablers-and-dependencies.md)
 
 ## Decision
 
-`GO / IN_REVIEW` for `PTL-TASK-AW-003`. A clean canonical validation closes the applicability persistence foundation and advances directly to `PTL-US-AW-004`.
+`GO` for `PTL-TASK-AW-004 + PTL-US-AW-003`. This is the final functional slice before `PTL-TASK-AW-008` closes Block 01 quality/regression evidence.
