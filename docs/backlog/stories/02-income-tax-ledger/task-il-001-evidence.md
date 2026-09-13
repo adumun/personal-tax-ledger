@@ -3,7 +3,7 @@
 **Type:** Task  
 **Role:** ENABLER  
 **Priority:** P0  
-**Status:** IN_REVIEW  
+**Status:** DONE  
 **Date:** 2026-09-13  
 **Branch:** `docs/block-02-income-tax-ledger-refinement`
 
@@ -83,6 +83,14 @@ No generic ledger create/update/remove contract exists. Mutation authority remai
 4. factual recognition vocabulary excludes readiness/reconciliation;
 5. provider contract is read-only and requires `list`.
 
-## Closure gate
+## Canonical validation
 
-Canonical `make validate` remains mandatory. Until it passes, `PTL-TASK-IL-001` remains **IN_REVIEW**.
+Fresh `make validate` from the implementation branch passed completely:
+
+- typecheck: PASS;
+- tests: **190/190 PASS, 0 fail**;
+- desktop check: PASS;
+- architecture check: PASS;
+- architecture boundary remains clean: 10 internal packages, no cycles, no legacy server/web roots, Core/contracts independent and application without sqlite-adapter access.
+
+The five IL-001 contract tests all passed. `PTL-TASK-IL-001` is therefore **DONE**.
