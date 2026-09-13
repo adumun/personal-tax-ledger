@@ -1,6 +1,6 @@
 # Block 02 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / IL-002 CLOSED / IL-003 READY`
+**Status:** `IMPLEMENTING / IL-003 IN REVIEW`
 
 ## Spikes
 
@@ -40,16 +40,6 @@ No automatic FX provider is authorized by Block 02 until this spike closes.
 **Size:** M  
 **Status:** DONE
 
-Closed contract:
-
-- immutable provider-neutral `TaxLedgerEntry` projection;
-- explicit owner aggregate identity;
-- factual recognition vocabulary;
-- explicit currency + nullable factual amounts;
-- provenance summary hook;
-- read-only `TaxLedgerProvider.list(context)` port;
-- no generic ledger mutation contract or persistence store.
-
 Evidence: [`task-il-001-evidence.md`](task-il-001-evidence.md). Canonical `make validate`: **190/190**, desktop/architecture PASS.
 
 ---
@@ -62,15 +52,6 @@ Evidence: [`task-il-001-evidence.md`](task-il-001-evidence.md). Canonical `make 
 **Size:** M  
 **Status:** DONE
 
-Closed implementation:
-
-- `income_sources` provider preserving owner authority and input-mode amount semantics;
-- `fee_receipts` provider preserving canonical BHE amounts;
-- existing `ISSUE_DATE` / `PAID_ONLY` recognition policy reused without redefinition;
-- cancelled BHE projected as `EXCLUDED`;
-- trusted annual context enforced;
-- both providers expose only `list(context)` and never mutate owner aggregates.
-
 Evidence: [`task-il-002-evidence.md`](task-il-002-evidence.md). Canonical `make validate`: **195/195**, desktop/architecture PASS.
 
 ---
@@ -81,11 +62,19 @@ Evidence: [`task-il-002-evidence.md`](task-il-002-evidence.md). Canonical `make 
 **Role:** ENABLER  
 **Priority:** P0  
 **Size:** M  
-**Status:** READY
+**Status:** IN_REVIEW
 
-Compose provider entries into one deterministic annual ledger with filters, ordering and factual totals.
+Implemented on `feat/block-02-annual-ledger-read-model`:
 
-Must preserve type-specific identity and not infer tax liability/readiness.
+- deterministic composition of all configured `TaxLedgerProvider`s;
+- exact filters for entry kind, owner aggregate and recognition state;
+- recognized-only factual totals grouped by currency;
+- explicit `presentCount` / `missingCount`, preventing absent amounts from becoming zero;
+- duplicate ledger identities rejected;
+- provider entries outside the requested annual context rejected;
+- no ledger persistence/mutation, readiness, reconciliation or tax result semantics.
+
+Evidence: [`task-il-003-evidence.md`](task-il-003-evidence.md). Closure gate: canonical `make validate`.
 
 ---
 
@@ -137,7 +126,7 @@ Terminal Block 02 regression gate. It must prove:
 flowchart LR
   S1[SPIKE-IL-001\nDONE] --> T1[TASK-IL-001\nDONE]
   T1 --> T2[TASK-IL-002\nDONE]
-  T2 --> T3[TASK-IL-003\nREADY]
+  T2 --> T3[TASK-IL-003\nIN REVIEW]
   T3 --> T4[TASK-IL-004]
   T3 --> U1[US-IL-001]
   T4 --> U1
@@ -159,15 +148,13 @@ flowchart LR
 
 ## Critical path
 
-Current P0 critical path:
-
 ```text
 SPIKE-IL-001 [DONE]
  -> TASK-IL-001 [DONE]
  -> TASK-IL-002 [DONE]
- -> TASK-IL-003 [READY]
+ -> TASK-IL-003 [IN REVIEW]
  -> TASK-IL-004
  -> US-IL-001 + US-IL-006
 ```
 
-`SPIKE-IL-002` is a parallel P1 discovery path and must not block the domestic ledger slice.
+`SPIKE-IL-002` remains a parallel P1 discovery path and does not block the domestic ledger slice.
