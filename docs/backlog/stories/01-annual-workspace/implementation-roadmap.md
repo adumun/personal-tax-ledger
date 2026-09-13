@@ -23,13 +23,14 @@ Evidence:
 
 - [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md)
 - [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md)
+- [`task-aw-001-evidence.md`](task-aw-001-evidence.md)
 
 Do not wait for Blocks 02–11 to be fully refined. Block 01 is a foundational enabler and delaying it increases migration cost because later income, evidence, expense, reconciliation, projection, health and closure capabilities all need a stable annual parent context.
 
 ## Deep dependency path
 
 ```text
-PTL-TASK-AW-001  AnnualTaxWorkspace contract          [M]  IN_PROGRESS
+PTL-TASK-AW-001  AnnualTaxWorkspace contract          [M]  IN_REVIEW
         ↓
 PTL-TASK-AW-002  Persistence + migration              [M]  READY AFTER AW-001
         ↓
@@ -80,10 +81,10 @@ open edit form in 2025
 
 ## Fast lane
 
-### Wave A — Foundation — READY / ACTIVE
+### Wave A — Foundation — READY / IN REVIEW
 
 1. `PTL-SPIKE-AW-001` — **DONE**
-2. `PTL-TASK-AW-001` — **IN_PROGRESS**
+2. `PTL-TASK-AW-001` — **IN_REVIEW**; focused contract validation 4/4 passed, full repository `make validate` remains the closure gate
 3. `PTL-TASK-AW-007` — **READY**
 
 ### Wave B — Persistence & safe context
@@ -127,7 +128,7 @@ This is a planning estimate, not a delivery commitment.
 | Work | Initial estimate | Current assessment |
 |---|---:|---:|
 | `SPIKE-AW-001` | 1–3 h | DONE |
-| `TASK-AW-001` | 0.5–1 day | unchanged |
+| `TASK-AW-001` | 0.5–1 day | IN_REVIEW; focused validation passed |
 | `TASK-AW-002` | 1–2 days | **0.5–1 day / M**, subject to legacy-fixture validation |
 | `TASK-AW-007` | 2–4 h | unchanged |
 | `TASK-AW-003` | 0.5–1 day | unchanged |
@@ -140,7 +141,7 @@ This is a planning estimate, not a delivery commitment.
 
 Because several branches are parallelizable, these values MUST NOT be added linearly.
 
-The original end-to-end estimate of **5–8 effective implementation days** remains a reasonable planning envelope. The migration review reduces uncertainty but does not justify compressing the entire block estimate before the safety-context work (`TASK-AW-005` / `US-AW-006`) is implemented and evidenced.
+The original end-to-end estimate of **5–8 effective implementation days** remains a reasonable planning envelope. The migration review reduces uncertainty but does not justify compressing the entire block estimate before the safety-context work (`PTL-TASK-AW-005` / `PTL-US-AW-006`) is implemented and evidenced.
 
 ## Validated implementation baseline
 
@@ -240,6 +241,7 @@ with no regression in current income, BHE, mortgage or tax-parameter behavior.
 - [`enablers-and-dependencies.md`](enablers-and-dependencies.md)
 - [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md)
 - [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md)
+- [`task-aw-001-evidence.md`](task-aw-001-evidence.md)
 - [`../../story-definition-and-implementation-readiness.md`](../../story-definition-and-implementation-readiness.md)
 - [`../../tax-management-expansion.md`](../../tax-management-expansion.md)
 
