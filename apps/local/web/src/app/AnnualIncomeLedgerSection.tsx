@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { PageHeader } from '@adumun/react-components';
 import {
   taxLedgerClient,
   type AnnualTaxLedgerResult,
@@ -99,14 +100,13 @@ export default function AnnualIncomeLedgerSection({ commercialYear }: { commerci
   }, [result]);
 
   return <section className="annual-income-ledger" aria-labelledby="annual-income-ledger-title">
-    <div className="annual-income-ledger-heading">
-      <div>
-        <p className="annual-income-ledger-eyebrow">Ledger factual · TAX-04</p>
-        <h2 id="annual-income-ledger-title">Ingresos del año</h2>
-        <p>Año comercial {commercialYear} · Operación Renta AT{commercialYear + 1}</p>
-      </div>
-      <span className="annual-income-ledger-readonly">Vista unificada · solo lectura</span>
-    </div>
+    <PageHeader
+      eyebrow="Ingresos"
+      title="Ingresos del año"
+      titleId="annual-income-ledger-title"
+      description={`Año comercial ${commercialYear} · Operación Renta AT${commercialYear + 1}. Hechos registrados y consolidados en una sola vista.`}
+      actions={<span className="annual-income-ledger-readonly">Solo lectura</span>}
+    />
 
     <div className="annual-income-ledger-summary" aria-label="Resumen factual del ledger">
       <article><small>Entradas registradas</small><strong>{result?.factualSummary.entryCount ?? '—'}</strong></article>
@@ -137,18 +137,18 @@ export default function AnnualIncomeLedgerSection({ commercialYear }: { commerci
     </div>
 
     {state === 'LOADING' && <div className="annual-income-ledger-state" role="status">Cargando ingresos del año…</div>}
-    {state === 'ERROR' && <div className="annual-income-ledger-state error" role="alert"><strong>No se pudo cargar el ledger.</strong><span>{error}</span><button onClick={() => void reload()}>Reintentar</button></div>}
-    {state === 'STALE_SUPPRESSED' && <div className="annual-income-ledger-state" role="status">Se descartó una respuesta de un año anterior. Actualizando el contexto activo…</div>}
-    {state === 'EMPTY' && <div className="annual-income-ledger-state empty"><strong>No hay ingresos registrados para este año.</strong><span>La ausencia de hechos no se interpreta como $0 de ingresos.</span></div>}
+    {state === 'ERROR' && <div className="annual-income-ledger-state error" role="alert"><strong>No se pudieron cargar los ingresos del año.</strong><span>{error}</span><button onClick={() => void reload()}>Reintentar</button></div>}
+    {state === 'STALE_SUPPRESSED' && <div className="annual-income-ledger-state" role="status">Se descartó una respuesta de un año anterior. Actualizando el período activo…</div>}
+    {state === 'EMPTY' && <div className="annual-income-ledger-state empty"><strong>No hay ingresos registrados para este año.</strong><span>La ausencia de registros no se interpreta como $0 de ingresos.</span></div>}
 
     {state === 'READY' && result && <div className="annual-income-ledger-table-wrap">
       <table className="annual-income-ledger-table">
-        <thead><tr><th>Fecha / período</th><th>Tipo</th><th>Pagador / empleador</th><th>Monto factual</th><th>Retención / PPM</th><th>Estado</th><th>Origen</th></tr></thead>
+        <thead><tr><th>Fecha / período</th><th>Tipo</th><th>Pagador / empleador</th><th>Monto registrado</th><th>Retención / PPM</th><th>Estado</th><th>Origen</th></tr></thead>
         <tbody>{result.entries.map(entry => <tr key={entry.ledgerEntryId} className={entry.recognitionState === 'EXCLUDED' ? 'excluded' : ''}>
           <td data-label="Fecha / período">{period(entry)}</td>
           <td data-label="Tipo"><strong>{ENTRY_KIND_LABELS[entry.entryKind] || entry.entryKind}</strong></td>
           <td data-label="Pagador / empleador">{counterparty(entry)}</td>
-          <td data-label="Monto factual">{formatAmount(entry.amounts.gross ?? entry.amounts.net, entry.amounts.currency)}</td>
+          <td data-label="Monto registrado">{formatAmount(entry.amounts.gross ?? entry.amounts.net, entry.amounts.currency)}</td>
           <td data-label="Retención / PPM">{entry.amounts.withholding != null
             ? formatAmount(entry.amounts.withholding, entry.amounts.currency)
             : entry.amounts.ppm != null
@@ -160,6 +160,6 @@ export default function AnnualIncomeLedgerSection({ commercialYear }: { commerci
       </table>
     </div>}
 
-    <p className="annual-income-ledger-boundary">Esta vista muestra hechos registrados y su origen. No representa impuesto final, devolución, readiness ni conciliación con SII.</p>
+    <p className="annual-income-ledger-boundary">Esta vista muestra hechos registrados y su origen. No representa el impuesto final, una devolución estimada, el estado de preparación tributaria ni una conciliación con el SII.</p>
   </section>;
 }
