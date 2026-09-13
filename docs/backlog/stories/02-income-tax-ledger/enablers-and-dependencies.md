@@ -1,6 +1,6 @@
 # Block 02 — Enablers, Spikes & Dependencies
 
-**Status:** `REFINED / FIRST ENABLER READY`
+**Status:** `IMPLEMENTING / FIRST ENABLER IN REVIEW`
 
 ## Spikes
 
@@ -38,20 +38,19 @@ No automatic FX provider is authorized by Block 02 until this spike closes.
 **Role:** ENABLER  
 **Priority:** P0  
 **Size:** M  
-**Status:** READY
+**Status:** IN_REVIEW
 
-Define provider-neutral `TaxLedgerEntry` and ledger query contracts in Core/Application boundaries without infrastructure dependencies.
+Implemented on `docs/block-02-income-tax-ledger-refinement`:
 
-Required semantics:
-
-- annual workspace identity;
-- stable ledger entry identity;
-- `ownerAggregate` + `ownerRecordId`;
-- normalized entry kind;
-- factual/recognition state;
-- amount presentation with explicit unit/currency;
+- immutable provider-neutral `TaxLedgerEntry` projection;
+- explicit owner aggregate identity;
+- factual recognition vocabulary;
+- explicit currency + nullable factual amounts;
 - provenance summary hook;
-- no mutation authority in the ledger projection.
+- read-only `TaxLedgerProvider.list(context)` port;
+- no generic ledger mutation contract or persistence store.
+
+Evidence: [`task-il-001-evidence.md`](task-il-001-evidence.md). Closure gate: canonical `make validate`.
 
 ---
 
@@ -132,7 +131,7 @@ Terminal Block 02 regression gate. It must prove:
 
 ```mermaid
 flowchart LR
-  S1[SPIKE-IL-001\nDONE] --> T1[TASK-IL-001\nREADY]
+  S1[SPIKE-IL-001\nDONE] --> T1[TASK-IL-001\nIN REVIEW]
   T1 --> T2[TASK-IL-002]
   T2 --> T3[TASK-IL-003]
   T3 --> T4[TASK-IL-004]
@@ -160,7 +159,7 @@ Current P0 critical path:
 
 ```text
 SPIKE-IL-001 [DONE]
- -> TASK-IL-001 [READY]
+ -> TASK-IL-001 [IN REVIEW]
  -> TASK-IL-002
  -> TASK-IL-003
  -> TASK-IL-004
