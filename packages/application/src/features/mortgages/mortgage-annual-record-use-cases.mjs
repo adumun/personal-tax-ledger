@@ -3,6 +3,7 @@ import {
   assertContextCommercialYear,
   assertMortgageAnnualRecordRepositoryContract
 } from '@personal-tax-ledger/contracts';
+import { createActiveWorkspaceGuard } from '../../shared/active-workspace-guard.mjs';
 
 function assertEntityInActiveYear(context, entity, operation) {
   if (!entity) return null;
@@ -10,8 +11,9 @@ function assertEntityInActiveYear(context, entity, operation) {
   return entity;
 }
 
-export function createMortgageAnnualRecordUseCases({ repository }) {
+export function createMortgageAnnualRecordUseCases({ repository, resolveActiveContext }) {
   assertMortgageAnnualRecordRepositoryContract(repository);
+  const assertContextStillActive = createActiveWorkspaceGuard(resolveActiveContext);
   return {
     async listAnnualRecords(context, mortgageLoanId, filters = {}) {
       assertAnnualWorkspaceContext(context);
@@ -32,6 +34,7 @@ export function createMortgageAnnualRecordUseCases({ repository }) {
     async createAnnualRecord(context, mortgageLoanId, input) {
       assertAnnualWorkspaceContext(context);
       assertContextCommercialYear(context, input?.taxYear, 'createAnnualRecord');
+      await assertContextStillActive(context, 'createAnnualRecord');
       return repository.create(context, mortgageLoanId, input);
     },
     async updateAnnualRecord(context, id, input) {
@@ -40,6 +43,7 @@ export function createMortgageAnnualRecordUseCases({ repository }) {
       const current = await repository.get(context, id);
       if (!current) return null;
       assertEntityInActiveYear(context, current, 'updateAnnualRecord');
+      await assertContextStillActive(context, 'updateAnnualRecord');
       return repository.update(context, id, input);
     },
     async deleteAnnualRecord(context, id) {
@@ -47,6 +51,7 @@ export function createMortgageAnnualRecordUseCases({ repository }) {
       const current = await repository.get(context, id);
       if (!current) return false;
       assertEntityInActiveYear(context, current, 'deleteAnnualRecord');
+      await assertContextStillActive(context, 'deleteAnnualRecord');
       return repository.remove(context, id);
     }
   };
