@@ -44,7 +44,7 @@ function createUseCases(overrides = {}) {
     feeReceiptUseCases: { async listFeeReceipts() { return [{ id: 'bhe-1' }]; } },
     mortgageUseCases: { async listMortgageLoans() { return []; } },
     supportedYearPolicyUseCases: {
-      async evaluateSupportedYear() { return { state: 'SUPPORTED_WITH_WARNINGS', missingRuleKeys: [], warnings: ['provenance'] }; }
+      async getSupportedYearState() { return { state: 'SUPPORTED_WITH_WARNINGS', missingRuleKeys: [], warnings: ['provenance'] }; }
     },
     ...overrides
   });
