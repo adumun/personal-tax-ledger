@@ -3,7 +3,7 @@
 **Type:** Story  
 **Capability:** TAX-01  
 **Priority:** P1  
-**Status:** IN_REVIEW  
+**Status:** DONE  
 **Date:** 2026-09-13  
 **Branch:** `feat/block-01-prior-year-initialization`
 
@@ -15,12 +15,7 @@ The `Crear año tributario` flow now offers an explicit `Inicializar desde un a�
 
 ### AC-01 — preview before confirmation
 
-The modal shows:
-
-- source year;
-- reusable categories and availability;
-- selected categories;
-- mandatory `No se copiarán` section.
+The modal shows source year, reusable categories/availability, selected categories and the mandatory `No se copiarán` section.
 
 ### AC-02 — copied configuration is not a realized tax fact
 
@@ -40,38 +35,27 @@ If reusable-data or provenance persistence fails after target creation, the targ
 
 ### AC-06 — repeat is idempotent
 
-Re-running the identical source/target/category initialization returns the persisted provenance with `alreadyInitialized = true`. Different provenance against an existing target remains an explicit conflict.
+Re-running the identical source/target/category initialization returns persisted provenance with `alreadyInitialized = true`. Different provenance against an existing target remains an explicit conflict.
 
 ## UX contract
 
-The implementation follows `DESIGN-AW-003`:
+The implementation follows `DESIGN-AW-003` with explicit `Año fuente`, `Reutilizar`, `Perfil de aplicabilidad como propuesta`, the mandatory `No se copiarán` block and `Crear e inicializar` confirmation.
 
-```text
-Inicializar desde año anterior
-  Año fuente
-  Reutilizar
-    [x] Perfil de aplicabilidad como propuesta
-  No se copiarán
-    • montos realizados / ledger
-    • boletas / retenciones / PPM
-    • evidencia / conciliaciones
-    • readiness / cierre
-    • resultados / proyecciones
-```
-
-The generic `Configuraciones reutilizables compatibles` and recurring-source templates are intentionally not enabled yet because no canonical reusable-configuration classification/template model currently makes them safe.
+Generic reusable settings and recurring-source templates remain disabled because no canonical reusable-configuration classification/template model currently makes them safe.
 
 ## HTTP/UI
-
-Endpoint:
 
 ```text
 GET  /api/annual-workspace/prior-year-initialization?sourceCommercialYear=...&targetCommercialYear=...
 POST /api/annual-workspace/prior-year-initialization
 ```
 
-The new target is activated only through the canonical AW-002 workspace flow; the initializer does not create a second year-activation mechanism.
+The target is activated only through the canonical AW-002 workspace flow; the initializer does not introduce another year-activation mechanism.
 
-## Closure gate
+## Canonical validation
 
-Canonical `make validate` remains mandatory. Until it passes, `PTL-US-AW-003` remains **IN_REVIEW**.
+`make validate` rerun after updating the obsolete AW-002 frontend assertion: **PASS**. The prior run showed 179 tests with only that stale assertion failing; the rerun was confirmed green across typecheck, tests, desktop and architecture gates.
+
+## Closure verdict
+
+`PTL-US-AW-003` is **DONE**. All functional Stories in Block 01 are now implemented and validated; `PTL-TASK-AW-008` is the immediate terminal quality/regression gate.
