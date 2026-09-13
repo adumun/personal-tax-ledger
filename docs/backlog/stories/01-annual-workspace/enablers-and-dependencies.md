@@ -1,6 +1,6 @@
 # Block 01 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / ALL FUNCTIONAL SLICES CLOSED`
+**Status:** `CLOSED / TERMINAL REGRESSION GATE PASSED`
 
 This file separates actor-visible Stories from technical enabling work according to `STD-WMS-001` / `STD-WMS-TYPES-001`. No `Technical Story` type is introduced.
 
@@ -102,19 +102,19 @@ Provider-neutral exact-year support policy with `SUPPORTED`, `SUPPORTED_WITH_WAR
 **Role:** QUALITY_ENABLER  
 **Size:** M  
 **Priority:** P0  
-**Status:** READY
+**Status:** DONE
 
-Terminal Block 01 quality gate. Required regression coverage is now available for:
+Dedicated cross-feature terminal suite covers:
 
-- migration from implicit-year persistence;
-- select/create year and duplicate-year behavior;
-- strict year isolation and stale async protection;
-- supported-year policy;
-- tri-state applicability profile and conflict behavior;
-- workspace overview projection;
-- prior-year initialization allowlist, provenance, idempotency and rollback.
+- explicit workspace authority, duplicate safety and unsupported-year blocking;
+- stale mutation rejection after active workspace transition;
+- profile declaration vs canonical fact conflict semantics;
+- structural overview hard boundary;
+- prior-year allowlist, provenance and idempotency.
 
-AW-008 must now consolidate/verify the complete block regression contract and close effective DoD/dogfood evidence without redefining feature semantics.
+Specialized suites remain authoritative for SQLite migration/materialization, frontend stale-response suppression, rollback failure paths, adapter persistence, desktop syntax and architecture boundaries.
+
+Evidence: [`task-aw-008-evidence.md`](task-aw-008-evidence.md). Canonical `make validate`: **185/185**, desktop check PASS, architecture check PASS.
 
 ## Spike
 
@@ -163,7 +163,7 @@ flowchart LR
   U4 --> U5
   T6[AW-TASK-006\nDONE] --> U5
 
-  U1 --> T8[AW-TASK-008\nREADY]
+  U1 --> T8[AW-TASK-008\nDONE]
   U2 --> T8
   U3 --> T8
   U4 --> T8
@@ -173,23 +173,7 @@ flowchart LR
 
 ## Closed baseline
 
-- SPIKE-AW-001 — DONE
-- TASK-AW-001 — DONE
-- TASK-AW-002 — DONE
-- TASK-AW-003 — DONE (`make validate`: 155/155)
-- TASK-AW-004 — DONE (`make validate`: PASS)
-- TASK-AW-005 — DONE
-- TASK-AW-006 — DONE (`make validate`: 169/169)
-- TASK-AW-007 — DONE
-- US-AW-001 + US-AW-002 — DONE (`make validate`: 149/149)
-- US-AW-003 — DONE (`make validate`: PASS)
-- US-AW-004 — DONE (`make validate`: 164/164)
-- US-AW-005 — DONE (`make validate`: 169/169)
-- US-AW-006 — DONE (`make validate`: 131/131)
-
-## Current executable node
-
-`PTL-TASK-AW-008 — Block-level automated regression suite` — **READY**.
+All functional Stories `PTL-US-AW-001..006`, Spike AW-001 and enabling Tasks `PTL-TASK-AW-001..008` are DONE and canonically validated.
 
 ## Critical safety chain
 
@@ -197,9 +181,9 @@ flowchart LR
 TASK-AW-001 [DONE]
  -> TASK-AW-005 [DONE]
  -> US-AW-006 [DONE]
- -> TASK-AW-008 [READY / TERMINAL GATE]
+ -> TASK-AW-008 [DONE]
 ```
 
 ## Block readiness verdict
 
-All functional Block 01 Stories and enabling Tasks except the terminal quality enabler are implemented and canonically validated. AW-008 is now the sole remaining closure item.
+**CLOSED.** Block 01 has no remaining functional, dependency or quality gate. The terminal canonical run passed 185/185 tests plus desktop and architecture checks.

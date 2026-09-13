@@ -1,6 +1,6 @@
 # Block 01 — Annual Workspace & Tax Profile
 
-**Status:** `DOGFOOD / PRIOR-YEAR INITIALIZATION IN REVIEW`  
+**Status:** `CLOSED / DOGFOOD BASELINE VALIDATED`  
 **Primary capability:** `TAX-01 — Annual Tax Workspace`  
 **Related capabilities:** `TAX-02`, `TAX-06`, `TAX-09`, `TAX-10`, `TAX-11`, `TAX-12`  
 **Story standard:** `STD-WMS-STORY-001@0.1.0-draft`  
@@ -12,9 +12,11 @@ Turn the current implicit `settings.year` behavior into an explicit annual tax w
 
 The block is deliberately narrow: it establishes annual identity, year selection/creation, explicit prior-year initialization, applicability profile and visible workspace context. It does **not** implement tax calculation, SII reconciliation, readiness scoring, Annual Tax Health or year closure; those capabilities consume this workspace later.
 
-## Current execution status
+## Final execution status
 
-Closed and canonically validated:
+All Block 01 functional Stories, enabling Tasks and the terminal quality gate are closed.
+
+Validated milestones:
 
 - `PTL-SPIKE-AW-001` — DONE;
 - `PTL-TASK-AW-001` — DONE; 115/115;
@@ -25,15 +27,11 @@ Closed and canonically validated:
 - `PTL-US-AW-001 + PTL-US-AW-002` — DONE; 149/149;
 - `PTL-TASK-AW-003` — DONE; 155/155;
 - `PTL-US-AW-004` — DONE; 164/164;
-- `PTL-TASK-AW-006 + PTL-US-AW-005` — DONE; **169/169**, plus desktop/architecture checks PASS.
+- `PTL-TASK-AW-006 + PTL-US-AW-005` — DONE; 169/169 plus desktop/architecture checks PASS;
+- `PTL-TASK-AW-004 + PTL-US-AW-003` — DONE; canonical rerun PASS;
+- `PTL-TASK-AW-008` — DONE; terminal `make validate` **185/185**, desktop check PASS, architecture check PASS.
 
-Current final functional slice:
-
-- `PTL-TASK-AW-004 + PTL-US-AW-003` — **IN_REVIEW** on `feat/block-01-prior-year-initialization`.
-
-This slice reuses only allowlisted configuration/proposal data and persists source-year provenance separately. After canonical validation, `PTL-TASK-AW-008` becomes the terminal Block 01 regression/DoD gate.
-
-## Existing implementation baseline
+## Implemented baseline
 
 The application now:
 
@@ -52,7 +50,8 @@ The application now:
 - exposes a structural `Año tributario` overview without tax-outcome/readiness/SII semantics;
 - implements explicit prior-year initialization preview with a closed reusable-category allowlist;
 - stores initialization provenance separately from tax declarations;
-- rolls back target workspace/active-year on partial initialization failure.
+- rolls back target workspace/active-year on partial initialization failure;
+- protects the complete Block 01 contract with an explicit cross-feature terminal regression suite.
 
 Rule-catalog seed years remain distinct from user workspaces. `tax_parameters` / `tax_rule_sources` can determine supported-year policy but do not independently authorize workspace materialization.
 
@@ -76,7 +75,7 @@ operationRenta = AT2027
 |---|---|---|---|---|
 | `PTL-US-AW-001` | Select and enter an annual workspace | `NEW_SECTION`, `FLOW_CHANGE` | L1 | DONE |
 | `PTL-US-AW-002` | Create a new annual workspace | `NEW_SCREEN`, `FLOW_CHANGE` | L2 | DONE |
-| `PTL-US-AW-003` | Initialize a year from a prior year without copying tax facts | `FLOW_CHANGE`, `STATE_CHANGE` | L2 | IN_REVIEW |
+| `PTL-US-AW-003` | Initialize a year from a prior year without copying tax facts | `FLOW_CHANGE`, `STATE_CHANGE` | L2 | DONE |
 | `PTL-US-AW-004` | Define the annual tax applicability profile | `NEW_SECTION`, `FIELD_ADDITION` | L2 | DONE |
 | `PTL-US-AW-005` | Understand the selected workspace context and completeness | `NEW_SCREEN`, `STATE_CHANGE` | L2 | DONE |
 | `PTL-US-AW-006` | Preserve strict year isolation during navigation and editing | `STATE_CHANGE` | L1 | DONE |
@@ -95,7 +94,7 @@ Technical Tasks, Spikes, dependency edges, statuses and critical paths are in [`
 
 ## Implementation roadmap
 
-The current execution order and resolved gates are in [`implementation-roadmap.md`](implementation-roadmap.md).
+The closed execution path and final validated baseline are in [`implementation-roadmap.md`](implementation-roadmap.md).
 
 ## Scope boundary
 
@@ -108,7 +107,8 @@ The current execution order and resolved gates are in [`implementation-roadmap.m
 - annual applicability profile;
 - visible workspace summary/context;
 - year isolation invariants;
-- migration/compatibility with current year-scoped data.
+- migration/compatibility with current year-scoped data;
+- terminal cross-feature regression evidence.
 
 ### Explicitly excluded
 
@@ -122,9 +122,6 @@ The current execution order and resolved gates are in [`implementation-roadmap.m
 - readiness score, annual health and closing/reopening workflow (`Block 09`);
 - AI/Cloud processing (`Block 10`).
 
-## Block closure path
+## Closure verdict
 
-Remaining implementation sequence:
-
-1. validate/close `PTL-TASK-AW-004 + PTL-US-AW-003`;
-2. `PTL-TASK-AW-008` — block-level regression closure and effective DoD/dogfood review.
+**Block 01 is CLOSED.** The terminal canonical gate passed 185/185 tests with desktop and architecture checks clean. Later TAX blocks may consume the Annual Workspace contract without reopening Block 01 semantics unless a new explicit versioned domain/product change is required.
