@@ -127,7 +127,8 @@ If a category is not yet supported, it must not appear as checked/enabled.
 
 **Story:** AW-004  
 **Fidelity:** L2  
-**Impact:** NEW_SECTION, FIELD_ADDITION
+**Impact:** NEW_SECTION, FIELD_ADDITION  
+**Profile decision:** `PTL-SPIKE-AW-001` — DONE 2026-09-12
 
 Surface: `Año tributario`.
 
@@ -144,8 +145,6 @@ que hayan ocurrido; sirve para preparar PTL y detectar información pendiente.
 │ Pagador o cliente extranjero            │ [ Sí | No | Aún no sé ]      │
 │ APV                                     │ [ Sí | No | Aún no sé ]      │
 │ Crédito hipotecario relevante           │ [ Sí | No | Aún no sé ]      │
-│ Evaluar gastos efectivos                │ [ Sí | No | Aún no sé ]      │
-│ AFP / salud a considerar                │ [ Sí | No | Aún no sé ]      │
 └─────────────────────────────────────────┴───────────────────────────────┘
 
 [Guardar perfil]
@@ -153,10 +152,14 @@ que hayan ocurrido; sirve para preparar PTL y detectar información pendiente.
 
 ### Rules
 
+- the Block 01 allowlist is `DEPENDENT_INCOME`, `DOMESTIC_FEE_INCOME`, `FOREIGN_SERVICE_INCOME`, `APV_CONTRIBUTIONS`, `MORTGAGE_INTEREST`;
 - no monetary inputs here;
 - `Aún no sé` is a first-class value, not validation failure;
 - if canonical facts contradict a `No`, show an inline `NEEDS_REVIEW` condition and link to the conflicting domain data; do not delete anything;
-- profile status must remain semantically distinct from readiness and reconciliation.
+- profile status must remain semantically distinct from readiness and reconciliation;
+- expense-mode election and AFP/health applicability are not profile rows: their authority belongs to later expense/calculation or actual previsional/income facts and rules.
+
+Decision evidence: [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md).
 
 ### States
 
@@ -177,8 +180,8 @@ Año tributario
 Contexto estructural del período. El resultado tributario se muestra en Resumen anual.
 
 ┌─ Período ──────────────────────┐  ┌─ Perfil del año ──────────────┐
-│ Año comercial: 2026            │  │ 5 de 7 respondidos            │
-│ Operación Renta: AT2027        │  │ 2 por revisar                 │
+│ Año comercial: 2026            │  │ 4 de 5 respondidos            │
+│ Operación Renta: AT2027        │  │ 1 por revisar                 │
 │ Estado: En preparación         │  │ [Revisar perfil]              │
 │ Actualizado: 12-09-2026 16:40  │  └───────────────────────────────┘
 └────────────────────────────────┘
