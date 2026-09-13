@@ -14,8 +14,10 @@ test('AW-001: header visible usa workspaces persistidos y muestra AT derivado no
   assert.doesNotMatch(gateSource, /YEAR_FLOOR/);
 });
 
-test('AW-001: selector legacy deja de ser la superficie primaria', () => {
+test('AW-001: AnnualWorkspace queda como única autoridad visible para cambiar año', () => {
   assert.match(cssSource, /\.year-picker\s*\{[\s\S]*display:\s*none\s*!important/);
+  assert.match(cssSource, /Configuración tributaria no longer exposes a second year switcher/);
+  assert.match(cssSource, /h2 \+ \.form-grid > label:first-child[\s\S]*display:\s*none\s*!important/);
   assert.match(gateSource, /catalog\.workspaces\.map/);
 });
 
