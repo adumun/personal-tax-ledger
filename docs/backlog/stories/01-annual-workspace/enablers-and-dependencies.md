@@ -1,6 +1,6 @@
 # Block 01 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / WAVE B ACTIVE`
+**Status:** `IMPLEMENTING / SAFETY CHAIN CLOSED THROUGH AW-006`
 
 This file separates actor-visible Stories from technical enabling work according to `STD-WMS-001` / `STD-WMS-TYPES-001`. No `Technical Story` type is introduced.
 
@@ -16,26 +16,7 @@ This file separates actor-visible Stories from technical enabling work according
 
 Define a first-class annual workspace contract keyed by `commercialYear` and suitable for all TAX capabilities.
 
-Minimum semantics:
-
-```text
-AnnualTaxWorkspace
-  id
-  commercialYear
-  derivedTaxYearLabel
-  lifecycleState
-  createdAt
-  updatedAt
-  ruleVersionRef
-```
-
-Constraints:
-
-- `derivedTaxYearLabel` is derived, not independently editable;
-- the contract does not absorb income/evidence/calculation entities;
-- lifecycle must be compatible with future TAX-11 without implementing close/reopen here.
-
-Validation/closure evidence: [`task-aw-001-evidence.md`](task-aw-001-evidence.md). Canonical `make validate` passes with 115/115 tests and architecture checks clean.
+Validation/closure evidence: [`task-aw-001-evidence.md`](task-aw-001-evidence.md). Canonical `make validate` passed with 115/115 tests plus desktop and architecture checks.
 
 **Enables:** AW-001, AW-002, AW-006.
 
@@ -49,24 +30,9 @@ Validation/closure evidence: [`task-aw-001-evidence.md`](task-aw-001-evidence.md
 **Priority:** P0  
 **Status:** DONE
 
-Introduce workspace persistence/read APIs and migrate the existing implicit year model without losing current year-scoped data.
+Annual workspace metadata persistence and deterministic compatibility migration are implemented without copying tax facts. Workspace materialization uses `settings.year` plus actual user/domain years and excludes rule-catalog seed years as independent workspace evidence.
 
-Required outcomes:
-
-- discover existing distinct commercial years from persisted user/domain data and `settings.year`;
-- do not materialize user workspaces solely from seeded rule-catalog years;
-- materialize compatible workspace records deterministically;
-- preserve current active year selection;
-- no duplicate income/BHE/mortgage records;
-- migration is rerunnable/idempotent;
-- backup/restore compatibility is preserved with existing local workspace behavior.
-
-Migration review and sizing evidence: [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md).  
-Implementation/validation evidence: [`task-aw-002-evidence.md`](task-aw-002-evidence.md).
-
-Canonical `make validate` passed with 118/118 tests plus desktop and architecture checks. The implementation is merged to `master`.
-
-**Sizing change:** `L -> M` after schema inspection showed an additive/idempotent migration with no required fact-table rewrite.
+Evidence: [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md), [`task-aw-002-evidence.md`](task-aw-002-evidence.md). Canonical `make validate` passed with 118/118 tests plus desktop and architecture checks.
 
 **Enables:** AW-001, AW-002, AW-006.
 
@@ -77,23 +43,12 @@ Canonical `make validate` passed with 118/118 tests plus desktop and architectur
 **Type:** Task  
 **Role:** ENABLER  
 **Size:** M  
-**Priority:** P0
+**Priority:** P0  
+**Status:** READY
 
-Persist annual applicability independently from actual facts.
+Persist annual applicability independently from actual facts using the five dimensions closed by [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md).
 
-Conceptual contract:
-
-```text
-TaxApplicabilityProfile
-  workspaceId
-  dimensions[]
-    key
-    applicability: YES | NO | UNKNOWN
-    source: USER_DECLARED | COPIED_PROPOSAL | DERIVED_CONFLICT
-    updatedAt
-```
-
-The accepted Block 01 dimension allowlist is defined by [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md). Do not duplicate amounts or computed tax values.
+`Applicability profile != actual tax facts` remains mandatory.
 
 **Enables:** AW-003, AW-004, AW-005.
 
@@ -104,17 +59,10 @@ The accepted Block 01 dimension allowlist is defined by [`spike-aw-001-applicabi
 **Type:** Task  
 **Role:** ENABLER  
 **Size:** M  
-**Priority:** P1
+**Priority:** P1  
+**Status:** BLOCKED_BY_AW_003
 
-Create a service that copies only explicitly allowlisted reusable configuration and produces provenance for every copied proposal/template.
-
-Forbidden implementation pattern:
-
-```text
-copy all rows where tax_year = source into target year
-```
-
-The service must be category-aware and safe as the domain expands.
+Create a category-aware allowlisted service that reuses configuration/proposals only. Copying all rows for a prior `tax_year` is forbidden.
 
 **Enables:** AW-003.
 
@@ -126,32 +74,21 @@ The service must be category-aware and safe as the domain expands.
 **Role:** ENABLER  
 **Size:** L  
 **Priority:** P0  
-**Status:** IN_REVIEW
+**Status:** DONE
 
-Ensure UI, application services and year-scoped persistence operations consume a stable active-workspace identity and protect against stale async writes.
+Delivered and merged:
 
-Required concerns:
+- trusted `AnnualWorkspaceContext` with `annualWorkspaceId + commercialYear`;
+- per-request active-context resolution;
+- application-boundary year validation for mutable annual domains;
+- persisted-entity year checks for update/delete;
+- active-context revalidation immediately before persistence;
+- HTTP `409 workspace_year_mismatch` semantics;
+- frontend generation-based stale-response suppression;
+- execution-log annual context enrichment;
+- compatibility rematerialization after legacy year switching.
 
-- request/use-case context includes workspace/year identity;
-- stale response suppression or request generation/versioning;
-- mismatch validation at application boundary;
-- year is logged in material operations;
-- open forms cannot silently rebind to another year.
-
-Implemented on `feat/block-01-trusted-workspace-context`:
-
-- `AnnualWorkspaceContext` binds `annualWorkspaceId + commercialYear` to the generic owner context;
-- active context is resolved from `settings.year` and persisted workspace metadata per request;
-- income, fee, mortgage, annual-record and active-year tax-parameter operations validate annual identity in application;
-- mutations re-resolve active context immediately before persistence to block request races;
-- cross-year conflicts expose HTTP `409 workspace_year_mismatch`;
-- frontend workspace generation suppresses responses from a prior active year;
-- execution logs include `annualWorkspaceId` and `commercialYear` centrally;
-- legacy `settings.year` switching remains compatible through idempotent metadata rematerialization.
-
-Evidence: [`task-aw-005-evidence.md`](task-aw-005-evidence.md).
-
-Closure gate: full repository `make validate`. Until it passes, this Task remains `IN_REVIEW`.
+Evidence: [`task-aw-005-evidence.md`](task-aw-005-evidence.md). Canonical `make validate` passed with 127/127 tests plus desktop and architecture checks.
 
 **Enables:** AW-006 and safe downstream TAX blocks.
 
@@ -162,26 +99,10 @@ Closure gate: full repository `make validate`. Until it passes, this Task remain
 **Type:** Task  
 **Role:** ENABLER  
 **Size:** M  
-**Priority:** P0
+**Priority:** P0  
+**Status:** BLOCKED_BY_AW_003_AW_004
 
-Build a read model for AW-005 that aggregates structural presence/counts without becoming Annual Tax Health.
-
-Candidate fields:
-
-```text
-commercialYear
-operationRentaLabel
-lifecycleState
-profileAnsweredCount
-profileUnknownCount
-incomeSourceCount
-feeReceiptCount
-mortgageCount
-evidenceCapabilityState
-ruleVersionRef
-parametersState
-lastUpdatedAt
-```
+Build a structural read model for AW-005 without turning it into Annual Tax Health. Candidate fields remain commercial year/AT, lifecycle, profile completeness, structural counts/presence, rule provenance and last update timestamp.
 
 **Enables:** AW-005.
 
@@ -197,13 +118,13 @@ lastUpdatedAt
 
 Define provider-neutral behavior for creating/opening a commercial year for which PTL lacks a compatible rule set.
 
-Required decision states:
+Required states:
 
-- SUPPORTED;
-- SUPPORTED_WITH_WARNINGS;
-- UNSUPPORTED.
+- `SUPPORTED`;
+- `SUPPORTED_WITH_WARNINGS`;
+- `UNSUPPORTED`.
 
-This Task must consume current tax-rule configuration/version capabilities rather than hard-code UI-only year limits.
+The policy must consume rule/configuration capabilities instead of hard-coding UI-only year limits.
 
 **Enables:** AW-002.
 
@@ -214,33 +135,29 @@ This Task must consume current tax-rule configuration/version capabilities rathe
 **Type:** Task  
 **Role:** QUALITY_ENABLER  
 **Size:** M  
-**Priority:** P0
+**Priority:** P0  
+**Status:** NOT_READY_FOR_CLOSURE
 
-Create tests covering:
+Final regression coverage must include:
 
-- migration from current implicit-year persistence;
-- select/create year;
-- duplicate year;
-- year isolation;
-- stale async response/write protection;
-- prior-year initialization allowlist;
-- tri-state applicability profile;
-- workspace overview projection.
+- migration from implicit-year persistence — available;
+- select/create year and duplicate-year behavior — pending AW-001/AW-002 Stories;
+- strict year isolation and stale async protection — available via AW-005/AW-006;
+- prior-year initialization allowlist — pending AW-004/US-AW-003;
+- tri-state applicability profile — pending AW-003/US-AW-004;
+- workspace overview projection — pending TASK-AW-006/US-AW-005.
 
-**Requires:** implementation Tasks above.  
+AW-008 is now reached by the safety chain, but starting a long-lived closure PR before these behaviors exist would create a partial regression suite and violate the no-accumulated-PR operating model.
+
+**Requires:** implementation Tasks/Stories above.  
 **Enables:** block DoD.
 
 ## Spike
 
 ### PTL-SPIKE-AW-001 — Validate minimum annual applicability dimensions
 
-**Type:** Spike  
-**Size:** S  
-**Priority:** P0  
 **Status:** DONE  
 **Closed:** 2026-09-12
-
-Decision and evidence: [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md).
 
 Accepted dimensions:
 
@@ -250,43 +167,39 @@ Accepted dimensions:
 - `APV_CONTRIBUTIONS`;
 - `MORTGAGE_INTEREST`.
 
-Rejected from the profile because they belong to or are derivable from other domains:
+Rejected from this profile:
 
 - actual-expense evaluation/election;
-- AFP/health information applicability.
-
-`Applicability profile != actual tax facts` remains the governing invariant.
+- AFP/health applicability flag.
 
 ## Dependency graph
 
 ```mermaid
 flowchart LR
-  T1[AW-TASK-001\nWorkspace contract DONE] --> T2[AW-TASK-002\nPersistence migration DONE]
-  T1 --> T5[AW-TASK-005\nContext propagation IN REVIEW]
+  T1[AW-TASK-001\nDONE] --> T2[AW-TASK-002\nDONE]
+  T1 --> T5[AW-TASK-005\nDONE]
+  T5 --> U6[AW-US-006\nDONE]
+
   T1 --> U1[AW-US-001\nSelect workspace]
   T2 --> U1
 
   T1 --> U2[AW-US-002\nCreate workspace]
   T2 --> U2
-  T7[AW-TASK-007\nRule availability] --> U2
+  T7[AW-TASK-007\nREADY] --> U2
 
-  U2 --> U3[AW-US-003\nInitialize from prior]
-  T3[AW-TASK-003\nApplicability profile] --> U3
-  T4[AW-TASK-004\nInitialization service] --> U3
+  U2 --> U3[AW-US-003\nInitialize prior]
+  T3[AW-TASK-003\nREADY] --> U3
+  T4[AW-TASK-004] --> U3
 
-  S1[AW-SPIKE-001\nProfile dimensions DONE] --> U4[AW-US-004\nApplicability profile]
+  S1[AW-SPIKE-001\nDONE] --> U4[AW-US-004\nApplicability]
   U2 --> U4
   T3 --> U4
 
-  U1 --> U5[AW-US-005\nWorkspace overview]
+  U1 --> U5[AW-US-005\nOverview]
   U4 --> U5
-  T6[AW-TASK-006\nOverview projection] --> U5
+  T6[AW-TASK-006] --> U5
 
-  T1 --> U6[AW-US-006\nYear isolation]
-  T2 --> U6
-  T5 --> U6
-
-  U1 --> T8[AW-TASK-008\nRegression suite]
+  U1 --> T8[AW-TASK-008]
   U2 --> T8
   U3 --> T8
   U4 --> T8
@@ -294,67 +207,38 @@ flowchart LR
   U6 --> T8
 ```
 
-## Typed edges of interest
+## Fast lane status
 
-| From | Relation | To | Why |
-|---|---|---|---|
-| TASK-001 | ENABLES | US-001/002/006 | canonical workspace identity |
-| TASK-002 | INFRA_DEPENDS_ON | US-001/002/006 | persistence/migration |
-| TASK-003 | DATA_DEPENDS_ON | US-003/004/005 | profile model |
-| SPIKE-001 | RULE_DEPENDS_ON | US-004 | profile scope resolved 2026-09-12 |
-| TASK-005 | ENABLES | US-006 | safe active context |
-| US-004 | ENABLES | US-005 | overview needs profile status |
+### Foundation / persistence
 
-## Fast lane waves
+- SPIKE-AW-001 — DONE
+- TASK-AW-001 — DONE
+- TASK-AW-002 — DONE
+- TASK-AW-005 — DONE
+- US-AW-006 — DONE (`make validate`: 131/131, desktop/architecture clean)
 
-### Wave A — Foundation — ACTIVE
+### Next executable P0 path
 
-- SPIKE-001 — DONE
-- TASK-001 — DONE (`make validate`: 115/115 tests; desktop and architecture checks pass)
-- TASK-007 — READY
-
-### Wave B — Persistence & context — ACTIVE
-
-- TASK-002 — DONE (`make validate`: 118/118 tests; desktop and architecture checks pass)
-- TASK-003 — not started
-- TASK-005 — IN_REVIEW (trusted context implementation complete; canonical validation pending)
-
-### Vertical Slice 1 — First usable value
-
-- US-001
-- US-002
-- US-006
-
-### Vertical Slice 2 — Applicability & overview
-
-- US-004
-- TASK-006
-- US-005
-
-### P1 parallel branch
-
-- TASK-004
-- US-003
-
-### Closure
-
-- TASK-008
-- effective DoR/DoD review
-- dogfood evidence and deviations
+1. `PTL-TASK-AW-007 — Supported-year and rule-availability policy` — READY
+2. `PTL-US-AW-001 — Select workspace`
+3. `PTL-US-AW-002 — Create workspace`
+4. `PTL-TASK-AW-003 — TaxApplicabilityProfile`
+5. `PTL-US-AW-004 — Applicability Profile`
+6. `PTL-TASK-AW-006 + PTL-US-AW-005 — Workspace overview`
+7. P1 initialization branch (`AW-004 + US-AW-003`)
+8. `PTL-TASK-AW-008` final regression closure
 
 ## Critical safety chain
 
-This sequence remains mandatory and must not be postponed:
-
 ```text
-TASK-001 [DONE]
- -> TASK-005 [IN_REVIEW]
- -> US-006
- -> TASK-008
+TASK-AW-001 [DONE]
+ -> TASK-AW-005 [DONE]
+ -> US-AW-006 [DONE]
+ -> TASK-AW-008 [REACHED, NOT YET CLOSABLE]
 ```
+
+The safety invariant is now implemented and validated. AW-008 remains the final block-level gate, not the next feature implementation while required block behaviors are still absent.
 
 ## Block readiness verdict
 
-Wave B is active. Persistence is closed and trusted annual context propagation is in review. The next critical node after a clean AW-005 closure is `PTL-US-AW-006 — Strict year isolation`.
-
-The complete block is not declared DONE/READY as a whole; downstream Stories still depend on their enabling Tasks and effective DoR. Implementation proceeds through the defined fast lane while preserving the safety chain.
+The highest-value next executable dependency is `PTL-TASK-AW-007`, because it is P0/READY and unblocks explicit annual workspace creation (`US-AW-002`). This advances the first usable vertical slice without opening a partial long-lived AW-008 PR.
