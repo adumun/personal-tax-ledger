@@ -113,7 +113,12 @@
   gap: .75rem;
 }
 
-/* AW-001 makes the AnnualWorkspace header the primary year navigation surface. */
+/* AW-001 makes AnnualWorkspace the sole visible year-navigation authority. */
 .year-picker {
+  display: none !important;
+}
+
+/* Compatibility settings.year remains persisted internally, but Configuración tributaria no longer exposes a second year switcher. */
+.grid.two > .card:first-child > h2 + .form-grid > label:first-child {
   display: none !important;
 }
