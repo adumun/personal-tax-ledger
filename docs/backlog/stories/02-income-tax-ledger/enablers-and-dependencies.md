@@ -1,6 +1,6 @@
 # Block 02 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / IL-003 CLOSED / IL-004 READY`
+**Status:** `IMPLEMENTING / IL-004 DONE / IL-001+IL-006 READY`
 
 ## Spikes
 
@@ -48,22 +48,7 @@ Evidence: [`task-il-002-evidence.md`](task-il-002-evidence.md). Canonical `make 
 
 ### PTL-TASK-IL-003 — Annual ledger query/read model
 
-**Type:** Task  
-**Role:** ENABLER  
-**Priority:** P0  
-**Size:** M  
-**Status:** DONE
-
-Closed implementation:
-
-- deterministic composition of configured `TaxLedgerProvider`s;
-- exact filters for entry kind, owner aggregate and recognition state;
-- recognized-only factual totals grouped by currency;
-- explicit `presentCount` / `missingCount` so absence never becomes zero;
-- duplicate ledger identities rejected;
-- provider entries outside the requested annual context rejected;
-- no ledger persistence/mutation, readiness, reconciliation or tax-result semantics.
-
+**Status:** DONE  
 Evidence: [`task-il-003-evidence.md`](task-il-003-evidence.md). Canonical `make validate`: **200/200**, desktop/architecture PASS.
 
 ---
@@ -74,9 +59,22 @@ Evidence: [`task-il-003-evidence.md`](task-il-003-evidence.md). Canonical `make 
 **Role:** ENABLER  
 **Priority:** P0  
 **Size:** S  
-**Status:** READY
+**Status:** DONE
 
-Expose explicit annual ledger read endpoint/client. Mutating actions remain delegated to existing aggregate-specific endpoints/services.
+Closed implementation:
+
+- explicit `GET /api/tax-ledger` read endpoint;
+- exact `entryKind`, `ownerAggregate`, `recognitionState` filters;
+- active annual context resolved server-side;
+- canonical `readModel.listAnnualLedger(context, filters)` delegation;
+- non-GET methods rejected with 405 before read-model execution;
+- local composition assembles providers + read model + router;
+- frontend client exposes only `list(filters)` and GET;
+- canonical response shape preserves `factualSummary`;
+- no generic ledger mutation service or storage is introduced;
+- HTTP/lifecycle harnesses fail fast on early child termination and cannot hang indefinitely.
+
+Evidence: [`task-il-004-evidence.md`](task-il-004-evidence.md). Canonical `make validate`: **204/204**, desktop/architecture PASS.
 
 ---
 
@@ -109,12 +107,12 @@ flowchart LR
   S1[SPIKE-IL-001\nDONE] --> T1[TASK-IL-001\nDONE]
   T1 --> T2[TASK-IL-002\nDONE]
   T2 --> T3[TASK-IL-003\nDONE]
-  T3 --> T4[TASK-IL-004\nREADY]
-  T3 --> U1[US-IL-001]
+  T3 --> T4[TASK-IL-004\nDONE]
+  T3 --> U1[US-IL-001\nREADY]
   T4 --> U1
   U1 --> U2[US-IL-002]
   U1 --> U3[US-IL-003]
-  U1 --> U6[US-IL-006]
+  U1 --> U6[US-IL-006\nREADY]
   T3 --> U5[US-IL-005]
   S2[SPIKE-IL-002] --> T5[TASK-IL-005]
   T5 --> U4[US-IL-004]
@@ -133,8 +131,8 @@ SPIKE-IL-001 [DONE]
  -> TASK-IL-001 [DONE]
  -> TASK-IL-002 [DONE]
  -> TASK-IL-003 [DONE]
- -> TASK-IL-004 [READY]
- -> US-IL-001 + US-IL-006
+ -> TASK-IL-004 [DONE]
+ -> US-IL-001 + US-IL-006 [READY]
 ```
 
 `SPIKE-IL-002` remains a parallel P1 discovery path and does not block the domestic ledger slice.

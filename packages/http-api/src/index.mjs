@@ -7,6 +7,7 @@ export { createAnnualWorkspaceRouter } from './annual-workspaces.mjs';
 export { createAnnualWorkspaceOverviewRouter } from './annual-workspace-overview.mjs';
 export { createPriorYearInitializationRouter } from './prior-year-initialization.mjs';
 export { createTaxApplicabilityProfileRouter } from './tax-applicability-profile.mjs';
+export { createTaxLedgerRouter } from './tax-ledger.mjs';
 export { createExecutionLogRouter } from './execution-logs.mjs';
 export { createFeeExpenseSettingsRouter, createFeeReceiptRouter } from './fee-receipts.mjs';
 export { createIncomeRouter } from './incomes.mjs';

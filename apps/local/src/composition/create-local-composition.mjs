@@ -9,6 +9,7 @@ import { createPriorYearInitializationComposition } from '../prior-year-initiali
 import { createExecutionLogComposition } from '../execution-log-composition.mjs';
 import { createFeeReceiptComposition } from '../fee-receipt-composition.mjs';
 import { createMortgageComposition } from '../mortgage-composition.mjs';
+import { createTaxLedgerComposition } from '../tax-ledger-composition.mjs';
 import { createTaxParameterComposition, createTaxRuleSourceComposition } from '../tax-catalog-composition.mjs';
 import { createSupportCatalogComposition } from '../support-catalog-composition.mjs';
 import { createSystemComposition } from '../system-composition.mjs';
@@ -38,6 +39,11 @@ export function createLocalComposition(dependencies) {
   const logs = createExecutionLogComposition(compositionDependencies);
   const fees = createFeeReceiptComposition(compositionDependencies);
   const mortgages = createMortgageComposition(compositionDependencies);
+  const taxLedger = createTaxLedgerComposition({
+    ...compositionDependencies,
+    incomeUseCases: income.incomeUseCases,
+    feeReceiptUseCases: fees.feeReceiptUseCases
+  });
   const applicability = createApplicabilityProfileComposition({
     ...compositionDependencies,
     incomeUseCases: income.incomeUseCases,
@@ -77,6 +83,7 @@ export function createLocalComposition(dependencies) {
     ...logs,
     ...fees,
     ...mortgages,
+    ...taxLedger,
     ...taxParameters,
     ...taxSources,
     ...support,

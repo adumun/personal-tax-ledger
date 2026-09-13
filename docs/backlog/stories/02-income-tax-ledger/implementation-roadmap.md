@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / IL-003 CLOSED / IL-004 READY`  
+**Status:** `GO / IL-004 CLOSED / IL-001+IL-006 READY`  
 **Date:** 2026-09-13
 
 ## Baseline inherited from Block 01
@@ -21,6 +21,7 @@ Block 02 consumes these contracts rather than reintroducing a second year author
 - `PTL-TASK-IL-001` — DONE: `TaxLedgerEntry` + read-only provider port; canonical gate **190/190**.
 - `PTL-TASK-IL-002` — DONE: aggregate projection providers; canonical gate **195/195**.
 - `PTL-TASK-IL-003` — DONE: deterministic annual ledger read model with exact filters, annual-context enforcement and traceable factual totals; canonical gate **200/200**, desktop/architecture PASS.
+- `PTL-TASK-IL-004` — DONE: canonical read-only HTTP/client surface over `listAnnualLedger`, exact filters, active annual context, no generic mutation authority; canonical gate **204/204**, desktop/architecture PASS.
 
 ## Immediate implementation slice
 
@@ -29,9 +30,9 @@ Block 02 consumes these contracts rather than reintroducing a second year author
 1. `PTL-TASK-IL-001 — TaxLedgerEntry projection contract` — **DONE**;
 2. `PTL-TASK-IL-002 — Aggregate projection providers` — **DONE**;
 3. `PTL-TASK-IL-003 — Annual ledger query/read model` — **DONE**;
-4. `PTL-TASK-IL-004 — Ledger HTTP/client surface` — **READY**;
-5. `PTL-US-IL-001 — Unified annual income ledger`;
-6. `PTL-US-IL-006 — Traceability/authority/year isolation`.
+4. `PTL-TASK-IL-004 — Ledger HTTP/client surface` — **DONE**;
+5. `PTL-US-IL-001 — Unified annual income ledger` — **READY**;
+6. `PTL-US-IL-006 — Traceability/authority/year isolation` — **READY**.
 
 This slice remains P0 and does not wait for foreign-currency work.
 
@@ -46,7 +47,7 @@ Close `PTL-SPIKE-IL-002`; then implement `PTL-TASK-IL-005 + PTL-US-IL-004`. No F
 
 ### Slice IL-D — Factual annual position
 
-`PTL-US-IL-005` consumes the stable read model. IL-003 already establishes traceable factual totals without tax-result semantics.
+`PTL-US-IL-005` consumes the stable read model and HTTP/client surface. These enablers expose factual data only and do not introduce tax-result semantics.
 
 ### Terminal gate
 
@@ -59,7 +60,9 @@ Block 02 does not own evidence vault, SII reconciliation, readiness, annual tax 
 ## Current executable node
 
 ```text
-PTL-TASK-IL-004 — Ledger HTTP/client surface
+PTL-US-IL-001 — Unified annual income ledger
++
+PTL-US-IL-006 — Traceability / authority / year isolation
 ```
 
-No unresolved P0 product decision blocks this task.
+No unresolved P0 product decision blocks this slice. The implementation must consume the closed IL-003/IL-004 read contracts without introducing generic ledger writes or a second year authority.
