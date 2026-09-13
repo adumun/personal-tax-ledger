@@ -4,6 +4,26 @@ import { createIncomeService } from '@personal-tax-ledger/frontend-application';
 
 type FeeReceiptComputed = Pick<FeeReceipt, 'grossAmount' | 'netAmount' | 'withheldAmount' | 'ppmPaidAmount' | 'withholdingRate'>;
 
+export type TaxYearSupportState = 'SUPPORTED' | 'SUPPORTED_WITH_WARNINGS' | 'UNSUPPORTED';
+export type AnnualWorkspace = {
+  id: string;
+  commercialYear: number;
+  derivedTaxYearLabel: string;
+  lifecycleState: 'PREPARING';
+  createdAt: string;
+  updatedAt: string;
+  ruleVersionRef: string | null;
+};
+export type AnnualWorkspaceSupport = {
+  commercialYear: number;
+  state: TaxYearSupportState;
+  missingRuleKeys: string[];
+  warnings: string[];
+};
+export type AnnualWorkspaceOption = { workspace: AnnualWorkspace; support: AnnualWorkspaceSupport };
+export type AnnualWorkspaceList = { activeCommercialYear: number; workspaces: AnnualWorkspaceOption[] };
+export type AnnualWorkspaceTransitionResult = { workspace: AnnualWorkspace; support: AnnualWorkspaceSupport; activeCommercialYear: number };
+
 export type ApiError = {
   code: string;
   message: string;
@@ -116,12 +136,40 @@ function qs(params: Record<string, string | number | undefined | null>): string 
   return s ? `?${s}` : '';
 }
 
+async function annualWorkspaceTransition(
+  commercialYear: number,
+  operation: () => Promise<AnnualWorkspaceTransitionResult>
+) {
+  const transition = beginWorkspaceTransition(commercialYear);
+  try {
+    const result = await operation();
+    observeActiveCommercialYear(result.activeCommercialYear);
+    return result;
+  } catch (error) {
+    rollbackWorkspaceTransition(transition);
+    throw error;
+  }
+}
+
 export const api = {
   bootstrap: async () => {
     const data = bootstrapResponse(await request<{ settings: Settings; sources: IncomeSource[]; references: Reference[] }>('/api/bootstrap')) as unknown as { settings: Settings; sources: IncomeSource[]; references: Reference[] };
     observeActiveCommercialYear(data.settings.year);
     return data;
   },
+  listAnnualWorkspaces: () => request<AnnualWorkspaceList>('/api/annual-workspaces', undefined, false),
+  selectAnnualWorkspace: (commercialYear: number, acceptWarnings = false) => annualWorkspaceTransition(
+    commercialYear,
+    () => request<AnnualWorkspaceTransitionResult>('/api/annual-workspaces/select', {
+      method: 'POST', body: JSON.stringify({ commercialYear, acceptWarnings })
+    }, false)
+  ),
+  createAnnualWorkspace: (commercialYear: number, acceptWarnings = false) => annualWorkspaceTransition(
+    commercialYear,
+    () => request<AnnualWorkspaceTransitionResult>('/api/annual-workspaces', {
+      method: 'POST', body: JSON.stringify({ commercialYear, mode: 'EMPTY', acceptWarnings })
+    }, false)
+  ),
   listYears: async () => yearsResponse(await request<unknown>('/api/years', undefined, false)),
   listIncomes: (taxYear?: number) => request<IncomeSource[]>(`/api/incomes${qs({ taxYear })}`),
   createIncome: (source: IncomeSource) => request<IncomeSource>('/api/incomes', { method: 'POST', body: JSON.stringify(incomeSourceRequest(source)) }),
@@ -140,7 +188,6 @@ export const api = {
     }
   },
 
-  // Fee receipts
   listFeeReceipts: (filters: { taxYear?: number | string; clientName?: string; status?: string; paymentStatus?: string; withholdingMode?: string } = {}) =>
     request<FeeReceipt[]>(`/api/fee-receipts${qs(feeReceiptFilters(filters))}`),
   createFeeReceipt: (receipt: FeeReceipt) => request<FeeReceipt>('/api/fee-receipts', { method: 'POST', body: JSON.stringify(feeReceiptRequest(receipt)) }),
@@ -149,19 +196,16 @@ export const api = {
   duplicateFeeReceipt: (id: string) => request<FeeReceipt>(`/api/fee-receipts/${id}/duplicate`, { method: 'POST' }),
   computeFeeReceipt: (receipt: Partial<FeeReceipt>, settings?: Partial<Settings>) => request<FeeReceiptComputed>('/api/fee-receipt-calc', { method: 'POST', body: JSON.stringify({ receipt, settings }) }),
 
-  // Fee expense settings
   listFeeExpenseSettings: () => request<FeeExpenseSettings[]>('/api/fee-expense-settings'),
   upsertFeeExpenseSettings: (settings: FeeExpenseSettings) => request<FeeExpenseSettings>('/api/fee-expense-settings', { method: 'PUT', body: JSON.stringify(feeExpenseSettingsRequest(settings)) }),
   getFeeExpenseSettings: (taxYear: number) => request<FeeExpenseSettings>(`/api/fee-expense-settings/${taxYear}`),
 
-  // Mortgages
   listMortgages: (filters: { taxYear?: number | string; institutionName?: string; propertyAlias?: string } = {}) =>
     request<MortgageLoan[]>(`/api/mortgages${qs(mortgageLoanFilters(filters))}`),
   createMortgage: (loan: MortgageLoan) => request<MortgageLoan>('/api/mortgages', { method: 'POST', body: JSON.stringify(mortgageLoanRequest(loan)) }),
   updateMortgage: (loan: MortgageLoan) => request<MortgageLoan>(`/api/mortgages/${loan.id}`, { method: 'PUT', body: JSON.stringify(mortgageLoanRequest(loan)) }),
   deleteMortgage: (id: string) => request<void>(`/api/mortgages/${id}`, { method: 'DELETE' }),
 
-  // Annual records
   listAnnualRecords: (loanId: string, filters: { taxYear?: number | string } = {}) =>
     request<MortgageAnnualRecord[]>(`/api/mortgages/${loanId}/annual-records${qs(mortgageAnnualRecordFilters(filters))}`),
   createAnnualRecord: (loanId: string, record: MortgageAnnualRecord) =>
@@ -170,24 +214,20 @@ export const api = {
     request<MortgageAnnualRecord>(`/api/mortgage-annual-records/${record.id}`, { method: 'PUT', body: JSON.stringify(mortgageAnnualRecordRequest(record)) }),
   deleteAnnualRecord: (id: string) => request<void>(`/api/mortgage-annual-records/${id}`, { method: 'DELETE' }),
 
-  // Tax parameters
   listTaxParameters: (taxYear: number) => request<TaxParameter[]>(`/api/tax-parameters${qs(taxParametersFilters({ taxYear }))}`),
   updateTaxParameters: (taxYear: number, values: Record<string, number | string>) =>
     request<Record<string, TaxParameter>>('/api/tax-parameters', { method: 'PUT', body: JSON.stringify(taxParametersRequest({ taxYear, values })) }),
 
-  // Tax rule sources
   listTaxRuleSources: (filters: { ruleKey?: string; taxYear?: number } = {}) =>
     request<TaxRuleSource[]>(`/api/tax-rule-sources${qs(taxRuleSourceFilters(filters))}`, undefined, false),
   createTaxRuleSource: (s: TaxRuleSource) => request<TaxRuleSource>('/api/tax-rule-sources', { method: 'POST', body: JSON.stringify(taxRuleSourceRequest(s)) }, false),
   deleteTaxRuleSource: (id: string) => request<void>(`/api/tax-rule-sources/${id}`, { method: 'DELETE' }, false),
 
-  // Execution log (bitácora)
   listExecutionLogs: (filters: { kind?: string; status?: string; operation?: string; q?: string; page?: number; pageSize?: number } = {}) =>
     request<ExecutionLogPage>(`/api/logs${qs(executionLogFilters(filters))}`, undefined, false).then(value => executionLogPageResponse(value as unknown as Partial<import('@personal-tax-ledger/api-contracts').ExecutionLogPageResponse>) as unknown as ExecutionLogPage),
   createExecutionLog: (entry: { kind: 'SYNC' | 'ASYNC'; operation: string; status: 'OK' | 'ERROR'; message?: string | null; auditMessage?: string | null; durationMs?: number }) =>
     request<ExecutionLog>('/api/logs', { method: 'POST', body: JSON.stringify(executionLogRequest(entry)) }, false),
 
-  // Simulation
   simulate: (payload: { sources?: IncomeSource[]; settings?: Partial<Settings>; extraApv?: { annualAmount: number; regime: 'A' | 'B' | 'NONE' }; feeReceipts?: FeeReceipt[]; mortgages?: MortgageLoan[]; annualRecords?: MortgageAnnualRecord[] }) =>
     request<Simulation>('/api/simulate', { method: 'POST', body: JSON.stringify(payload) }),
   compareApv: (annualContribution: number, sources?: IncomeSource[], settings?: Partial<Settings>, modules?: { feeReceipts?: FeeReceipt[]; mortgages?: MortgageLoan[]; annualRecords?: MortgageAnnualRecord[] }) =>
