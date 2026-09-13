@@ -3,7 +3,7 @@
 **Type:** Task  
 **Role:** ENABLER  
 **Priority:** P0  
-**Status:** IN_REVIEW  
+**Status:** DONE  
 **Date:** 2026-09-13  
 **Branch:** `feat/block-01-annual-workspace-overview`
 
@@ -24,14 +24,7 @@ The projection consumes trusted `AnnualWorkspaceContext` and existing owning cap
 
 ## Hard exclusions
 
-The projection intentionally contains no:
-
-- refund/payment estimate;
-- tax liability amount;
-- readiness percentage;
-- Annual Tax Health score;
-- SII reconciliation state;
-- optimization recommendation.
+The projection intentionally contains no refund/payment estimate, tax liability amount, readiness percentage, Annual Tax Health score, SII reconciliation state or optimization recommendation.
 
 ## Empty semantics
 
@@ -41,20 +34,17 @@ Absence is represented structurally by zero counts and the UI renders `No regist
 
 The overview reuses `PTL-TASK-AW-007` through `getSupportedYearState(commercialYear)`; it does not define a second support policy.
 
-## Automated evidence
+## Canonical validation
 
-- `test/annual-workspace-overview.test.mjs`
-  - period/profile/info/rules projection;
-  - structural-vs-tax-outcome boundary;
-  - latest structural update timestamp;
-  - empty-state semantics.
-- `test/annual-workspace-overview-frontend.test.mjs`
-  - visible `Año tributario` context surface;
-  - explicit structural copy;
-  - no `$0` fake economic fact;
-  - reload on `commercialYear` change;
-  - explicit `/api/annual-workspace/overview` endpoint.
+`make validate` executed from a complete local checkout on 2026-09-13:
 
-## Closure gate
+- typecheck: PASS;
+- tests: **169/169 PASS, 0 fail**;
+- desktop check: PASS;
+- architecture check: PASS.
 
-Canonical `make validate` remains mandatory. Until it passes, `PTL-TASK-AW-006` remains **IN_REVIEW**.
+AW-006/AW-005 coverage passed for structural projection, explicit empty semantics, annual-context reload, strict tax-outcome boundary and canonical AW-007 rule-state reuse.
+
+## Closure
+
+`PTL-TASK-AW-006` is **DONE**. The overview projection is ready for Block 01 regression closure once prior-year initialization is implemented.
