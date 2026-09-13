@@ -1,6 +1,6 @@
 # Block 02 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / IL-003 IN REVIEW`
+**Status:** `IMPLEMENTING / IL-003 CLOSED / IL-004 READY`
 
 ## Spikes
 
@@ -34,24 +34,14 @@ No automatic FX provider is authorized by Block 02 until this spike closes.
 
 ### PTL-TASK-IL-001 — TaxLedgerEntry projection contract
 
-**Type:** Task  
-**Role:** ENABLER  
-**Priority:** P0  
-**Size:** M  
-**Status:** DONE
-
+**Status:** DONE  
 Evidence: [`task-il-001-evidence.md`](task-il-001-evidence.md). Canonical `make validate`: **190/190**, desktop/architecture PASS.
 
 ---
 
 ### PTL-TASK-IL-002 — Aggregate projection providers
 
-**Type:** Task  
-**Role:** ENABLER  
-**Priority:** P0  
-**Size:** M  
-**Status:** DONE
-
+**Status:** DONE  
 Evidence: [`task-il-002-evidence.md`](task-il-002-evidence.md). Canonical `make validate`: **195/195**, desktop/architecture PASS.
 
 ---
@@ -62,19 +52,19 @@ Evidence: [`task-il-002-evidence.md`](task-il-002-evidence.md). Canonical `make 
 **Role:** ENABLER  
 **Priority:** P0  
 **Size:** M  
-**Status:** IN_REVIEW
+**Status:** DONE
 
-Implemented on `feat/block-02-annual-ledger-read-model`:
+Closed implementation:
 
-- deterministic composition of all configured `TaxLedgerProvider`s;
+- deterministic composition of configured `TaxLedgerProvider`s;
 - exact filters for entry kind, owner aggregate and recognition state;
 - recognized-only factual totals grouped by currency;
-- explicit `presentCount` / `missingCount`, preventing absent amounts from becoming zero;
+- explicit `presentCount` / `missingCount` so absence never becomes zero;
 - duplicate ledger identities rejected;
 - provider entries outside the requested annual context rejected;
-- no ledger persistence/mutation, readiness, reconciliation or tax result semantics.
+- no ledger persistence/mutation, readiness, reconciliation or tax-result semantics.
 
-Evidence: [`task-il-003-evidence.md`](task-il-003-evidence.md). Closure gate: canonical `make validate`.
+Evidence: [`task-il-003-evidence.md`](task-il-003-evidence.md). Canonical `make validate`: **200/200**, desktop/architecture PASS.
 
 ---
 
@@ -84,7 +74,7 @@ Evidence: [`task-il-003-evidence.md`](task-il-003-evidence.md). Closure gate: ca
 **Role:** ENABLER  
 **Priority:** P0  
 **Size:** S  
-**Status:** BLOCKED_BY_IL_003
+**Status:** READY
 
 Expose explicit annual ledger read endpoint/client. Mutating actions remain delegated to existing aggregate-specific endpoints/services.
 
@@ -110,15 +100,7 @@ Implements the domain/storage projection decided by the foreign-service/FX spike
 **Size:** M  
 **Status:** NOT_READY_FOR_CLOSURE
 
-Terminal Block 02 regression gate. It must prove:
-
-- ledger is projection-only;
-- owner aggregate identity remains stable;
-- annual isolation/stale protection;
-- salary/APV semantics are not duplicated;
-- BHE cancellation/recognition semantics remain intact;
-- ledger totals are traceable to entries;
-- foreign-service behavior only once IL-002/IL-005 are closed.
+Terminal Block 02 regression gate. It must prove projection-only ledger semantics, stable owner identity, annual isolation/stale protection, non-duplicated salary/APV semantics, preserved BHE recognition semantics, traceable totals, and foreign-service behavior only after IL-002/IL-005 are closed.
 
 ## Dependency graph
 
@@ -126,18 +108,16 @@ Terminal Block 02 regression gate. It must prove:
 flowchart LR
   S1[SPIKE-IL-001\nDONE] --> T1[TASK-IL-001\nDONE]
   T1 --> T2[TASK-IL-002\nDONE]
-  T2 --> T3[TASK-IL-003\nIN REVIEW]
-  T3 --> T4[TASK-IL-004]
+  T2 --> T3[TASK-IL-003\nDONE]
+  T3 --> T4[TASK-IL-004\nREADY]
   T3 --> U1[US-IL-001]
   T4 --> U1
   U1 --> U2[US-IL-002]
   U1 --> U3[US-IL-003]
   U1 --> U6[US-IL-006]
   T3 --> U5[US-IL-005]
-
   S2[SPIKE-IL-002] --> T5[TASK-IL-005]
   T5 --> U4[US-IL-004]
-
   U1 --> T6[TASK-IL-006]
   U2 --> T6
   U3 --> T6
@@ -152,8 +132,8 @@ flowchart LR
 SPIKE-IL-001 [DONE]
  -> TASK-IL-001 [DONE]
  -> TASK-IL-002 [DONE]
- -> TASK-IL-003 [IN REVIEW]
- -> TASK-IL-004
+ -> TASK-IL-003 [DONE]
+ -> TASK-IL-004 [READY]
  -> US-IL-001 + US-IL-006
 ```
 

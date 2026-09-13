@@ -3,7 +3,7 @@
 **Type:** Task  
 **Role:** ENABLER  
 **Priority:** P0  
-**Status:** IN_REVIEW  
+**Status:** DONE  
 **Date:** 2026-09-13  
 **Branch:** `feat/block-02-annual-ledger-read-model`
 
@@ -54,28 +54,11 @@ The read model exposes:
 
 Only `RECOGNIZED` entries contribute monetary totals.
 
-Each amount total preserves absence explicitly:
-
-```text
-amount
-presentCount
-missingCount
-```
-
-Therefore a `null` amount is never silently converted into a factual zero. For example, an income source entered as NET contributes to `net` while its absent `gross` increments `missingCount`.
+Each amount total preserves absence explicitly through `amount`, `presentCount` and `missingCount`; a `null` amount never becomes factual zero.
 
 ## Boundaries
 
-IL-003 does not introduce:
-
-- generic ledger repository/table;
-- create/update/delete ledger operations;
-- SII reconciliation;
-- readiness state;
-- tax liability/refund calculation;
-- salary/APV recalculation;
-- BHE recomputation;
-- FX/foreign-service semantics.
+IL-003 does not introduce generic ledger persistence or mutation, SII reconciliation, readiness, tax liability/refund, salary/APV recalculation, BHE recomputation or FX semantics.
 
 ## Automated evidence
 
@@ -87,6 +70,14 @@ IL-003 does not introduce:
 4. duplicate ledger IDs are rejected;
 5. cross-workspace/year provider leakage is rejected.
 
-## Closure gate
+## Canonical validation
 
-Canonical `make validate` is mandatory. Until it passes, `PTL-TASK-IL-003` remains **IN_REVIEW**.
+Fresh `make validate` on `feat/block-02-annual-ledger-read-model`:
+
+- typecheck: PASS;
+- tests: **200/200 PASS, 0 fail**;
+- all five IL-003 read-model tests: PASS;
+- desktop check: PASS;
+- architecture check: PASS.
+
+`PTL-TASK-IL-003` is **DONE**. The next P0 node is `PTL-TASK-IL-004 — Ledger HTTP/client surface`.
