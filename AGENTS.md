@@ -28,6 +28,39 @@ este repositorio. Aplica a todas las tareas.
 - NO arreglar errores preexistentes de `tsc -b` durante trabajo de
   features; documentarlos como gap (ver abajo).
 
+## REGLA: interfaz operativa sólo mediante Make
+
+`STD-ENG-DEV-001` define el `Makefile` raíz como la interfaz operativa estable
+del repositorio. Los comandos nativos (`npm`, `node`, `vite`, etc.) son detalles
+de implementación detrás del Makefile y NO deben presentarse como instrucciones
+normales al desarrollador cuando exista o deba existir un target equivalente.
+
+Para cualquier operación recurrente:
+
+1. usar primero un target `make ...` existente;
+2. si el target necesario no existe, agregarlo al `Makefile` y documentarlo en
+   `make help` antes de pedir al usuario ejecutar la operación;
+3. mantener semántica consistente con los comandos canónicos ADÜMÜN;
+4. reservar comandos nativos directos para diagnóstico excepcional, sólo cuando
+   no sea razonable envolverlos y dejando explícita la excepción.
+
+Interfaz base PTL:
+
+```text
+make bootstrap
+make deps
+make up
+make down
+make test
+make doctor
+make validate
+make help
+```
+
+Targets especializados como `make test-ledger-ui`, `make typecheck` o
+`make build-web` pueden existir para slices o concerns concretos, pero siguen
+siendo parte de la misma fachada Make.
+
 ## REGLA: PTL como primer dogfood / extraction driver React
 
 Personal Tax Ledger es el primer consumidor de prueba y driver de extracción de
@@ -82,9 +115,14 @@ Ver `docs/architecture/react-dogfood-extraction-driver.md`.
 
 ## Verificación obligatoria tras una tarea
 
-- `npm test` (backend: `node --test test/*.test.mjs`).
-- `cd apps/local/web && npx --no-install vite build`.
-- Si el cambio toca la API: verificar con curl contra el servidor en `:3001`.
+- `make test` para la suite canónica local.
+- `make typecheck` cuando el cambio afecta TypeScript/React.
+- `make test-ledger-ui` para el slice visual del ledger/shared shell mientras
+  esté vigente.
+- `make validate` como gate canónico completo cuando corresponda cerrar el
+  cambio.
+- Si un nuevo tipo de verificación recurrente no tiene target Make, crear el
+  target primero; no entregar al usuario una secuencia nativa como interfaz.
 
 ## REGLA: documentar gaps en `docs/gaps/`
 
