@@ -70,7 +70,12 @@ try {
     assert.equal(await route({ req: { method: 'GET' }, res: {}, path: '/api/incomes', url: new URL('http://smoke/api/incomes?taxYear=2026') }), true);
     assert.deepEqual(httpResponse, { status: 200, body: { year: 2026, items: [] } });
 
-    const context = { workspaceId: 'smoke-workspace', actorId: 'smoke-user' };
+    const context = {
+      workspaceId: 'smoke-workspace',
+      actorId: 'smoke-user',
+      annualWorkspaceId: 'annual-tax-workspace-2026',
+      commercialYear: 2026
+    };
     const calls = [];
     const useCases = createIncomeUseCases({ repository: {
       list: async (receivedContext, year) => { calls.push(['list', receivedContext, year]); return []; },
