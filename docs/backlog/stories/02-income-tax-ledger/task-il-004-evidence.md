@@ -3,7 +3,7 @@
 **Type:** Task  
 **Role:** ENABLER  
 **Priority:** P0  
-**Status:** IN_REVIEW  
+**Status:** DONE  
 **Date:** 2026-09-13  
 **Branch:** `feat/block-02-ledger-http-client-surface`
 
@@ -79,8 +79,6 @@ node --test \
 7 tests / 7 pass / 0 fail / 0 cancelled
 ```
 
-This focused run proves that the real local server starts and stops cleanly and that the IL-004 HTTP/client contract works through the canonical read-model API. It does not replace the final `make validate` closure gate.
-
 ## Automated evidence
 
 `test/tax-ledger-http-client.test.mjs` verifies:
@@ -92,13 +90,30 @@ This focused run proves that the real local server starts and stops cleanly and 
 
 Related lifecycle regression coverage:
 
-- `test/http-contract.test.mjs` now fails fast with child-process diagnostics;
-- `test/local-lifecycle.test.mjs` now fails fast and cleans up even when bootstrap exits early.
+- `test/http-contract.test.mjs` fails fast with child-process diagnostics;
+- `test/local-lifecycle.test.mjs` fails fast and cleans up even when bootstrap exits early.
+
+## Canonical closure evidence
+
+Fresh `make validate` after all corrections:
+
+```text
+204 tests / 204 pass / 0 fail / 0 cancelled / 0 skipped / 0 todo
+```
+
+Additional gates:
+
+- `typecheck` — PASS;
+- `desktop:check` — PASS;
+- `architecture:check` — PASS;
+- architecture invariants: 10 internal packages, no cycles, server/web legacy roots absent, core/contracts isolated, application without sqlite-adapter access.
+
+The full gate also includes the four IL-004 tests and real local-server lifecycle coverage.
 
 ## Boundaries
 
 IL-004 does not add UI presentation, generic ledger CRUD, storage, readiness, reconciliation, tax result or FX semantics.
 
-## Closure gate
+## Closure
 
-Canonical `make validate` is mandatory. Until green, `PTL-TASK-IL-004` remains **IN_REVIEW**.
+`PTL-TASK-IL-004` is **DONE**. The next P0 slice is `PTL-US-IL-001 — Unified annual income ledger` plus `PTL-US-IL-006 — Traceability/authority/year isolation`.
