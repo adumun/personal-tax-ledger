@@ -3,7 +3,7 @@
 **Type:** Story  
 **Capability:** TAX-01  
 **Priority:** P0  
-**Status:** IN_REVIEW  
+**Status:** DONE  
 **Date:** 2026-09-13  
 **Branch:** `feat/block-01-visible-annual-workspace`
 
@@ -49,7 +49,7 @@ The header renders the derived label as text; no AT input exists.
 
 ## Compatibility decision
 
-`settings.year` remains the compatibility active pointer during Block 01, but it is no longer the source used to generate visible year options. The legacy `year-picker` inside `WorkspaceView` is hidden as a primary control while the underlying compatibility behavior remains available to existing modules.
+`settings.year` remains the compatibility active pointer during Block 01, but it is no longer the source used to generate visible year options. Legacy year selectors are no longer visible navigation authorities; year switching is owned by the persistent Annual Workspace surface.
 
 ## Automated coverage
 
@@ -61,14 +61,17 @@ The header renders the derived label as text; no AT input exists.
   - header/AT contract;
   - no `YEAR_FLOOR` source for the visible selector;
   - transition generation + remount behavior;
-  - legacy picker no longer primary.
+  - AnnualWorkspace is the single visible year-navigation authority.
 
-## Closure gate
+## Canonical validation
 
-Canonical repository validation remains mandatory:
+`make validate` passed from a complete local checkout on 2026-09-13:
 
-```text
-make validate
-```
+- typecheck: PASS;
+- tests: **149/149 PASS, 0 fail**;
+- `desktop:check`: PASS;
+- `architecture:check`: PASS.
 
-Until it passes, `PTL-US-AW-001` remains **IN_REVIEW**.
+AW-001-specific acceptance tests all passed, including persisted-only selection, missing-year rejection, visible derived AT, single visible authority and protected remount/reload semantics.
+
+`PTL-US-AW-001` is **DONE**.
