@@ -29,3 +29,7 @@ export {
   PRIOR_YEAR_REUSABLE_CATEGORY,
   PRIOR_YEAR_FORBIDDEN_COPY
 } from './features/annual-workspace/prior-year-initialization-use-cases.mjs';
+export {
+  createIncomeSourceTaxLedgerProvider,
+  createFeeReceiptTaxLedgerProvider
+} from './features/ledger/tax-ledger-providers.mjs';
