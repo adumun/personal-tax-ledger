@@ -23,3 +23,4 @@ export {
   TAX_APPLICABILITY_REVIEW_STATE,
   TAX_FACT_PRESENCE
 } from './features/annual-workspace/tax-applicability-profile-review-use-cases.mjs';
+export { createAnnualWorkspaceOverviewUseCases } from './features/annual-workspace/annual-workspace-overview-use-cases.mjs';
