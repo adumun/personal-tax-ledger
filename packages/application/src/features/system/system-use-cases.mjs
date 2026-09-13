@@ -74,19 +74,21 @@ export function createSystemUseCases({
       });
     },
     async article55Bis(payload = {}) {
-      const baseSettings = await settingsUseCases.getSettings(context);
+      const { scoped, settings: baseSettings } = await resolveScopedContext('article55Bis');
       const settings = { ...baseSettings, ...(payload.settings || {}) };
       const year = Number(settings.year) || defaultSettings.year;
-      const parameters = payload.params || Object.fromEntries((await taxParameterUseCases.listTaxParameters(null, year)).map(item => [item.ruleKey, item.value]));
+      assertContextCommercialYear(scoped, year, 'article55Bis');
+      const parameters = payload.params || Object.fromEntries((await taxParameterUseCases.listTaxParameters(scoped, year)).map(item => [item.ruleKey, item.value]));
       return computeArticle55BisBenefit(payload.mortgages || [], payload.annualRecords || [], {
         incomeEstimate: Number(payload.incomeEstimate) || 0,
         utaValue: settings.utmValue * 12
       }, parameters);
     },
     async feeReceiptCalculation(payload = {}) {
-      const settings = await settingsUseCases.getSettings(context);
+      const { scoped, settings } = await resolveScopedContext('feeReceiptCalculation');
       const year = Number(settings.year) || defaultSettings.year;
-      const parameters = Object.fromEntries((await taxParameterUseCases.listTaxParameters(null, year)).map(item => [item.ruleKey, item.value]));
+      assertContextCommercialYear(scoped, year, 'feeReceiptCalculation');
+      const parameters = Object.fromEntries((await taxParameterUseCases.listTaxParameters(scoped, year)).map(item => [item.ruleKey, item.value]));
       return computeFeeReceiptAmounts(payload.receipt || payload, parameters);
     }
   };
