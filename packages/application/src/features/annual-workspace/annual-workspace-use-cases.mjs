@@ -46,6 +46,9 @@ export function createAnnualWorkspaceFlowUseCases({
   now = () => new Date().toISOString()
 }) {
   assertAnnualTaxWorkspaceRepositoryContract(repository);
+  if (typeof repository?.remove !== 'function') {
+    throw new TypeError('AnnualWorkspaceFlow requiere repository.remove() para compensación');
+  }
   if (typeof settingsUseCases?.getSettings !== 'function' || typeof settingsUseCases?.updateSettings !== 'function') {
     throw new TypeError('AnnualWorkspaceFlow requiere SettingsUseCases');
   }
