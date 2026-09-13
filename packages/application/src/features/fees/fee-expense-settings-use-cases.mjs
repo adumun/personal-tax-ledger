@@ -3,9 +3,11 @@ import {
   assertContextCommercialYear,
   assertFeeExpenseSettingsRepositoryContract
 } from '@personal-tax-ledger/contracts';
+import { createActiveWorkspaceGuard } from '../../shared/active-workspace-guard.mjs';
 
-export function createFeeExpenseSettingsUseCases({ repository }) {
+export function createFeeExpenseSettingsUseCases({ repository, resolveActiveContext }) {
   assertFeeExpenseSettingsRepositoryContract(repository);
+  const assertContextStillActive = createActiveWorkspaceGuard(resolveActiveContext);
   return {
     async listFeeExpenseSettings(context) {
       assertAnnualWorkspaceContext(context);
@@ -20,6 +22,7 @@ export function createFeeExpenseSettingsUseCases({ repository }) {
     async upsertFeeExpenseSettings(context, taxYear, data) {
       assertAnnualWorkspaceContext(context);
       const year = assertContextCommercialYear(context, taxYear, 'upsertFeeExpenseSettings');
+      await assertContextStillActive(context, 'upsertFeeExpenseSettings');
       return repository.upsert(context, year, data);
     }
   };
