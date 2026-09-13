@@ -60,6 +60,7 @@
   display: grid;
   gap: 22px;
   padding: 22px 0;
+  overflow-y: auto;
 }
 
 .ptl-application [data-adumun-component="PrimaryNavGroup"] {
@@ -272,15 +273,58 @@
   margin: 0 auto;
 }
 
-.workspace-surface {
-  display: block;
+.ptl-application [data-adumun-component="PageHeader"] {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 22px;
 }
 
-.workspace-page-header,
-.annual-overview > header,
-.annual-income-ledger > header,
-.applicability-profile > header {
-  margin-bottom: 22px;
+.ptl-application [data-adumun-page-header-region="identity"] {
+  min-width: 0;
+}
+
+.ptl-application [data-adumun-page-header-eyebrow] {
+  margin: 0 0 7px;
+  color: #137b67;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.ptl-application [data-adumun-page-header-title-row] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ptl-application [data-adumun-page-header-title-row] h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.16;
+  color: #18202a;
+}
+
+.ptl-application [data-adumun-page-header-description] {
+  margin-top: 7px;
+  max-width: 760px;
+  color: #66737d;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ptl-application [data-adumun-page-header-region="actions"] {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.workspace-surface {
+  display: block;
 }
 
 .workspace-page-header {
@@ -288,16 +332,15 @@
   justify-content: space-between;
   gap: 20px;
   align-items: flex-start;
+  margin-bottom: 22px;
 }
 
-.workspace-page-header h1,
-.annual-overview > header h1 {
+.workspace-page-header h1 {
   margin: 0 0 6px;
   font-size: 28px;
 }
 
-.workspace-page-header p,
-.annual-overview > header p {
+.workspace-page-header p {
   margin: 0;
   color: #66737d;
 }
@@ -343,6 +386,7 @@
   .ptl-application [data-adumun-nav-region="groups"] {
     gap: 12px;
     padding: 14px 0 6px;
+    overflow: visible;
   }
 
   .ptl-application [data-adumun-nav-group-items] {
@@ -376,5 +420,14 @@
 
   .ptl-application [data-adumun-shell-region="main"] {
     padding: 24px 16px 48px;
+  }
+
+  .ptl-application [data-adumun-component="PageHeader"] {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .ptl-application [data-adumun-page-header-region="actions"] {
+    justify-content: flex-start;
   }
 }
