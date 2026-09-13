@@ -1,6 +1,6 @@
 # Block 01 — Annual Workspace — Implementation Roadmap
 
-**Status:** `GO / ALL FUNCTIONAL SLICES CLOSED / AW-008 READY`  
+**Status:** `GO / TERMINAL REGRESSION GATE IN REVIEW`  
 **Date:** 2026-09-13  
 **Scope:** `Block 01 — Annual Workspace & Tax Profile`
 
@@ -20,32 +20,21 @@ Replace the implicit/global year setting with a first-class `AnnualTaxWorkspace`
 - `PTL-TASK-AW-003` — DONE; `make validate` 155/155.
 - `PTL-US-AW-004` — DONE; `make validate` 164/164.
 - `PTL-TASK-AW-006 + PTL-US-AW-005` — DONE; `make validate` 169/169, desktop/architecture PASS.
-- `PTL-TASK-AW-004 + PTL-US-AW-003` — DONE; canonical `make validate` rerun PASS after the obsolete AW-002 assertion was reconciled with the now-enabled AW-003 flow.
+- `PTL-TASK-AW-004 + PTL-US-AW-003` — DONE; canonical rerun PASS after reconciling the obsolete AW-002 frontend assertion.
 
-## Prior-year initialization — closed contract
+## Terminal Block 01 gate — AW-008
 
-The reusable-category allowlist currently contains exactly:
+`PTL-TASK-AW-008` is implemented on `chore/block-01-terminal-regression-gate` and remains **IN_REVIEW** until a fresh canonical `make validate` passes.
 
-```text
-APPLICABILITY_PROFILE
-```
+The new `test/block-01-regression.test.mjs` is intentionally cross-feature rather than a duplicate of every Story suite. It verifies the composition-level invariants most likely to regress across feature boundaries:
 
-The profile is copied as a revisable proposal into the target workspace. No generic table-driven copy is allowed.
+1. explicit AnnualWorkspace authority, duplicate protection and unsupported-year blocking;
+2. stale mutation rejection after active year changes;
+3. applicability declaration remains subordinate to canonical facts (`NO + PRESENT => NEEDS_REVIEW`);
+4. Annual Workspace Overview remains structural and excludes tax-result/readiness/SII/optimization semantics;
+5. prior-year initialization stays allowlisted, auditable and idempotent.
 
-Provenance is persisted separately from `TaxApplicabilityProfile v1` in `annual_workspace_initializations` with source/target workspace/year, actual category set and timestamp.
-
-Explicitly forbidden copy remains:
-
-- realized amounts;
-- BHE/fee receipts;
-- retentions or PPM;
-- ledger movements;
-- documentary evidence;
-- SII/reconciliation state;
-- readiness/closure state;
-- calculated results or historical projections.
-
-Failure/idempotency semantics are validated: unsupported categories fail before creation; partial failure removes the target and restores the previous active year; identical provenance is idempotent; conflicting existing targets remain explicit conflicts.
+Specialized suites remain responsible for SQLite migration/materialization, frontend stale-response suppression, rollback failure paths, adapter persistence and UI-specific contracts.
 
 ## Critical safety chain
 
@@ -56,24 +45,8 @@ PTL-TASK-AW-005 [DONE]
         ↓
 PTL-US-AW-006   [DONE]
         ↓
-PTL-TASK-AW-008 [READY / TERMINAL QUALITY GATE]
+PTL-TASK-AW-008 [IN REVIEW / TERMINAL QUALITY GATE]
 ```
-
-## AW-008 readiness
-
-| Required AW-008 coverage | State |
-|---|---|
-| implicit-year migration | AVAILABLE |
-| year isolation | AVAILABLE |
-| stale async read/write protection | AVAILABLE |
-| supported-year policy | AVAILABLE |
-| select/create year | AVAILABLE |
-| duplicate-year behavior | AVAILABLE |
-| tri-state applicability profile | AVAILABLE |
-| workspace overview projection | AVAILABLE |
-| prior-year initialization allowlist/provenance/idempotency/rollback | AVAILABLE |
-
-AW-008 is now the immediate executable node. It must consolidate complete Block 01 regression evidence and effective DoD/dogfood review; it must not add new feature semantics.
 
 ## Established technical invariants
 
@@ -100,6 +73,7 @@ AW-008 is now the immediate executable node. It must consolidate complete Block 
 - [`task-aw-005-evidence.md`](task-aw-005-evidence.md)
 - [`task-aw-006-evidence.md`](task-aw-006-evidence.md)
 - [`task-aw-007-evidence.md`](task-aw-007-evidence.md)
+- [`task-aw-008-evidence.md`](task-aw-008-evidence.md)
 - [`us-aw-001-evidence.md`](us-aw-001-evidence.md)
 - [`us-aw-002-evidence.md`](us-aw-002-evidence.md)
 - [`us-aw-003-evidence.md`](us-aw-003-evidence.md)
@@ -110,4 +84,4 @@ AW-008 is now the immediate executable node. It must consolidate complete Block 
 
 ## Decision
 
-`GO` for `PTL-TASK-AW-008`. No remaining functional dependency blocks terminal Block 01 closure.
+`GO / IN_REVIEW` for `PTL-TASK-AW-008`. A green canonical validation is now the only remaining requirement to close Block 01.
