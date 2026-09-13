@@ -3,7 +3,7 @@
 **Type:** Task  
 **Role:** ENABLER  
 **Priority:** P0  
-**Status:** IN_REVIEW  
+**Status:** DONE  
 **Date:** 2026-09-13  
 **Branch:** `feat/block-02-ledger-projection-providers`
 
@@ -76,6 +76,14 @@ Both providers require `AnnualWorkspaceContext` and request only `context.commer
 4. canonical BHE amount/provenance preservation;
 5. both providers remain strictly read-only.
 
-## Closure gate
+## Canonical validation
 
-Canonical `make validate` remains mandatory. Until it passes, `PTL-TASK-IL-002` remains **IN_REVIEW**.
+Fresh `make validate` on 2026-09-13:
+
+- typecheck: PASS;
+- tests: **195/195 PASS**;
+- fail: **0**;
+- desktop check: PASS;
+- architecture check: PASS.
+
+All five IL-002 tests passed. `PTL-TASK-IL-002` is therefore **DONE**.
