@@ -3,7 +3,7 @@
 **Type:** Task  
 **Role:** ENABLER  
 **Priority:** P1  
-**Status:** IN_REVIEW  
+**Status:** DONE  
 **Date:** 2026-09-13  
 **Branch:** `feat/block-01-prior-year-initialization`
 
@@ -86,6 +86,12 @@ A pre-existing target with different/no provenance remains an explicit conflict.
   - explicit annual endpoint;
   - no transactional repository inference in the service.
 
-## Closure gate
+## Canonical validation
 
-Canonical `make validate` remains mandatory. Until it passes, `PTL-TASK-AW-004` remains **IN_REVIEW**.
+`make validate` rerun after reconciling the obsolete AW-002 frontend assertion: **PASS**.
+
+The first run exercised 179 tests with only the stale AW-002 assertion failing; the assertion was updated to reflect that AW-003 now intentionally enables prior-year initialization, and the rerun completed green with typecheck, tests, desktop and architecture gates passing.
+
+## Closure verdict
+
+`PTL-TASK-AW-004` is **DONE**. Its output makes prior-year initialization coverage available to the terminal `PTL-TASK-AW-008` Block 01 regression gate.
