@@ -127,6 +127,23 @@ export interface AnnualTaxWorkspaceRepository {
   list(context?: WorkspaceContext | null): Promise<AnnualTaxWorkspaceRecord[]>;
   getByCommercialYear(context: WorkspaceContext | null, commercialYear: number): Promise<AnnualTaxWorkspaceRecord | null>;
   create(context: WorkspaceContext | null, workspace: AnnualTaxWorkspaceRecord): Promise<AnnualTaxWorkspaceRecord>;
+  remove(context: WorkspaceContext | null, commercialYear: number): Promise<boolean>;
 }
 export const ANNUAL_TAX_WORKSPACE_REPOSITORY_METHODS: readonly string[];
 export function assertAnnualTaxWorkspaceRepositoryContract(repository: unknown): AnnualTaxWorkspaceRepository;
+
+export type TaxApplicabilityValue = 'YES' | 'NO' | 'UNKNOWN';
+export type TaxApplicabilityDimension = 'DEPENDENT_INCOME' | 'DOMESTIC_FEE_INCOME' | 'FOREIGN_SERVICE_INCOME' | 'APV_CONTRIBUTIONS' | 'MORTGAGE_INTEREST';
+export type TaxApplicabilityProfileRecord = {
+  annualWorkspaceId: string;
+  commercialYear: number;
+  profileVersion: 1;
+  answers: Record<TaxApplicabilityDimension, TaxApplicabilityValue>;
+  updatedAt: string;
+};
+export interface TaxApplicabilityProfileRepository {
+  get(context: AnnualWorkspaceContext, annualWorkspaceId: string): Promise<TaxApplicabilityProfileRecord | null>;
+  upsert(context: AnnualWorkspaceContext, profile: TaxApplicabilityProfileRecord): Promise<TaxApplicabilityProfileRecord>;
+}
+export const TAX_APPLICABILITY_PROFILE_REPOSITORY_METHODS: readonly string[];
+export function assertTaxApplicabilityProfileRepositoryContract(repository: unknown): TaxApplicabilityProfileRepository;
