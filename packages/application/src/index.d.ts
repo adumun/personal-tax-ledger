@@ -45,3 +45,11 @@ export function createTaxApplicabilityProfileReviewUseCases(options: {
   profileUseCases: Record<string, AsyncUseCase>;
   readCanonicalFactPresence: (context: AnnualWorkspaceContext) => Promise<Record<string, string>>;
 }): Record<string, AsyncUseCase>;
+export function createAnnualWorkspaceOverviewUseCases(options: {
+  annualWorkspaceRepository: unknown;
+  profileReviewUseCases: Record<string, AsyncUseCase>;
+  incomeUseCases: Record<string, AsyncUseCase>;
+  feeReceiptUseCases: Record<string, AsyncUseCase>;
+  mortgageUseCases: Record<string, AsyncUseCase>;
+  supportedYearPolicyUseCases: Record<string, AsyncUseCase>;
+}): Record<string, AsyncUseCase>;

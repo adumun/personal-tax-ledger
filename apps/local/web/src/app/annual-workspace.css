@@ -113,6 +113,62 @@
   gap: .75rem;
 }
 
+.annual-overview {
+  margin: 1rem;
+}
+
+.annual-overview > header h2,
+.annual-overview > header p {
+  margin-top: 0;
+}
+
+.annual-overview > header p {
+  opacity: .78;
+}
+
+.annual-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .85rem;
+}
+
+.annual-overview-card {
+  padding: 1rem;
+  border: 1px solid rgba(127, 127, 127, .22);
+  border-radius: .75rem;
+  background: var(--surface, #fff);
+}
+
+.annual-overview-card h3 {
+  margin-top: 0;
+}
+
+.annual-overview-card dl {
+  display: grid;
+  gap: .55rem;
+  margin: 0;
+}
+
+.annual-overview-card dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.annual-overview-card dt {
+  opacity: .72;
+}
+
+.annual-overview-card dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 600;
+}
+
+.annual-overview-wide {
+  grid-column: 1 / -1;
+}
+
 .annual-applicability-profile {
   margin: 1rem;
   padding: 1rem;
@@ -202,8 +258,15 @@
   .annual-workspace-create {
     margin-left: 0;
   }
+  .annual-overview-grid,
   .annual-applicability-row {
     grid-template-columns: 1fr;
+  }
+  .annual-overview-wide {
+    grid-column: auto;
+  }
+  .annual-overview-card dl > div {
+    align-items: start;
   }
 }
 

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import WorkspaceView from './WorkspaceView';
+import AnnualWorkspaceOverviewSection from './AnnualWorkspaceOverviewSection';
 import ApplicabilityProfileSection from './ApplicabilityProfileSection';
 import { api, ApiRequestError, type AnnualWorkspaceList, type AnnualWorkspaceOption } from '../api';
 import './annual-workspace.css';
@@ -158,6 +159,7 @@ export default function AnnualWorkspaceGate() {
       </section>
     </div>}
 
+    <AnnualWorkspaceOverviewSection commercialYear={catalog.activeCommercialYear} />
     <ApplicabilityProfileSection commercialYear={catalog.activeCommercialYear} />
     <WorkspaceView key={catalog.activeCommercialYear} />
   </div>;

@@ -1,6 +1,6 @@
 # Block 01 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / APPLICABILITY FOUNDATION IN REVIEW`
+**Status:** `IMPLEMENTING / OVERVIEW CLOSED`
 
 This file separates actor-visible Stories from technical enabling work according to `STD-WMS-001` / `STD-WMS-TYPES-001`. No `Technical Story` type is introduced.
 
@@ -36,22 +36,11 @@ Annual workspace metadata persistence and deterministic compatibility migration 
 **Role:** ENABLER  
 **Size:** M  
 **Priority:** P0  
-**Status:** IN_REVIEW
+**Status:** DONE
 
-Implemented on `feat/block-01-tax-applicability-profile`:
+Versioned `TaxApplicabilityProfile` v1 with the closed five-dimension allowlist, strict `YES | NO | UNKNOWN` semantics, SQLite persistence by `annualWorkspaceId`, trusted annual context and no dependency on canonical fact repositories.
 
-- versioned `TaxApplicabilityProfile` domain contract (`profileVersion = 1`);
-- exact five-dimension allowlist from the closed Spike;
-- strict `YES | NO | UNKNOWN` semantics;
-- missing values normalize to `UNKNOWN`;
-- repository port keyed by `annualWorkspaceId`;
-- SQLite persistence of the versioned profile document;
-- trusted AnnualWorkspaceContext and stale-mutation guard on save;
-- no dependency on canonical fact repositories.
-
-`Applicability profile != actual tax facts` remains mandatory.
-
-Evidence: [`task-aw-003-evidence.md`](task-aw-003-evidence.md). Closure gate: canonical `make validate`.
+Evidence: [`task-aw-003-evidence.md`](task-aw-003-evidence.md). Canonical `make validate`: 155/155 plus desktop/architecture checks.
 
 **Enables:** AW-003, AW-004, AW-005.
 
@@ -63,7 +52,7 @@ Evidence: [`task-aw-003-evidence.md`](task-aw-003-evidence.md). Closure gate: ca
 **Role:** ENABLER  
 **Size:** M  
 **Priority:** P1  
-**Status:** BLOCKED_BY_AW_003
+**Status:** READY
 
 Create a category-aware allowlisted service that reuses configuration/proposals only. Copying all rows for a prior `tax_year` is forbidden.
 
@@ -87,9 +76,11 @@ Trusted annual identity, per-request resolution, cross-year validation, stale mu
 **Role:** ENABLER  
 **Size:** M  
 **Priority:** P0  
-**Status:** BLOCKED_BY_AW_003_AW_004
+**Status:** DONE
 
-Build a structural read model for AW-005 without turning it into Annual Tax Health.
+Structural read model for period, applicability completeness, domain-data presence/counts, evidence availability and exact-year rule status. It deliberately excludes tax outcome, readiness, SII reconciliation and optimization.
+
+Evidence: [`task-aw-006-evidence.md`](task-aw-006-evidence.md). Canonical `make validate`: 169/169 plus desktop/architecture checks.
 
 ---
 
@@ -119,9 +110,9 @@ Final regression coverage must include:
 - select/create year and duplicate-year behavior — AVAILABLE via AW-001/AW-002;
 - strict year isolation and stale async protection — AVAILABLE via AW-005/AW-006;
 - supported-year policy — AVAILABLE via AW-007;
-- prior-year initialization allowlist — pending AW-004/US-AW-003;
-- tri-state applicability profile — FOUNDATION IN REVIEW via AW-003; UI/conflict behavior pending US-AW-004;
-- workspace overview projection — pending TASK-AW-006/US-AW-005.
+- tri-state applicability profile and conflict behavior — AVAILABLE via TASK-AW-003/US-AW-004;
+- workspace overview projection — AVAILABLE via TASK-AW-006/US-AW-005;
+- prior-year initialization allowlist — PENDING TASK-AW-004/US-AW-003.
 
 AW-008 remains the terminal block-quality gate; it should not become a long-lived partial PR.
 
@@ -160,17 +151,17 @@ flowchart LR
   T2 --> U2
   T7[AW-TASK-007\nDONE] --> U2
 
-  U2 --> U3[AW-US-003\nInitialize prior]
-  T3[AW-TASK-003\nIN REVIEW] --> U3
-  T4[AW-TASK-004] --> U3
+  U2 --> U3[AW-US-003\nNEXT]
+  T3[AW-TASK-003\nDONE] --> U3
+  T4[AW-TASK-004\nREADY] --> U3
 
-  S1[AW-SPIKE-001\nDONE] --> U4[AW-US-004\nApplicability]
+  S1[AW-SPIKE-001\nDONE] --> U4[AW-US-004\nDONE]
   U2 --> U4
   T3 --> U4
 
-  U1 --> U5[AW-US-005\nOverview]
+  U1 --> U5[AW-US-005\nDONE]
   U4 --> U5
-  T6[AW-TASK-006] --> U5
+  T6[AW-TASK-006\nDONE] --> U5
 
   U1 --> T8[AW-TASK-008]
   U2 --> T8
@@ -180,28 +171,26 @@ flowchart LR
   U6 --> T8
 ```
 
-## Fast lane status
-
-### Closed baseline
+## Closed baseline
 
 - SPIKE-AW-001 — DONE
 - TASK-AW-001 — DONE
 - TASK-AW-002 — DONE
+- TASK-AW-003 — DONE (`make validate`: 155/155)
 - TASK-AW-005 — DONE
+- TASK-AW-006 — DONE (`make validate`: 169/169)
+- TASK-AW-007 — DONE
+- US-AW-001 + US-AW-002 — DONE (`make validate`: 149/149)
+- US-AW-004 — DONE (`make validate`: 164/164)
+- US-AW-005 — DONE (`make validate`: 169/169)
 - US-AW-006 — DONE (`make validate`: 131/131)
-- TASK-AW-007 — DONE (`make validate`: 136/136)
-- US-AW-001 + US-AW-002 — DONE (`make validate`: 149/149, desktop/architecture clean)
 
-### Current P0 node
+## Current executable node
 
-1. `PTL-TASK-AW-003 — TaxApplicabilityProfile` — **IN_REVIEW**
+1. `PTL-TASK-AW-004 — Allowlisted prior-year initialization service`
+2. `PTL-US-AW-003 — Initialize from prior year`
 
-### Next after clean closure
-
-1. `PTL-US-AW-004 — Applicability Profile`
-2. `PTL-TASK-AW-006 + PTL-US-AW-005 — Workspace overview`
-3. P1 initialization branch (`AW-004 + US-AW-003`)
-4. `PTL-TASK-AW-008` final regression closure
+After that, `PTL-TASK-AW-008` becomes fully ready for terminal Block 01 regression closure.
 
 ## Critical safety chain
 
@@ -209,9 +198,9 @@ flowchart LR
 TASK-AW-001 [DONE]
  -> TASK-AW-005 [DONE]
  -> US-AW-006 [DONE]
- -> TASK-AW-008 [REACHED, NOT YET CLOSABLE]
+ -> TASK-AW-008 [REACHED, WAITING ONLY ON PRIOR-YEAR INITIALIZATION]
 ```
 
 ## Block readiness verdict
 
-AW-003 is implemented and awaiting canonical validation. Clean closure immediately unlocks `PTL-US-AW-004` as the next P0 Story and removes the data-schema blocker from the later prior-year initialization path.
+All P0 functional behavior is closed. The only remaining functional slice is the P1 prior-year initialization flow; once it is validated, AW-008 can become the final Block 01 quality gate.
