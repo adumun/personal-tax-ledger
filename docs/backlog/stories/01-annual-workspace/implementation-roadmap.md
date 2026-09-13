@@ -1,6 +1,6 @@
 # Block 01 — Annual Workspace — Implementation Roadmap
 
-**Status:** `GO / FIRST VISIBLE ANNUAL-WORKSPACE SLICE IN REVIEW`  
+**Status:** `GO / FIRST VISIBLE ANNUAL-WORKSPACE SLICE CLOSED`  
 **Date:** 2026-09-13  
 **Scope:** `Block 01 — Annual Workspace & Tax Profile`
 
@@ -12,13 +12,11 @@ Replace the implicit/global year setting with a first-class `AnnualTaxWorkspace`
 
 - `PTL-SPIKE-AW-001` — DONE; five-dimension applicability allowlist closed.
 - `PTL-TASK-AW-001` — DONE; `make validate` 115/115.
-- `PTL-TASK-AW-002` — DONE; `make validate` 118/118; persistence/migration merged.
-- `PTL-TASK-AW-005` — DONE; `make validate` 127/127; trusted context merged.
-- `PTL-US-AW-006` — DONE; `make validate` 131/131; strict isolation and UX behavior validated.
-- `PTL-TASK-AW-007` — DONE; `make validate` 136/136; exact-year rule availability policy validated.
-- `PTL-US-AW-001 + PTL-US-AW-002` — IN_REVIEW on `feat/block-01-visible-annual-workspace`.
-
-All closed canonical validation gates above also passed `desktop:check` and `architecture:check`.
+- `PTL-TASK-AW-002` — DONE; `make validate` 118/118.
+- `PTL-TASK-AW-005` — DONE; `make validate` 127/127.
+- `PTL-US-AW-006` — DONE; `make validate` 131/131.
+- `PTL-TASK-AW-007` — DONE; `make validate` 136/136.
+- `PTL-US-AW-001 + PTL-US-AW-002` — DONE; `make validate` **149/149**, `desktop:check` PASS, `architecture:check` PASS.
 
 ## Critical safety chain
 
@@ -32,11 +30,11 @@ PTL-US-AW-006   [DONE]
 PTL-TASK-AW-008 [REACHED / NOT YET CLOSABLE]
 ```
 
-The representative cross-year failure is protected end-to-end by trusted context, active-context revalidation and frontend generation suppression.
+The representative cross-year failure remains protected end-to-end by trusted context, active-context revalidation and frontend generation suppression.
 
-## First visible annual-workspace slice
+## First visible annual-workspace slice — CLOSED
 
-The current branch implements the first user-visible AnnualWorkspace flow:
+The product now supports:
 
 ```text
 persisted AnnualTaxWorkspace list
@@ -56,37 +54,17 @@ persisted AnnualTaxWorkspace list
   -> reload under new AnnualWorkspace
 ```
 
-Important compatibility boundary:
+Compatibility boundary:
 
 - `settings.year` remains persisted internally as the active pointer during migration;
 - it is no longer the visible source of arbitrary year options;
 - the header selector lists persisted `AnnualTaxWorkspace` records only;
-- legacy year selectors in the old shell/settings are no longer visible navigation authorities;
+- legacy year selectors are no longer visible navigation authorities;
 - AT remains derived and non-editable.
 
 Evidence:
 - [`us-aw-001-evidence.md`](us-aw-001-evidence.md)
 - [`us-aw-002-evidence.md`](us-aw-002-evidence.md)
-
-Canonical closure gate for this slice:
-
-```text
-make validate
-```
-
-Until that passes, both Stories remain `IN_REVIEW`.
-
-## Supported-year policy
-
-Annual workspace support is provider-neutral and exact-year driven:
-
-```text
-SUPPORTED
-SUPPORTED_WITH_WARNINGS
-UNSUPPORTED
-```
-
-The legacy `defaultTaxParameters(taxYear)` fallback does not make another year supported. A warning requires explicit acceptance; an unsupported year is blocked.
 
 ## AW-008 readiness
 
@@ -98,22 +76,22 @@ AW-008 remains the final block-level regression gate.
 | year isolation | AVAILABLE |
 | stale async read/write protection | AVAILABLE |
 | supported-year policy | AVAILABLE |
-| select/create year | IMPLEMENTED / VALIDATION PENDING |
-| duplicate-year behavior | IMPLEMENTED / VALIDATION PENDING |
+| select/create year | AVAILABLE |
+| duplicate-year behavior | AVAILABLE |
 | prior-year initialization allowlist | PENDING TASK-AW-004/US-AW-003 |
 | tri-state applicability profile | PENDING TASK-AW-003/US-AW-004 |
 | workspace overview projection | PENDING TASK-AW-006/US-AW-005 |
 
 Opening AW-008 as a long-lived partial PR remains intentionally avoided.
 
-## Next executable path after clean validation
+## Next executable path
 
 ### 1 — Applicability
 
-1. `PTL-TASK-AW-003 — TaxApplicabilityProfile schema/repository`
+1. `PTL-TASK-AW-003 — TaxApplicabilityProfile schema/repository` — **NEXT / P0**
 2. `PTL-US-AW-004 — Applicability Profile`
 
-The profile remains expectation/applicability, never actual tax facts.
+The profile remains expectation/applicability, never actual tax facts. The five dimensions are already closed by `PTL-SPIKE-AW-001`.
 
 ### 2 — Overview
 
@@ -162,6 +140,4 @@ No blanket copying by `tax_year` is allowed.
 
 ## Decision
 
-`GO / IN_REVIEW` for the combined visible slice `PTL-US-AW-001 + PTL-US-AW-002`.
-
-A clean canonical validation closes this slice and advances the P0 path to `PTL-TASK-AW-003`.
+`GO` with the next implementation branch assigned to `PTL-TASK-AW-003 — TaxApplicabilityProfile schema and repository`.
