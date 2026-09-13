@@ -47,7 +47,7 @@ Validation/closure evidence: [`task-aw-001-evidence.md`](task-aw-001-evidence.md
 **Role:** ENABLER  
 **Size:** M  
 **Priority:** P0  
-**Status:** READY
+**Status:** IN_PROGRESS
 
 Introduce workspace persistence/read APIs and migrate the existing implicit year model without losing current year-scoped data.
 
@@ -61,7 +61,8 @@ Required outcomes:
 - migration is rerunnable/idempotent or explicitly versioned;
 - backup/restore compatibility is considered with existing local workspace behavior.
 
-Migration review and sizing evidence: [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md).
+Migration review and sizing evidence: [`sqlite-migration-assessment.md`](sqlite-migration-assessment.md).  
+Implementation evidence: [`task-aw-002-evidence.md`](task-aw-002-evidence.md).
 
 **Sizing change:** `L -> M` after schema inspection showed an additive/idempotent migration with no required fact-table rewrite. Escalate to L only if implementation discovers incompatible legacy schema variants or a non-additive migration becomes necessary.
 
@@ -242,7 +243,7 @@ Rejected from the profile because they belong to or are derivable from other dom
 
 ```mermaid
 flowchart LR
-  T1[AW-TASK-001\nWorkspace contract DONE] --> T2[AW-TASK-002\nPersistence migration READY]
+  T1[AW-TASK-001\nWorkspace contract DONE] --> T2[AW-TASK-002\nPersistence migration IN PROGRESS]
   T1 --> T5[AW-TASK-005\nContext propagation]
   T1 --> U1[AW-US-001\nSelect workspace]
   T2 --> U1
@@ -294,9 +295,9 @@ flowchart LR
 - TASK-001 — DONE (`make validate`: 115/115 tests; desktop and architecture checks pass)
 - TASK-007 — READY
 
-### Wave B — Persistence & context
+### Wave B — Persistence & context — STARTED
 
-- TASK-002 — READY (`M` after migration review)
+- TASK-002 — IN_PROGRESS (`M`; additive/idempotent SQLite metadata migration under implementation)
 - TASK-003
 - TASK-005
 
@@ -336,10 +337,6 @@ TASK-001 [DONE]
 
 ## Block readiness verdict
 
-**Wave A is ACTIVE and AW-001 is closed.** The two original start gates and the AW-001 canonical validation gate are closed:
+Wave A is active and Wave B has started with `PTL-TASK-AW-002`.
 
-1. `PTL-SPIKE-AW-001` has a documented decision and no remaining Block 01 uncertainty;
-2. SQLite schema/migration behavior has been inspected against the real implementation and `TASK-AW-002` has a deterministic migration plan;
-3. `PTL-TASK-AW-001` passed full canonical repository validation and is DONE.
-
-`PTL-TASK-AW-002` and `PTL-TASK-AW-007` are now independently READY. The complete block is not declared DONE/READY as a whole; downstream Stories still depend on their enabling Tasks and effective DoR. Implementation may proceed through the defined fast lane while preserving the safety chain.
+The complete block is not declared DONE/READY as a whole; downstream Stories still depend on their enabling Tasks and effective DoR. Implementation proceeds through the defined fast lane while preserving the safety chain.

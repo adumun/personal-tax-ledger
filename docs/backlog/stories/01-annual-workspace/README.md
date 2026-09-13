@@ -1,6 +1,6 @@
 # Block 01 — Annual Workspace & Tax Profile
 
-**Status:** `DOGFOOD / IMPLEMENTING WAVE A`  
+**Status:** `DOGFOOD / IMPLEMENTING WAVE B`  
 **Primary capability:** `TAX-01 — Annual Tax Workspace`  
 **Related capabilities:** `TAX-02`, `TAX-06`, `TAX-09`, `TAX-10`, `TAX-11`, `TAX-12`  
 **Story standard:** `STD-WMS-STORY-001@0.1.0-draft`  
@@ -14,12 +14,12 @@ The block is deliberately narrow: it establishes annual identity, year selection
 
 ## Current execution status
 
-Wave A is active after all initial gates closed:
+The Block 01 fast lane has advanced into persistence:
 
 - [`PTL-SPIKE-AW-001`](spike-aw-001-applicability-profile.md) — **DONE**; minimum Block 01 applicability profile resolved to five dimensions;
 - [`SQLite migration assessment`](sqlite-migration-assessment.md) — **PASS**; actual startup schema evolution and deterministic workspace materialization path verified;
 - `PTL-TASK-AW-001` — **DONE**; canonical `make validate` passed with 115/115 tests plus `desktop:check` and `architecture:check`; evidence in [`task-aw-001-evidence.md`](task-aw-001-evidence.md);
-- `PTL-TASK-AW-002` — **READY**; sizing `M`, migration gate already closed;
+- `PTL-TASK-AW-002` — **IN_PROGRESS** on `feat/block-01-annual-workspace-persistence`; SQLite metadata repository/materialization and focused migration tests are implemented, full `make validate` remains the closure gate; evidence in [`task-aw-002-evidence.md`](task-aw-002-evidence.md);
 - `PTL-TASK-AW-007` — **READY** in parallel.
 
 The safety chain remains mandatory:
@@ -86,7 +86,7 @@ Technical Tasks, Spikes, dependency edges, statuses and the block critical paths
 
 ## Implementation roadmap
 
-The current `GO / IMPLEMENTING WAVE A` decision, fast lane, updated effort assessment, safety-critical chain and resolved gates are in [`implementation-roadmap.md`](implementation-roadmap.md).
+The current `GO / IMPLEMENTING WAVE B` decision, fast lane, updated effort assessment, safety-critical chain and resolved gates are in [`implementation-roadmap.md`](implementation-roadmap.md).
 
 The roadmap is a versioned implementation specification. It does not replace GitHub Issues/Jira as the execution board.
 
