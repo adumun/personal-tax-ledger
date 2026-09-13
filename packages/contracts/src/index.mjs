@@ -13,3 +13,4 @@ export { TAX_RULE_SOURCE_REPOSITORY_METHODS, assertTaxRuleSourceRepositoryContra
 export { REFERENCE_REPOSITORY_METHODS, assertReferenceRepositoryContract } from './features/references/reference.mjs';
 export { YEAR_REPOSITORY_METHODS, assertYearRepositoryContract } from './features/years/year.mjs';
 export { SNAPSHOT_REPOSITORY_METHODS, assertSnapshotRepositoryContract } from './features/snapshots/snapshot.mjs';
+export { ANNUAL_TAX_WORKSPACE_REPOSITORY_METHODS, assertAnnualTaxWorkspaceRepositoryContract } from './features/annual-workspace/annual-tax-workspace.mjs';

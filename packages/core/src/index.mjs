@@ -6,3 +6,4 @@ export * from './fee-calculator.mjs';
 export * from './mortgage-calculator.mjs';
 export * from './tax-parameters.mjs';
 export * from './util.mjs';
+export * from './features/annual-workspace/annual-tax-workspace.mjs';

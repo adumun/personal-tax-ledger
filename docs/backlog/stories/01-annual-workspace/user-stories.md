@@ -232,17 +232,24 @@ Como contribuyente, quiero declarar qué situaciones tributarias espero que apli
 
 El perfil expresa expectativa/aplicabilidad y puede incluir `YES / NO / UNKNOWN`. Los hechos efectivos se originarán en sus capacidades correspondientes y pueden luego confirmar o contradecir el perfil.
 
-### Initial profile dimensions
+### Accepted profile dimensions
 
-- renta dependiente;
-- honorarios/BHE nacionales;
-- servicios/honorarios con pagador extranjero;
-- APV;
-- crédito hipotecario potencialmente relevante;
-- gasto efectivo como alternativa a gasto presunto;
-- sistema previsional/salud que requerirá información anual.
+`PTL-SPIKE-AW-001` cerró el conjunto mínimo para Block 01:
 
-These are applicability flags, not amounts.
+- `DEPENDENT_INCOME` — renta dependiente esperada;
+- `DOMESTIC_FEE_INCOME` — honorarios/BHE nacionales esperados;
+- `FOREIGN_SERVICE_INCOME` — servicios/honorarios con pagador extranjero esperados;
+- `APV_CONTRIBUTIONS` — APV esperado durante el período;
+- `MORTGAGE_INTEREST` — crédito hipotecario potencialmente relevante.
+
+Estas dimensiones son flags de aplicabilidad/expectativa, no montos ni evidencia de ocurrencia.
+
+No pertenecen al perfil:
+
+- la elección/evaluación de gasto efectivo versus presunto, que pertenece a capacidades de gastos/cálculo;
+- un flag AFP/salud, cuya necesidad debe derivarse de hechos previsionales/ingresos y reglas aplicables.
+
+Decisión y rationale: [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md).
 
 ### Acceptance criteria
 
@@ -262,13 +269,13 @@ Design: `DESIGN-AW-004`.
 
 - `REQUIRES` -> AW-002
 - `REQUIRES` -> `PTL-TASK-AW-003`
-- `RULE_DEPENDS_ON` -> `PTL-SPIKE-AW-001`
+- `RULE_DEPENDS_ON` -> `PTL-SPIKE-AW-001` — DONE 2026-09-12
 - `UI_DEPENDS_ON` -> `DESIGN-AW-004`
 - `ENABLES` -> later dynamic readiness requirements.
 
-### Open decision
+### Decision status
 
-The listed profile dimensions are an initial product contract for dogfood. `PTL-SPIKE-AW-001` must validate whether additional dimensions are necessary before this Story can reach READY.
+Minimum Block 01 dimension scope is **CLOSED** by `PTL-SPIKE-AW-001`. Future dimensions require an explicit versioned domain/product change; they are not inferred from tables or later capabilities.
 
 ---
 

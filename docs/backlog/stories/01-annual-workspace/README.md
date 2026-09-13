@@ -1,6 +1,6 @@
 # Block 01 — Annual Workspace & Tax Profile
 
-**Status:** `DOGFOOD / REFINING`  
+**Status:** `DOGFOOD / IMPLEMENTING WAVE A`  
 **Primary capability:** `TAX-01 — Annual Tax Workspace`  
 **Related capabilities:** `TAX-02`, `TAX-06`, `TAX-09`, `TAX-10`, `TAX-11`, `TAX-12`  
 **Story standard:** `STD-WMS-STORY-001@0.1.0-draft`  
@@ -11,6 +11,25 @@
 Turn the current implicit `settings.year` behavior into an explicit annual tax workspace that becomes the stable parent context for all tax facts, evidence, calculations, projections and later year closure.
 
 The block is deliberately narrow: it establishes annual identity, year selection/creation, explicit prior-year initialization, applicability profile and visible workspace context. It does **not** implement tax calculation, SII reconciliation, readiness scoring, Annual Tax Health or year closure; those capabilities consume this workspace later.
+
+## Current execution status
+
+Wave A is active after all initial gates closed:
+
+- [`PTL-SPIKE-AW-001`](spike-aw-001-applicability-profile.md) — **DONE**; minimum Block 01 applicability profile resolved to five dimensions;
+- [`SQLite migration assessment`](sqlite-migration-assessment.md) — **PASS**; actual startup schema evolution and deterministic workspace materialization path verified;
+- `PTL-TASK-AW-001` — **DONE**; canonical `make validate` passed with 115/115 tests plus `desktop:check` and `architecture:check`; evidence in [`task-aw-001-evidence.md`](task-aw-001-evidence.md);
+- `PTL-TASK-AW-002` — **READY**; sizing `M`, migration gate already closed;
+- `PTL-TASK-AW-007` — **READY** in parallel.
+
+The safety chain remains mandatory:
+
+```text
+PTL-TASK-AW-001 [DONE]
+ -> PTL-TASK-AW-005
+ -> PTL-US-AW-006
+ -> PTL-TASK-AW-008
+```
 
 ## Existing implementation baseline
 
@@ -23,6 +42,8 @@ The current application already:
 - versions tax parameters by year.
 
 This block must preserve those working capabilities while replacing implicit/global year context with a first-class workspace contract.
+
+The schema review additionally established that rule-catalog seed years are not equivalent to user workspaces. `tax_parameters` / `tax_rule_sources` may inform supported-year policy but do not independently authorize workspace materialization.
 
 ## Annual identity convention
 
@@ -57,13 +78,15 @@ The structural and interaction contract for this block is in [`design-contract.m
 
 Key decision: introduce a dedicated **Año tributario** surface and a persistent workspace context header. The existing `Configuración tributaria` surface keeps tax-rule/parameter editing but stops being the primary owner of year navigation.
 
+`DESIGN-AW-004` is reconciled with the closed Spike and exposes only the five accepted applicability dimensions.
+
 ## Enablers and dependency model
 
-Technical Tasks, Spikes, dependency edges and the provisional block critical path are in [`enablers-and-dependencies.md`](enablers-and-dependencies.md).
+Technical Tasks, Spikes, dependency edges, statuses and the block critical paths are in [`enablers-and-dependencies.md`](enablers-and-dependencies.md).
 
 ## Implementation roadmap
 
-The current `GO` decision, fast lane, preliminary effort estimate, safety-critical chain, start gates and first vertical slices are in [`implementation-roadmap.md`](implementation-roadmap.md).
+The current `GO / IMPLEMENTING WAVE A` decision, fast lane, updated effort assessment, safety-critical chain and resolved gates are in [`implementation-roadmap.md`](implementation-roadmap.md).
 
 The roadmap is a versioned implementation specification. It does not replace GitHub Issues/Jira as the execution board.
 
