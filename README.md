@@ -26,6 +26,7 @@ Ver [ADÜMÜN governance and Business TaxOps relationship](docs/governance/adumu
 - [Lecciones aprendidas desktop](docs/desktop/lessons-learned.md)
 - [Evidencia UAT técnica desktop](docs/desktop/uat-evidence-2026-09-04.md)
 - [Microsoft Store publication confirmed](docs/desktop/microsoft-store-publication-confirmed-2026-09-11.md)
+- [Microsoft Store native runtime smoke](docs/desktop/microsoft-store-native-runtime-smoke-2026-09-11.md)
 - [Microsoft Store submission histórica](docs/desktop/microsoft-store-submission-in-certification-2026-09-06.md)
 - [Guía de Windows](docs/windows-local.md)
 - [Gaps conocidos](docs/gaps/README.md)
@@ -51,18 +52,20 @@ La configuración desktop usa Electron `44.2.0`, `@electron/packager` `20.3.0`, 
 
 Actualmente existen **dos lanes de distribución separadas**:
 
-1. **UAT externa `0.1.6`**: `PersonalTaxLedger-0.1.6-Setup.zip`, distribuido de forma controlada mediante Google Drive. El SHA-256 vigente del ZIP y la política de canal están en [`docs/desktop/uat-public-distribution.md`](docs/desktop/uat-public-distribution.md). El repositorio todavía no tiene GitHub Releases publicados, por lo que Releases no es hoy el canal canónico de esa lane.
-2. **Microsoft Store `0.1.5.0`**: la publicación en Microsoft Store fue confirmada el 2026-09-11 desde Partner Center. El producto aparece como **In Microsoft Store** y Partner Center declara que está actualmente disponible según la discoverability configurada en Availability. El gate Microsoft-side de certificación/publicación queda cerrado. La evidencia canónica está en [`docs/desktop/microsoft-store-publication-confirmed-2026-09-11.md`](docs/desktop/microsoft-store-publication-confirmed-2026-09-11.md).
+1. **Microsoft Store `0.1.5.0` lineage**: es la distribución pública principal. La publicación fue confirmada el 2026-09-11 y el build entregado por Store fue descargado, instalado y ejecutado correctamente en Windows nativo. Store ID `9N8NR29965DS`; URL `https://apps.microsoft.com/detail/9N8NR29965DS`.
+2. **UAT externa `0.1.6`**: `PersonalTaxLedger-0.1.6-Setup.zip`, distribuido de forma controlada mediante Google Drive para validación externa. El SHA-256 vigente del ZIP y la política de canal están en [`docs/desktop/uat-public-distribution.md`](docs/desktop/uat-public-distribution.md). El repositorio todavía no tiene GitHub Releases publicados, por lo que Releases no es hoy el canal canónico de esa lane.
 
-Estado actual de la lane Store:
+Estado canónico actual de la lane Store:
 
 ```text
-STORE_PUBLICATION_CONFIRMED_NATIVE_RUNTIME_VALIDATION_PENDING
+STORE_PUBLICATION_CONFIRMED_NATIVE_RUNTIME_SMOKE_PASS
 ```
 
-La publicación Store no debe confundirse con la UAT `0.1.6`. La evidencia de Partner Center confirma disponibilidad en Store, pero no sustituye la validación nativa posterior del build entregado y firmado por Microsoft en el host objetivo.
+Quedan cerrados el gate Microsoft-side de certificación/publicación y el smoke nativo de descarga, instalación, registro en Windows, launch y UI operativa. Las verificaciones profundas de invariantes internos continúan como evidencia técnica adicional y no como bloqueadores de la afirmación de que el producto está publicado, instala y ejecuta correctamente desde Store.
 
-Siguientes cierres de distribución: validación nativa del paquete instalado desde Microsoft Store, política formal de update/autoupdate, confianza de usuario externo/SmartScreen para la lane UAT y eventual migración de artefactos UAT a un canal de release con mejor provenance.
+La publicación Store no debe confundirse con la UAT `0.1.6`; ambas lanes conservan artefactos, versionado, provenance y propósito distintos.
+
+Siguientes cierres de distribución: política formal de update/autoupdate, verificaciones profundas de runtime cuando aporten valor, confianza de usuario externo/SmartScreen para la lane UAT y eventual migración de artefactos UAT a un canal de release con mejor provenance.
 
 ## Mapa del repositorio
 
