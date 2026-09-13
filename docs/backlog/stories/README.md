@@ -30,8 +30,8 @@ Provider-specific items must preserve these semantics and stable IDs.
 
 | Block | Scope | Status | Primary capability | Entry point |
 |---|---|---|---|---|
-| 01 | Annual Workspace & Tax Profile | `DOGFOOD / REFINING` | `TAX-01` | [`01-annual-workspace/README.md`](01-annual-workspace/README.md) |
-| 02 | Income & Tax Ledger | `PLANNED` | `TAX-04` + income acquisition | not yet refined |
+| 01 | Annual Workspace & Tax Profile | `CLOSED` | `TAX-01` | [`01-annual-workspace/README.md`](01-annual-workspace/README.md) |
+| 02 | Income & Tax Ledger | `REFINED / IMPLEMENTATION READY` | `TAX-04` + income acquisition | [`02-income-tax-ledger/README.md`](02-income-tax-ledger/README.md) |
 | 03 | Evidence & Acquisition | `PLANNED` | `TAX-02`, `TAX-03` | not yet refined |
 | 04 | Expense Eligibility | `PLANNED` | `PTL-EXT-04` | not yet refined |
 | 05 | Contributions & Health | `PLANNED` | TAX calculation/input concerns | not yet refined |
@@ -58,12 +58,10 @@ Stories and child work must be cross-referenced when the relationship is materia
 
 ## Cross-block views
 
-When more than one block is refined enough to analyze globally, create/update:
+With Blocks 01 and 02 now refined/closed enough for global dependency analysis:
 
-- `../story-dependency-graph.md` — cross-block dependency DAG;
-- `../implementation-critical-path.md` — dependency-depth and temporal critical-path analysis when comparable estimates exist.
-
-These views are derived planning surfaces and must link back to the canonical Story/Task/Spike definitions.
+- [`../story-dependency-graph.md`](../story-dependency-graph.md) — cross-block dependency DAG;
+- `implementation-critical-path.md` remains deferred until comparable temporal estimates exist across active blocks.
 
 ## Governing references
 
