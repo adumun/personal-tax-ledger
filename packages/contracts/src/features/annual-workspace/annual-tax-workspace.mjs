@@ -1,7 +1,8 @@
 export const ANNUAL_TAX_WORKSPACE_REPOSITORY_METHODS = Object.freeze([
   'list',
   'getByCommercialYear',
-  'create'
+  'create',
+  'remove'
 ]);
 
 export function assertAnnualTaxWorkspaceRepositoryContract(repository) {
