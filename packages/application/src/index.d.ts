@@ -18,6 +18,12 @@ export function createYearUseCases(options: { repository: unknown }): Record<str
 export function createSnapshotUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
 export function createSystemUseCases(options: Record<string, unknown>): Record<string, AsyncUseCase>;
 export function createAnnualWorkspaceUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
+export function createAnnualWorkspaceFlowUseCases(options: {
+  repository: unknown;
+  settingsUseCases: Record<string, AsyncUseCase>;
+  supportedYearPolicyUseCases: Record<string, AsyncUseCase>;
+  now?: () => string;
+}): Record<string, AsyncUseCase>;
 export function createActiveAnnualWorkspaceContextResolver(options: {
   settingsRepository: unknown;
   annualWorkspaceRepository: unknown;

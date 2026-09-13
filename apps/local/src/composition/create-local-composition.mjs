@@ -2,6 +2,7 @@ import { LOCAL_WORKSPACE_CONTEXT } from '@personal-tax-ledger/contracts';
 import { createActiveAnnualWorkspaceContextResolver } from '@personal-tax-ledger/application';
 import { createIncomeComposition } from '../income-composition.mjs';
 import { createSettingsComposition } from '../settings-composition.mjs';
+import { createAnnualWorkspaceComposition } from '../annual-workspace-composition.mjs';
 import { createExecutionLogComposition } from '../execution-log-composition.mjs';
 import { createFeeReceiptComposition } from '../fee-receipt-composition.mjs';
 import { createMortgageComposition } from '../mortgage-composition.mjs';
@@ -23,7 +24,13 @@ export function createLocalComposition(dependencies) {
     annualWorkspaceRepository,
     baseContext: LOCAL_WORKSPACE_CONTEXT
   });
-  const compositionDependencies = { ...baseDependencies, resolveAnnualContext, annualWorkspaceRepository };
+  const compositionDependencies = {
+    ...baseDependencies,
+    resolveAnnualContext,
+    annualWorkspaceRepository,
+    settingsUseCases: settings.settingsUseCases
+  };
+  const annualWorkspaces = createAnnualWorkspaceComposition(compositionDependencies);
   const income = createIncomeComposition(compositionDependencies);
   const logs = createExecutionLogComposition(compositionDependencies);
   const fees = createFeeReceiptComposition(compositionDependencies);
@@ -39,6 +46,7 @@ export function createLocalComposition(dependencies) {
     close() {
       database?.close();
     },
+    ...annualWorkspaces,
     ...income,
     ...settings,
     ...logs,

@@ -40,7 +40,8 @@ test('application contract delegates a validated AnnualTaxWorkspace through its 
   const repository = {
     async list(context) { calls.push(['list', context]); return [workspace]; },
     async getByCommercialYear(context, year) { calls.push(['get', context, year]); return workspace; },
-    async create(context, candidate) { calls.push(['create', context, candidate]); return candidate; }
+    async create(context, candidate) { calls.push(['create', context, candidate]); return candidate; },
+    async remove(context, year) { calls.push(['remove', context, year]); return true; }
   };
   const useCases = createAnnualWorkspaceUseCases({ repository });
   const context = { workspaceId: 'local-workspace', actorId: 'local-user' };
