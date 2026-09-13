@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / IL-002 CLOSED / IL-003 READY`  
+**Status:** `GO / IL-003 CLOSED / IL-004 READY`  
 **Date:** 2026-09-13
 
 ## Baseline inherited from Block 01
@@ -13,27 +13,14 @@
 - structural annual overview;
 - allowlisted prior-year initialization.
 
-Block 02 must consume these contracts rather than reintroduce a second year authority.
-
-## Existing functional baseline
-
-PTL already supports aggregate-specific behavior for:
-
-- salary/income sources;
-- BHE/honorarios;
-- salary/APV calculations;
-- fee gross/net/retention/PPM behavior;
-- annual scoping in persistence/application.
-
-The implementation gap is unified TAX-04 ledger semantics and a stable projection/read model.
+Block 02 consumes these contracts rather than reintroducing a second year authority.
 
 ## Closed decisions and contracts
 
-`PTL-SPIKE-IL-001` is DONE: the ledger is projection-only over aggregate-owned facts.
-
-`PTL-TASK-IL-001` is DONE: `TaxLedgerEntry` and the read-only `TaxLedgerProvider.list(context)` port are canonically validated. No generic ledger persistence/mutation authority exists. Canonical `make validate`: **190/190**, desktop/architecture PASS.
-
-`PTL-TASK-IL-002` is DONE: aggregate projection providers for `income_sources` and `fee_receipts` are canonically validated. They preserve owner authority, reuse existing BHE recognition semantics, and do not recalculate salary/APV/BHE amounts. Canonical `make validate`: **195/195**, desktop/architecture PASS.
+- `PTL-SPIKE-IL-001` — DONE: ledger is projection-only over aggregate-owned facts.
+- `PTL-TASK-IL-001` — DONE: `TaxLedgerEntry` + read-only provider port; canonical gate **190/190**.
+- `PTL-TASK-IL-002` — DONE: aggregate projection providers; canonical gate **195/195**.
+- `PTL-TASK-IL-003` — DONE: deterministic annual ledger read model with exact filters, annual-context enforcement and traceable factual totals; canonical gate **200/200**, desktop/architecture PASS.
 
 ## Immediate implementation slice
 
@@ -41,29 +28,25 @@ The implementation gap is unified TAX-04 ledger semantics and a stable projectio
 
 1. `PTL-TASK-IL-001 — TaxLedgerEntry projection contract` — **DONE**;
 2. `PTL-TASK-IL-002 — Aggregate projection providers` — **DONE**;
-3. `PTL-TASK-IL-003 — Annual ledger query/read model` — **READY**;
-4. `PTL-TASK-IL-004 — Ledger HTTP/client surface`;
+3. `PTL-TASK-IL-003 — Annual ledger query/read model` — **DONE**;
+4. `PTL-TASK-IL-004 — Ledger HTTP/client surface` — **READY**;
 5. `PTL-US-IL-001 — Unified annual income ledger`;
 6. `PTL-US-IL-006 — Traceability/authority/year isolation`.
 
-This slice is P0 and does not wait for foreign-currency work.
+This slice remains P0 and does not wait for foreign-currency work.
 
 ### Slice IL-B — Existing owner flows inside ledger shell
 
 - `PTL-US-IL-002 — Dependent income`
 - `PTL-US-IL-003 — Domestic BHE`
 
-Goal: integrate navigation/refresh/traceability while preserving existing owner forms and calculations.
-
 ### Slice IL-C — Foreign service / contractor
 
-First close `PTL-SPIKE-IL-002`; then implement `PTL-TASK-IL-005 + PTL-US-IL-004`.
-
-No FX rate source/provider or recognition convention is implied before the spike closes.
+Close `PTL-SPIKE-IL-002`; then implement `PTL-TASK-IL-005 + PTL-US-IL-004`. No FX rate source/provider or recognition convention is implied before the spike closes.
 
 ### Slice IL-D — Factual annual position
 
-`PTL-US-IL-005` adds traceable factual totals after the unified ledger read model is stable.
+`PTL-US-IL-005` consumes the stable read model. IL-003 already establishes traceable factual totals without tax-result semantics.
 
 ### Terminal gate
 
@@ -71,21 +54,12 @@ No FX rate source/provider or recognition convention is implied before the spike
 
 ## Hard boundaries
 
-Block 02 does not own:
-
-- evidence vault/acquisition documents;
-- SII reconciliation;
-- tax readiness;
-- annual tax liability/refund;
-- optimization/provisioning advice;
-- year closure.
-
-It produces canonical factual projections that those later capabilities consume.
+Block 02 does not own evidence vault, SII reconciliation, readiness, annual tax liability/refund, optimization/provisioning advice or year closure.
 
 ## Current executable node
 
 ```text
-PTL-TASK-IL-003 — Annual ledger query/read model
+PTL-TASK-IL-004 — Ledger HTTP/client surface
 ```
 
 No unresolved P0 product decision blocks this task.

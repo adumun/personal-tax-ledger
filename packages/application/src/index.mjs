@@ -33,3 +33,4 @@ export {
   createIncomeSourceTaxLedgerProvider,
   createFeeReceiptTaxLedgerProvider
 } from './features/ledger/tax-ledger-providers.mjs';
+export { createAnnualTaxLedgerReadModel } from './features/ledger/annual-tax-ledger-read-model.mjs';
