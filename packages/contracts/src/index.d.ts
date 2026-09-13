@@ -1,4 +1,17 @@
 export type WorkspaceContext = { workspaceId: string; actorId: string };
+export type AnnualWorkspaceContext = WorkspaceContext & { annualWorkspaceId: string; commercialYear: number };
+export class WorkspaceContextMismatchError extends Error {
+  code: 'workspace_year_mismatch';
+  operation: string;
+  expectedCommercialYear: number;
+  actualCommercialYear: number;
+}
+export function assertWorkspaceContext(context: unknown): WorkspaceContext;
+export function assertAnnualWorkspaceContext(context: unknown): AnnualWorkspaceContext;
+export function createAnnualWorkspaceContext(baseContext: WorkspaceContext, annualWorkspace: { id: string; commercialYear: number }): AnnualWorkspaceContext;
+export function assertContextCommercialYear(context: AnnualWorkspaceContext, commercialYear: number, operation?: string): number;
+export const LOCAL_WORKSPACE_CONTEXT: WorkspaceContext;
+
 export type IncomeSourceRecord = Record<string, unknown> & { id?: number; taxYear: number; name: string; kind: string; amount: number };
 export interface IncomeSourceRepository {
   list(context: WorkspaceContext, taxYear?: number): Promise<IncomeSourceRecord[]>;
@@ -8,9 +21,7 @@ export interface IncomeSourceRepository {
   remove(context: WorkspaceContext, id: number): Promise<boolean>;
   copy(context: WorkspaceContext, fromTaxYear: number, toTaxYear: number): Promise<IncomeSourceRecord[] | null>;
 }
-export const LOCAL_WORKSPACE_CONTEXT: WorkspaceContext;
 export const INCOME_REPOSITORY_METHODS: readonly string[];
-export function assertWorkspaceContext(context: unknown): WorkspaceContext;
 export function assertIncomeRepositoryContract(repository: unknown): IncomeSourceRepository;
 
 export type SettingsRecord = Record<string, unknown> & { year: number };
@@ -102,3 +113,20 @@ export interface TaxRuleSourceRepository {
 }
 export const TAX_RULE_SOURCE_REPOSITORY_METHODS: readonly string[];
 export function assertTaxRuleSourceRepositoryContract(repository: unknown): TaxRuleSourceRepository;
+
+export type AnnualTaxWorkspaceRecord = {
+  id: string;
+  commercialYear: number;
+  derivedTaxYearLabel: string;
+  lifecycleState: 'PREPARING';
+  createdAt: string;
+  updatedAt: string;
+  ruleVersionRef: string | null;
+};
+export interface AnnualTaxWorkspaceRepository {
+  list(context?: WorkspaceContext | null): Promise<AnnualTaxWorkspaceRecord[]>;
+  getByCommercialYear(context: WorkspaceContext | null, commercialYear: number): Promise<AnnualTaxWorkspaceRecord | null>;
+  create(context: WorkspaceContext | null, workspace: AnnualTaxWorkspaceRecord): Promise<AnnualTaxWorkspaceRecord>;
+}
+export const ANNUAL_TAX_WORKSPACE_REPOSITORY_METHODS: readonly string[];
+export function assertAnnualTaxWorkspaceRepositoryContract(repository: unknown): AnnualTaxWorkspaceRepository;
