@@ -17,3 +17,4 @@ export {
   createActiveAnnualWorkspaceContextResolver
 } from './features/annual-workspace/annual-workspace-use-cases.mjs';
 export { createSupportedYearPolicyUseCases } from './features/annual-workspace/supported-year-policy-use-cases.mjs';
+export { createTaxApplicabilityProfileUseCases } from './features/annual-workspace/tax-applicability-profile-use-cases.mjs';
