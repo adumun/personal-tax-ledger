@@ -1,13 +1,15 @@
 # PTL-TASK-AW-002 — Persistence & Migration Evidence
 
 **Type:** Task  
-**Status:** IN_PROGRESS  
+**Status:** DONE  
 **Date:** 2026-09-12  
-**Branch:** `feat/block-01-annual-workspace-persistence`
+**Closed:** 2026-09-13  
+**Branch:** `feat/block-01-annual-workspace-persistence`  
+**PR:** `#12`
 
-## Scope implemented in this branch
+## Scope delivered
 
-The first implementation slice introduces a SQLite-backed `AnnualTaxWorkspaceRepository` without rewriting existing fact tables.
+The implementation introduces a SQLite-backed `AnnualTaxWorkspaceRepository` without rewriting existing fact tables.
 
 Delivered:
 
@@ -71,7 +73,7 @@ updated_at
 
 `derivedTaxYearLabel` is reconstructed by Tax Core from `commercialYear`.
 
-## Focused automated coverage added
+## Automated coverage
 
 `test/annual-tax-workspace-sqlite.test.mjs` covers:
 
@@ -79,26 +81,32 @@ updated_at
 2. idempotent repository reopening/materialization without duplicate annual rows;
 3. explicit workspace metadata creation without copying `income_sources` and without changing `settings.year`.
 
-## Validation state
+## Canonical validation
 
-The branch has been reviewed structurally against the repository contracts and architecture.
-
-A network-isolated execution environment could not clone the GitHub branch, so repository-wide runtime validation is intentionally **not** claimed here.
-
-Closure gate remains:
+Executed from a complete local checkout of the branch:
 
 ```text
 make validate
+  -> typecheck PASS
+  -> tests 118/118 PASS
+  -> failures 0
+  -> desktop:check PASS
+  -> architecture:check PASS
 ```
 
-from a complete local checkout of this branch.
+The new SQLite migration tests all pass and the complete repository suite remains green.
 
-Until that gate passes, `PTL-TASK-AW-002` remains `IN_PROGRESS`, not `DONE`.
+## Closure verdict
 
-## Remaining AW-002 checks before closure
+`PTL-TASK-AW-002` is **DONE**.
 
-- execute canonical full validation;
-- correct any integration/test failure in the same branch/PR;
-- confirm reopening the same on-disk SQLite database remains idempotent under the complete suite;
-- retain `settings.year` compatibility semantics;
-- do not introduce UI navigation or stale-write protection here; those belong to subsequent nodes, especially `PTL-TASK-AW-005` / `PTL-US-AW-006`.
+Confirmed outcomes:
+
+- persistence is additive and rerunnable;
+- reopening the same SQLite database is idempotent;
+- `settings.year` retains compatibility semantics;
+- seeded tax-rule years do not become phantom user workspaces;
+- no existing income/BHE/mortgage facts are duplicated or rewritten;
+- explicit workspace creation persists annual metadata only and does not switch the active compatibility year.
+
+UI navigation and stale-write protection remain intentionally outside this Task. The next safety-critical node is `PTL-TASK-AW-005`, followed by `PTL-US-AW-006`.
