@@ -23,3 +23,8 @@ export function createActiveAnnualWorkspaceContextResolver(options: {
   annualWorkspaceRepository: unknown;
   baseContext: WorkspaceContext;
 }): ResolveActiveAnnualContext;
+export function createSupportedYearPolicyUseCases(options: {
+  taxParameterRepository: unknown;
+  taxRuleSourceRepository: unknown;
+  requiredRuleKeys?: readonly string[];
+}): Record<string, AsyncUseCase>;
