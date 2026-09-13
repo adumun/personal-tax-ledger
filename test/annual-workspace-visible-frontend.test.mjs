@@ -21,19 +21,25 @@ test('AW-001: AnnualWorkspace queda como única autoridad visible para cambiar a
   assert.match(gateSource, /catalog\.workspaces\.map/);
 });
 
-test('AW-001/AW-006: selección usa transición generacional protegida y remount por año activo', () => {
+test('AW-001\/AW-006: selección usa transición generacional protegida y remount por año activo', () => {
   assert.match(apiSource, /selectAnnualWorkspace:[\s\S]*annualWorkspaceTransition/);
   assert.match(apiSource, /beginWorkspaceTransition/);
   assert.match(gateSource, /WorkspaceView key=\{catalog\.activeCommercialYear\}/);
   assert.match(gateSource, /Cambiando contexto/);
 });
 
-test('AW-002: creación explicita Empezar vacío y no presenta inicialización previa como disponible', () => {
+test('AW-002: creación mantiene Empezar vacío como modo explícito y no copia hechos', () => {
   assert.match(gateSource, /Crear año tributario/);
+  assert.match(gateSource, /creationMode === 'EMPTY'/);
   assert.match(gateSource, /Empezar vacío/);
-  assert.match(gateSource, /Inicializar desde un año anterior/);
-  assert.match(gateSource, /disabled \/> Inicializar/);
   assert.match(gateSource, /No copia ingresos, boletas, hipotecas, APV, evidencia ni conciliaciones/);
+});
+
+test('AW-003: inicialización desde año anterior es una opción explícita separada de Empezar vacío', () => {
+  assert.match(gateSource, /creationMode === 'PRIOR'/);
+  assert.match(gateSource, /Inicializar desde un año anterior/);
+  assert.match(gateSource, /Año fuente/);
+  assert.match(gateSource, /Crear e inicializar/);
 });
 
 test('AW-002: cliente crea por endpoint anual y no mediante settings.year implícito', () => {
