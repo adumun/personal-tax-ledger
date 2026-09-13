@@ -48,6 +48,7 @@ export function createLocalComposition(dependencies) {
     ...taxSources,
     ...support,
     ...createSystemComposition({
+      resolveAnnualContext,
       settingsUseCases: settings.settingsUseCases,
       incomeUseCases: income.incomeUseCases,
       referenceUseCases: support.referenceUseCases,
