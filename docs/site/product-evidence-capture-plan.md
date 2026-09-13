@@ -1,25 +1,39 @@
 # PTL Product Evidence Capture Plan
 
-**Status:** Active implementation plan  
+**Status:** Capture evidence supplied; canonical site integration pending  
 **Date:** 2026-09-08  
+**Reconciled:** 2026-09-13  
 **Backlog:** PTL-2 — Product Evidence
 
 ## Purpose
 
-The PTL public site currently describes important capabilities textually but does not visually prove the product experience. This plan defines the minimum reproducible screenshot set required to demonstrate the current product truth without exposing real personal tax data.
+The PTL public site currently describes important capabilities textually but does not yet canonically project the complete product-evidence set. This plan defines the minimum reproducible screenshot set required to demonstrate the current product truth without exposing real personal tax data.
 
-The goal is not to create marketing mockups. The evidence must come from the real application, use fictitious/test data, correspond to the current UAT line, and remain traceable to the product state it depicts.
+The goal is not to create marketing mockups. The evidence must come from the real application, use fictitious/test data for public product evidence, correspond to an identified PTL build/distribution state, and remain traceable to the product state it depicts.
+
+## 2026-09-13 reconciliation
+
+The product screenshots/evidence requested by PTL-2 have already been supplied/uploaded by the product owner. Screenshot production is therefore **not a current blocker** and must not be restarted merely because the canonical repository asset paths are not yet populated.
+
+At this checkpoint, neither `master` nor the current `gh-pages` tree exposes the proposed five files under `site/assets/product/`. Therefore two facts must remain separate:
+
+1. **capture/evidence availability:** supplied;
+2. **canonical repository normalization + public-site integration:** still pending verification/completion.
+
+PTL-2B should now focus on provenance reconciliation, selection/normalization of the supplied images, canonical asset placement, captions/alt text and public-site integration. Do not fabricate replacement screenshots and do not discard already supplied evidence.
+
+The product distribution context also evolved after the original plan: Personal Tax Ledger is now published in Microsoft Store and the Store-delivered build passed native download/install/launch smoke on 2026-09-11 (`STORE_PUBLICATION_CONFIRMED_NATIVE_RUNTIME_SMOKE_PASS`). External UAT `0.1.6` remains a separate validation lane. Product evidence may identify either lane when provenance requires it; the public site must not present Store and UAT as the same artifact/version.
 
 ## Evidence principles
 
 1. Use the real PTL desktop/web UI, not reconstructed mockups.
-2. Use fictitious tax data only.
-3. Capture current supported behavior only.
+2. Use fictitious tax data for the public E1–E5 product story.
+3. Capture/currently project supported behavior only.
 4. Prefer screenshots that explain a reader task rather than screenshots chosen only for visual variety.
 5. Make the explainability differentiator visible.
 6. Avoid capturing local filesystem paths, usernames, machine names, personal identifiers, real RUTs, real salaries, real mortgage data, tokens or other sensitive information.
 7. Each screenshot must have an associated caption and product claim that can be supported by current code/product behavior.
-8. Screenshots should be refreshed when a UI change makes them materially misleading.
+8. Screenshots should be refreshed when a UI change makes them materially misleading; a later distribution state alone does not require recapture if the depicted product behavior remains materially accurate and provenance is preserved.
 
 ## Required evidence set
 
@@ -27,7 +41,7 @@ The goal is not to create marketing mockups. The evidence must come from the rea
 
 **Reader question:** What information can I bring into PTL?
 
-Capture a state where the application clearly shows the annual workspace and at least representative income/source inputs. Prefer a view that demonstrates more than one source or source type when possible.
+Use a state where the application clearly shows the annual workspace and at least representative income/source inputs. Prefer a view that demonstrates more than one source or source type when possible.
 
 Must visually support:
 
@@ -43,7 +57,7 @@ Public caption direction:
 
 **Reader question:** Does PTL handle more than salary income?
 
-Capture the fee-receipts experience or another clearly distinct annual input surface. If the current UI can show fee receipt withholding and expenses coherently, prefer that state.
+Use the fee-receipts experience or another clearly distinct annual input surface. If the current UI can show fee receipt withholding and expenses coherently, prefer that state.
 
 Must visually support at least one of:
 
@@ -60,7 +74,7 @@ Public caption direction:
 
 **Reader question:** Can PTL model tax-relevant deductions such as mortgage interest?
 
-Capture the current mortgage module with fictitious values and enough context to show that PTL models the annual mortgage record/deduction rather than merely storing a loan name.
+Use the current mortgage module with fictitious values and enough context to show that PTL models the annual mortgage record/deduction rather than merely storing a loan name.
 
 Must visually support:
 
@@ -76,7 +90,7 @@ Public caption direction:
 
 **Reader question:** What does PTL help me compare?
 
-Capture `Simulación anual y escenarios` after scenarios have been built with representative fictitious data.
+Use `Simulación anual y escenarios` after scenarios have been built with representative fictitious data.
 
 The screenshot should show, where possible:
 
@@ -98,9 +112,9 @@ Public caption direction:
 
 **Reader question:** Why does PTL produce this result?
 
-This is the highest-priority screenshot in the set.
+This remains the highest-priority screenshot in the set.
 
-Capture `¿Cómo se calculan estos valores?` with the calculation explanation modal open and one representative calculation expanded.
+Use `¿Cómo se calculan estos valores?` with the calculation explanation modal open and one representative calculation expanded.
 
 The screenshot should expose as much as practical of:
 
@@ -133,22 +147,22 @@ This creates a short product narrative:
 reunir → completar → modelar → comparar → entender
 ```
 
-## Capture contract
+## Capture / provenance contract
 
 Each evidence asset must record:
 
 - evidence id (`E1`…`E5`);
-- filename;
-- PTL version/build represented;
-- capture date;
+- canonical filename/path once normalized;
+- PTL version/build or distribution lane represented;
+- capture date when known;
 - source application state;
-- data classification: `FICTITIOUS_TEST_DATA`;
+- data classification: `FICTITIOUS_TEST_DATA` for the public product-evidence set;
 - public caption;
 - alt text;
 - relevant product/code source supporting the claim;
 - refresh trigger.
 
-Recommended asset names:
+Recommended canonical asset names remain:
 
 ```text
 site/assets/product/e1-annual-workspace.png
@@ -158,19 +172,22 @@ site/assets/product/e4-scenario-comparison.png
 site/assets/product/e5-calculation-explanation.png
 ```
 
+These names are normalization targets, not evidence that the files already exist at those paths.
+
 ## Acceptance criteria
 
-PTL-2 product evidence is ready for site integration when:
+PTL-2 product evidence is complete for public-site integration when:
 
-- all five required screenshots come from the real current product;
-- every screenshot uses fictitious/test data;
-- no sensitive/local-machine information is visible;
+- the supplied real-product screenshots have been reconciled against E1–E5;
+- every public screenshot uses fictitious/test data and exposes no sensitive/local-machine information;
 - E4 visibly demonstrates scenario comparison;
 - E5 visibly demonstrates explainability, not merely a final numeric result;
-- captions and alt text exist for every asset;
-- version/capture provenance is recorded;
+- captions and alt text exist for every public asset;
+- version/build/distribution provenance is recorded;
+- canonical repository asset paths are populated or an explicitly governed alternative is documented;
 - the screenshots remain legible at normal desktop website width;
-- the public copy does not claim more than the screenshots and current implementation prove.
+- the public copy does not claim more than the screenshots and current implementation prove;
+- the derived `gh-pages` projection is synchronized from the canonical source.
 
 ## Current implementation evidence
 
