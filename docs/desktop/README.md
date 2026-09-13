@@ -15,6 +15,7 @@ Esta carpeta concentra la documentación técnica de autoridad para la distribuc
 - [Evidencia completa del proceso Microsoft Store — 2026-09-06](microsoft-store-publication-evidence-2026-09-06.md): reconstrucción integral del proceso Partner Center desde pricing hasta envío a certificación, incluyendo decisiones, ratings, package validado y gates entonces pendientes.
 - [Manifest machine-readable de evidencia Microsoft Store — 2026-09-06](microsoft-store-publication-evidence-manifest-2026-09-06.json): identidad, candidate, configuración de submission, hashes de 27 screenshots y checksum del bundle binario privado.
 - [Publicación Microsoft Store confirmada — 2026-09-11](microsoft-store-publication-confirmed-2026-09-11.md): cierre del gate Microsoft-side de certificación/publicación y separación explícita respecto de la validación nativa post-publicación.
+- [Microsoft Store native runtime smoke — 2026-09-11](microsoft-store-native-runtime-smoke-2026-09-11.md): evidencia humana de descarga, instalación, registro en Windows, launch nativo y UI operativa del build entregado por Store.
 - [Evidencia preparación MSIX 0.1.5 — 2026-09-06](msix-015-preparation-evidence-2026-09-06.md): gate de preparación del upgrade `0.1.4.0 -> 0.1.5.0`, validaciones de identidad Store y bind explícito a `127.0.0.1`.
 - [Lecciones aprendidas](lessons-learned.md): decisiones, fallos reproducidos, causas raíz y correcciones permanentes.
 - [Evidencia UAT técnica 2026-09-04](uat-evidence-2026-09-04.md): gates observados en Windows nativo.
@@ -22,15 +23,20 @@ Esta carpeta concentra la documentación técnica de autoridad para la distribuc
 
 ## Estado actual Microsoft Store
 
-Desde 2026-09-11, Partner Center confirma que Personal Tax Ledger está **In Microsoft Store** y disponible según la discoverability configurada en Availability.
+Desde 2026-09-11, Partner Center confirma que Personal Tax Ledger está **In Microsoft Store** y disponible según la discoverability configurada en Availability. Ese mismo día, el build entregado por Microsoft Store fue descargado, instalado y ejecutado correctamente en Windows nativo.
 
 Estado canónico actual:
 
 ```text
-STORE_PUBLICATION_CONFIRMED_NATIVE_RUNTIME_VALIDATION_PENDING
+STORE_PUBLICATION_CONFIRMED_NATIVE_RUNTIME_SMOKE_PASS
 ```
 
-La certificación/publicación de Microsoft queda cerrada. La instalación y verificación nativa del build entregado por Store continúa como gate técnico separado hasta que exista evidencia de ejecución en el host objetivo.
+Quedan cerrados el gate Microsoft-side de certificación/publicación y el smoke nativo de instalación + launch. Las verificaciones profundas de invariantes internos —loopback explícito, identidad del workspace histórico, path/estado SQLite, ausencia de base duplicada y eventual retiro controlado de una instalación Squirrel previa— permanecen como evidencia técnica adicional y no como bloqueadores de la afirmación de que el producto está publicado, instala y ejecuta correctamente desde Store.
+
+Store ID: `9N8NR29965DS`  
+Store URL: `https://apps.microsoft.com/detail/9N8NR29965DS`
+
+La lane Store permanece separada de la UAT externa `0.1.6`, cuya provenance y política están documentadas en `uat-public-distribution.md`.
 
 ## Autoridad
 
