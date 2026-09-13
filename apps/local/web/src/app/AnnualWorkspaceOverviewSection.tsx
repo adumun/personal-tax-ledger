@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { PageHeader } from '@adumun/react-components';
 import { getAnnualWorkspaceOverview, type AnnualWorkspaceOverview } from './annual-workspace-overview-client';
 
 function countLabel(count: number, singular: string, plural: string) {
@@ -27,10 +28,11 @@ export default function AnnualWorkspaceOverviewSection({ commercialYear }: { com
   }, [commercialYear]);
 
   return <section className="annual-overview" aria-labelledby="annual-overview-title">
-    <header>
-      <h1 id="annual-overview-title">Año tributario</h1>
-      <p>Estado estructural del período activo y de la información que ya tienes registrada.</p>
-    </header>
+    <PageHeader
+      title="Año tributario"
+      titleId="annual-overview-title"
+      description="Estado estructural del período activo y de la información que ya tienes registrada."
+    />
 
     {error && <div className="annual-workspace-error">{error}</div>}
     {!overview && !error && <p>Cargando resumen del período…</p>}
