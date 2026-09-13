@@ -8,3 +8,4 @@ export * from './tax-parameters.mjs';
 export * from './util.mjs';
 export * from './features/annual-workspace/annual-tax-workspace.mjs';
 export * from './features/annual-workspace/supported-year-policy.mjs';
+export * from './features/annual-workspace/tax-applicability-profile.mjs';

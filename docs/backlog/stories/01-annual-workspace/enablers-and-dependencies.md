@@ -1,6 +1,6 @@
 # Block 01 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / FIRST VISIBLE SLICE CLOSED`
+**Status:** `IMPLEMENTING / APPLICABILITY FOUNDATION IN REVIEW`
 
 This file separates actor-visible Stories from technical enabling work according to `STD-WMS-001` / `STD-WMS-TYPES-001`. No `Technical Story` type is introduced.
 
@@ -36,11 +36,22 @@ Annual workspace metadata persistence and deterministic compatibility migration 
 **Role:** ENABLER  
 **Size:** M  
 **Priority:** P0  
-**Status:** READY
+**Status:** IN_REVIEW
 
-Persist annual applicability independently from actual facts using the five dimensions closed by [`spike-aw-001-applicability-profile.md`](spike-aw-001-applicability-profile.md).
+Implemented on `feat/block-01-tax-applicability-profile`:
+
+- versioned `TaxApplicabilityProfile` domain contract (`profileVersion = 1`);
+- exact five-dimension allowlist from the closed Spike;
+- strict `YES | NO | UNKNOWN` semantics;
+- missing values normalize to `UNKNOWN`;
+- repository port keyed by `annualWorkspaceId`;
+- SQLite persistence of the versioned profile document;
+- trusted AnnualWorkspaceContext and stale-mutation guard on save;
+- no dependency on canonical fact repositories.
 
 `Applicability profile != actual tax facts` remains mandatory.
+
+Evidence: [`task-aw-003-evidence.md`](task-aw-003-evidence.md). Closure gate: canonical `make validate`.
 
 **Enables:** AW-003, AW-004, AW-005.
 
@@ -109,7 +120,7 @@ Final regression coverage must include:
 - strict year isolation and stale async protection — AVAILABLE via AW-005/AW-006;
 - supported-year policy — AVAILABLE via AW-007;
 - prior-year initialization allowlist — pending AW-004/US-AW-003;
-- tri-state applicability profile — pending AW-003/US-AW-004;
+- tri-state applicability profile — FOUNDATION IN REVIEW via AW-003; UI/conflict behavior pending US-AW-004;
 - workspace overview projection — pending TASK-AW-006/US-AW-005.
 
 AW-008 remains the terminal block-quality gate; it should not become a long-lived partial PR.
@@ -150,7 +161,7 @@ flowchart LR
   T7[AW-TASK-007\nDONE] --> U2
 
   U2 --> U3[AW-US-003\nInitialize prior]
-  T3[AW-TASK-003\nREADY] --> U3
+  T3[AW-TASK-003\nIN REVIEW] --> U3
   T4[AW-TASK-004] --> U3
 
   S1[AW-SPIKE-001\nDONE] --> U4[AW-US-004\nApplicability]
@@ -181,13 +192,16 @@ flowchart LR
 - TASK-AW-007 — DONE (`make validate`: 136/136)
 - US-AW-001 + US-AW-002 — DONE (`make validate`: 149/149, desktop/architecture clean)
 
-### Next executable P0 path
+### Current P0 node
 
-1. `PTL-TASK-AW-003 — TaxApplicabilityProfile`
-2. `PTL-US-AW-004 — Applicability Profile`
-3. `PTL-TASK-AW-006 + PTL-US-AW-005 — Workspace overview`
-4. P1 initialization branch (`AW-004 + US-AW-003`)
-5. `PTL-TASK-AW-008` final regression closure
+1. `PTL-TASK-AW-003 — TaxApplicabilityProfile` — **IN_REVIEW**
+
+### Next after clean closure
+
+1. `PTL-US-AW-004 — Applicability Profile`
+2. `PTL-TASK-AW-006 + PTL-US-AW-005 — Workspace overview`
+3. P1 initialization branch (`AW-004 + US-AW-003`)
+4. `PTL-TASK-AW-008` final regression closure
 
 ## Critical safety chain
 
@@ -200,4 +214,4 @@ TASK-AW-001 [DONE]
 
 ## Block readiness verdict
 
-The first visible annual-workspace slice is closed. The highest-value next executable dependency is `PTL-TASK-AW-003`, because it unlocks the user-visible applicability profile and later workspace overview while also unblocking the P1 prior-year initialization contract.
+AW-003 is implemented and awaiting canonical validation. Clean closure immediately unlocks `PTL-US-AW-004` as the next P0 Story and removes the data-schema blocker from the later prior-year initialization path.
