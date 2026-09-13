@@ -13,6 +13,12 @@ export function createMortgageComposition(dependencies) {
     mortgageUseCases,
     mortgageAnnualRecordRepository,
     mortgageAnnualRecordUseCases,
-    createMortgageRouter: routerDependencies => createMortgageRouter({ ...routerDependencies, mortgageUseCases, annualRecordUseCases: mortgageAnnualRecordUseCases, context: LOCAL_WORKSPACE_CONTEXT })
+    createMortgageRouter: routerDependencies => createMortgageRouter({
+      ...routerDependencies,
+      mortgageUseCases,
+      annualRecordUseCases: mortgageAnnualRecordUseCases,
+      context: LOCAL_WORKSPACE_CONTEXT,
+      resolveContext: dependencies?.resolveAnnualContext
+    })
   };
 }
