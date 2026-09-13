@@ -2,7 +2,7 @@
 
 **Status:** current external UAT distribution record  
 **UAT version:** `0.1.6`  
-**Date verified:** 2026-09-11
+**Date verified:** 2026-09-13
 
 ## Purpose
 
@@ -66,12 +66,16 @@ Version: 0.1.5.0
 Architecture: x64
 Minimum Windows version: 10.0.19041.0
 Microsoft-side publication: CONFIRMED 2026-09-11
-Lifecycle state: STORE_PUBLICATION_CONFIRMED_NATIVE_RUNTIME_VALIDATION_PENDING
+Native Store install/launch smoke: PASS 2026-09-11
+Lifecycle state: STORE_PUBLICATION_CONFIRMED_NATIVE_RUNTIME_SMOKE_PASS
 ```
 
-Partner Center shows Personal Tax Ledger as **In Microsoft Store** and states that the product is currently available in Microsoft Store according to the discoverability configured in the Availability module.
+Partner Center shows Personal Tax Ledger as **In Microsoft Store** and the Store-delivered application was subsequently downloaded, installed and launched successfully on native Windows. The current user-facing Store state is therefore published and operational at smoke-test level.
 
-This closes the Microsoft certification/publication gate. It does not, by itself, close native runtime validation of the Store-delivered build on the target Windows host.
+Store ID: `9N8NR29965DS`  
+Store URL: `https://apps.microsoft.com/detail/9N8NR29965DS`
+
+This closes both the Microsoft certification/publication gate and the native installation/launch smoke gate. Deeper engineering invariants remain separately verifiable if strict evidence is required; they are not blockers for stating that the Store build is published, installs and runs successfully.
 
 The UAT ZIP must not be presented as the Store build, and the Store package must not replace UAT evidence or version semantics.
 
@@ -88,6 +92,8 @@ Before running it, testers should verify:
 
 The current external UAT lane is not the Microsoft Store-signed distribution lane. Windows may therefore display a SmartScreen/reputation warning. The website should explain this before download rather than forcing testers to discover it during installation.
 
+Users who only want the public product distribution should prefer the Microsoft Store lane; the UAT lane remains available specifically for controlled external validation and must continue to be labeled as such.
+
 ## Data guidance for external UAT
 
 External testers should prefer fictitious/test tax data unless a specific test requires otherwise.
@@ -99,6 +105,7 @@ See also:
 - `site/privacy.html`
 - `docs/desktop/uat-evidence-2026-09-04.md`
 - `docs/desktop/microsoft-store-publication-confirmed-2026-09-11.md`
+- `docs/desktop/microsoft-store-native-runtime-smoke-2026-09-11.md`
 - `docs/desktop/microsoft-store-submission-in-certification-2026-09-06.md` (historical checkpoint)
 - GitHub issue #1 — PTL-1 UAT Trust Closure
 
