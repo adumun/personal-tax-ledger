@@ -5,6 +5,7 @@ import { createSettingsComposition } from '../settings-composition.mjs';
 import { createAnnualWorkspaceComposition } from '../annual-workspace-composition.mjs';
 import { createApplicabilityProfileComposition } from '../applicability-profile-composition.mjs';
 import { createAnnualWorkspaceOverviewComposition } from '../annual-workspace-overview-composition.mjs';
+import { createPriorYearInitializationComposition } from '../prior-year-initialization-composition.mjs';
 import { createExecutionLogComposition } from '../execution-log-composition.mjs';
 import { createFeeReceiptComposition } from '../fee-receipt-composition.mjs';
 import { createMortgageComposition } from '../mortgage-composition.mjs';
@@ -51,6 +52,11 @@ export function createLocalComposition(dependencies) {
     feeReceiptUseCases: fees.feeReceiptUseCases,
     mortgageUseCases: mortgages.mortgageUseCases
   });
+  const priorYearInitialization = createPriorYearInitializationComposition({
+    ...compositionDependencies,
+    annualWorkspaceFlowUseCases: annualWorkspaces.annualWorkspaceFlowUseCases,
+    taxApplicabilityProfileRepository: applicability.taxApplicabilityProfileRepository
+  });
   const taxParameters = createTaxParameterComposition(compositionDependencies);
   const taxSources = createTaxRuleSourceComposition(compositionDependencies);
   const support = createSupportCatalogComposition(compositionDependencies);
@@ -65,6 +71,7 @@ export function createLocalComposition(dependencies) {
     ...annualWorkspaces,
     ...applicability,
     ...overview,
+    ...priorYearInitialization,
     ...income,
     ...settings,
     ...logs,
