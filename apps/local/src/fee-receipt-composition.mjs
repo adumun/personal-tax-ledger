@@ -13,7 +13,17 @@ export function createFeeReceiptComposition(dependencies) {
     feeReceiptUseCases,
     feeExpenseSettingsRepository,
     feeExpenseSettingsUseCases,
-    createFeeReceiptRouter: routerDependencies => createFeeReceiptRouter({ ...routerDependencies, useCases: feeReceiptUseCases, context: LOCAL_WORKSPACE_CONTEXT }),
-    createFeeExpenseSettingsRouter: routerDependencies => createFeeExpenseSettingsRouter({ ...routerDependencies, useCases: feeExpenseSettingsUseCases, context: LOCAL_WORKSPACE_CONTEXT })
+    createFeeReceiptRouter: routerDependencies => createFeeReceiptRouter({
+      ...routerDependencies,
+      useCases: feeReceiptUseCases,
+      context: LOCAL_WORKSPACE_CONTEXT,
+      resolveContext: dependencies?.resolveAnnualContext
+    }),
+    createFeeExpenseSettingsRouter: routerDependencies => createFeeExpenseSettingsRouter({
+      ...routerDependencies,
+      useCases: feeExpenseSettingsUseCases,
+      context: LOCAL_WORKSPACE_CONTEXT,
+      resolveContext: dependencies?.resolveAnnualContext
+    })
   };
 }
