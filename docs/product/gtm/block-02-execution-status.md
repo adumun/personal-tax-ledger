@@ -52,24 +52,77 @@ No available connected integration provides Microsoft Partner Center / Microsoft
 
 ## Product evidence E1-E5
 
-### Canonical state
+### Capture and selection — CLOSED
 
-The product owner previously supplied the real-product screenshots and the repository canon records that screenshot production is not the blocker.
+The product owner re-captured and supplied a complete real-product screenshot set on 2026-09-13.
 
-### Current execution limitation
+The canonical public selection is now frozen:
 
-During this execution:
+1. E1 — `Resumen anual estimado — Indicadores` → `e1-annual-workspace.png`
+2. E2 — `Boletas de honorarios — Resumen anual` → `e2-fee-receipts.png`
+3. E3 — `Créditos hipotecarios y art. 55 bis — Beneficio art. 55 bis` → `e3-mortgage-benefit.png`
+4. E4 — `Simulación APV A versus B` → `e4-apv-scenario-comparison.png`
+5. E5 — `¿Cómo se calculan estos valores? — renta tributable consolidada` → `e5-calculation-explanation.png`
 
-- no E1-E5 image files exist under `master/site/assets/product/`;
-- no corresponding files exist in the current public projection;
-- Library search did not surface the previously supplied native image files;
-- GitHub issue #2 contains the reconciliation state but no image attachments/comments.
+Backup evidence retained:
 
-Therefore screenshot recapture was **not** restarted and marketing mockups were **not** fabricated.
+- `b1-labor-income.png`;
+- `b2-annual-reconciliation.png`;
+- `b3-pension-apv-overview.png`.
 
-### Remaining action
+### Provenance — CLOSED
 
-Recover/materialize the already supplied source images, reconcile them to E1-E5, record provenance, normalize filenames/alt/captions, add them under the governed asset path, and synchronize `gh-pages`.
+The machine-readable selection and provenance record is:
+
+```text
+docs/site/product-evidence-manifest-2026-09-13.json
+```
+
+It records:
+
+- source screen;
+- canonical filename;
+- target repository path;
+- dimensions;
+- SHA-256;
+- public caption;
+- alt text;
+- purpose;
+- refresh trigger.
+
+The capture/selection plan was reconciled in:
+
+```text
+docs/site/product-evidence-capture-plan.md
+```
+
+GitHub issue `PTL-2 — Product Evidence` has also been updated to reflect the new state.
+
+### Drive binary evidence — CLOSED
+
+The normalized PNGs, backup screenshots and checksums are persisted in:
+
+```text
+Personal Tax Ledger/Evidence/Block 02 - Conversion/Product Screenshots/
+```
+
+A packaged evidence set is persisted as:
+
+```text
+Personal Tax Ledger/Evidence/Block 02 - Conversion/ptl-product-evidence-e1-e5.zip
+```
+
+### Repository binary placement — PENDING TOOLING
+
+The connected GitHub write surface currently supports UTF-8 text-file mutation but does not expose binary repository upload.
+
+Therefore the remaining repository-side work is:
+
+- place E1–E5 PNGs under `site/assets/product/`;
+- render them in the landing product journey;
+- synchronize the same binary assets and HTML to `gh-pages`.
+
+This is a tooling/publication blocker, **not a capture blocker**. Do not recapture the screenshots again merely because repository binary placement remains pending.
 
 ## P0 status
 
@@ -77,11 +130,11 @@ Recover/materialize the already supplied source images, reconcile them to E1-E5,
 |---|---|
 | P0-01 Store hierarchy v2 | SPEC READY / PARTNER CENTER PENDING |
 | P0-02 Store Listing v2 copy | DONE SPEC / REMOTE APPLY PENDING |
-| P0-03 E1-E5 Store screenshots | BLOCKED ON SOURCE-ASSET RECOVERY |
+| P0-03 E1-E5 Store screenshots | CAPTURE + SELECTION + PROVENANCE DONE / PARTNER CENTER UPLOAD PENDING |
 | P0-04 Landing hero v1 | DONE |
 | P0-05 Remove UAT hero competition | DONE |
 | P0-06 Remove Store lineage/smoke noise | DONE |
-| P0-07 Integrate real E1-E5 landing evidence | BLOCKED ON SOURCE-ASSET RECOVERY |
+| P0-07 Integrate real E1-E5 landing evidence | CAPTURE DONE / REPO BINARY UPLOAD PENDING |
 | P0-08 `Para quién` section | DONE |
 | P0-09 Temporal problem section | DONE |
 | P0-10 Privacy & Trust section | DONE |
@@ -97,6 +150,7 @@ Recover/materialize the already supplied source images, reconcile them to E1-E5,
 Block 02 remains **implementation in progress** until:
 
 1. the Store Listing v2 is applied/verified in Partner Center;
-2. the real E1-E5 screenshots are canonically integrated and visible in the public landing/Store listing.
+2. the real E1-E5 PNGs are placed in the repository, rendered on the public landing and synchronized to `gh-pages`;
+3. the selected screenshots are applied to the Store listing.
 
 Do not advance Block 03 as a substitute for these remaining Block 02 P0 items.
