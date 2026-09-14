@@ -1,0 +1,102 @@
+{
+  "product": "Personal Tax Ledger",
+  "initiative": "PTL Early Adoption & Go-To-Market — Cycle 01",
+  "block": "02 — Conversión",
+  "captured_on": "2026-09-13",
+  "status": "CAPTURE_REESTABLISHED_NORMALIZED_DRIVE_PERSISTED_REPO_BINARY_UPLOAD_PENDING",
+  "data_classification": "FICTITIOUS_TEST_DATA",
+  "source": "real PTL application screenshots supplied by product owner",
+  "drive_evidence_path": "/Google Drive/ADÜMÜN — Corporate HQ/01 - Presidency & Executive Leadership/02 - Founder & Personal Operations/04 - Personal Finance & Tax/Personal Tax Ledger/Evidence/Block 02 - Conversion/Product Screenshots",
+  "canonical_story": ["reunir", "completar", "modelar", "comparar", "entender"],
+  "assets": [
+    {
+      "id": "E1",
+      "selected_source": "Resumen anual estimado — Indicadores",
+      "canonical_filename": "e1-annual-workspace.png",
+      "target_repo_path": "site/assets/product/e1-annual-workspace.png",
+      "width": 1900,
+      "height": 1027,
+      "bytes": 160010,
+      "sha256": "fe3260c1bc1c4dc0541252ff6e698fdd75f532cbff721157757cb894bd28bf3f",
+      "caption": "Construye una visión anual de tu situación tributaria a partir de los antecedentes registrados.",
+      "alt": "Vista Resumen anual estimado de Personal Tax Ledger con indicadores de ingresos, base tributable, retenciones, rebaja hipotecaria y devolución estimada.",
+      "purpose": "annual workspace / product overview"
+    },
+    {
+      "id": "E2",
+      "selected_source": "Boletas de honorarios — Resumen anual",
+      "canonical_filename": "e2-fee-receipts.png",
+      "target_repo_path": "site/assets/product/e2-fee-receipts.png",
+      "width": 1897,
+      "height": 1037,
+      "bytes": 128331,
+      "sha256": "d5f2428a6e6601f4e670537bb3756a97f83b17ad90d703531bb98743b55c4d36",
+      "caption": "Incorpora honorarios, retenciones y PPM dentro de la visión anual.",
+      "alt": "Vista Resumen anual de boletas de honorarios de Personal Tax Ledger con bruto emitido, retenciones, PPM, líquido recibido y estado de boletas.",
+      "purpose": "mixed income / fee receipts"
+    },
+    {
+      "id": "E3",
+      "selected_source": "Créditos hipotecarios y art. 55 bis — Beneficio art. 55 bis",
+      "canonical_filename": "e3-mortgage-benefit.png",
+      "target_repo_path": "site/assets/product/e3-mortgage-benefit.png",
+      "width": 1897,
+      "height": 1034,
+      "bytes": 144556,
+      "sha256": "80cc292f18f0f367d5676817f544f4022602fc64385373897d63dc126f0e2192",
+      "caption": "Modela antecedentes hipotecarios que participan en la estimación tributaria anual.",
+      "alt": "Vista del beneficio hipotecario artículo 55 bis en Personal Tax Ledger con intereses anuales, base deducible, porcentaje aplicable y rebaja estimada.",
+      "purpose": "tax-relevant mortgage context"
+    },
+    {
+      "id": "E4",
+      "selected_source": "Simulación APV A versus B",
+      "canonical_filename": "e4-apv-scenario-comparison.png",
+      "target_repo_path": "site/assets/product/e4-apv-scenario-comparison.png",
+      "width": 1895,
+      "height": 1031,
+      "bytes": 153247,
+      "sha256": "9ef01b1a72703c2bac92b57f20582afb6aa69addbb8ff10b4de0f42219dc27ce",
+      "caption": "Compara dos tratamientos de APV y observa sus efectos económicos y tributarios estimados.",
+      "alt": "Comparador APV Régimen A versus Régimen B en Personal Tax Ledger con aporte anual, beneficio inmediato, costo económico neto e impuesto anual estimado.",
+      "purpose": "scenario comparison"
+    },
+    {
+      "id": "E5",
+      "selected_source": "¿Cómo se calculan estos valores? — renta tributable consolidada",
+      "canonical_filename": "e5-calculation-explanation.png",
+      "target_repo_path": "site/assets/product/e5-calculation-explanation.png",
+      "width": 1895,
+      "height": 1032,
+      "bytes": 203729,
+      "sha256": "f044f25c642cdeb564638c6eb938ee2f99c722037243dcf19ed852eac2345a9f",
+      "caption": "No te quedes sólo con el resultado: revisa la explicación, los valores usados y los pasos del cálculo.",
+      "alt": "Modal de explicación de cálculos de Personal Tax Ledger mostrando la renta tributable consolidada, explicación general, cálculo aplicado, valores utilizados y pasos de consolidación.",
+      "purpose": "explainability / primary differentiator"
+    }
+  ],
+  "backup_assets": [
+    {
+      "id": "B1",
+      "canonical_filename": "b1-labor-income.png",
+      "source": "Fuentes de ingreso laboral",
+      "sha256": "7adc4d4acd60a93e40578b6a5794bfa7ae31ef754cbf6bca46b14ddf91700783"
+    },
+    {
+      "id": "B2",
+      "canonical_filename": "b2-annual-reconciliation.png",
+      "source": "Resumen anual estimado — Reconciliación anual",
+      "sha256": "fe228e9371c22e6a027f697640f46f83769ffc20337a47416d5e5d62c5928a47"
+    },
+    {
+      "id": "B3",
+      "canonical_filename": "b3-pension-apv-overview.png",
+      "source": "Resumen anual estimado — Previsión y APV",
+      "sha256": "7500621ca71a2738cd438ef8127a5e879e241a84c89143a4c49d2f291180c028"
+    }
+  ],
+  "public_site_order": ["E1", "E2", "E3", "E4", "E5"],
+  "store_order_v1": ["E1", "E2", "E5", "E4", "E3"],
+  "refresh_trigger": "refresh only when the depicted UI or product behavior becomes materially misleading; distribution-lane changes alone do not force recapture",
+  "current_blocker": "The connected GitHub write surface supports UTF-8 text files but not binary asset upload. The real PNGs are normalized and persisted in Drive; repository binary placement and public-site rendering remain pending."
+}
