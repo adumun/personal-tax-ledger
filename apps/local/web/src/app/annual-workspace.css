@@ -1,51 +1,12 @@
-.annual-workspace-gate {
-  min-height: 100vh;
-}
-
-.annual-workspace-header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  display: flex;
-  align-items: end;
-  gap: 1rem;
-  padding: .8rem 1rem;
-  border-bottom: 1px solid rgba(127, 127, 127, .25);
-  background: var(--surface, #fff);
-}
-
-.annual-workspace-field,
-.annual-workspace-derived {
-  display: grid;
-  gap: .2rem;
-}
-
-.annual-workspace-field small,
-.annual-workspace-derived small {
-  opacity: .7;
-}
-
-.annual-workspace-field select,
-.annual-workspace-modal input {
-  min-width: 11rem;
-  padding: .45rem .55rem;
-}
-
-.annual-workspace-create {
-  margin-left: auto;
-}
-
-.annual-workspace-progress {
-  font-size: .85rem;
-  opacity: .7;
-}
-
 .annual-workspace-error {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   padding: .7rem 1rem;
-  background: rgba(190, 40, 40, .12);
+  border: 1px solid #fecaca;
+  border-radius: .65rem;
+  background: #fff7f7;
+  color: #9f1c1c;
 }
 
 .annual-workspace-error button {
@@ -113,169 +74,256 @@
   gap: .75rem;
 }
 
-.annual-overview {
-  margin: 1rem;
+.ptl-application [data-adumun-component="SectionCard"] {
+  border: 1px solid #d8e0e3;
+  border-radius: 14px;
+  background: #fff;
 }
 
-.annual-overview > header h2,
-.annual-overview > header p {
-  margin-top: 0;
+.ptl-application [data-adumun-section-card-region="header"] {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 20px 0;
 }
 
-.annual-overview > header p {
-  opacity: .78;
+.ptl-application [data-adumun-section-card-title] {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.ptl-application [data-adumun-section-card-description] {
+  margin-top: 5px;
+  color: #687985;
+  font-size: 13px;
+}
+
+.ptl-application [data-adumun-section-card-region="content"] {
+  padding: 18px 20px;
+}
+
+.ptl-application [data-adumun-section-card-region="footer"] {
+  padding: 0 20px 18px;
+}
+
+.ptl-application [data-adumun-component="StatusBadge"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #eef2f3;
+  color: #516069;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.ptl-application [data-adumun-status-badge-dot] {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.ptl-application [data-adumun-component="StatusBadge"][data-tone="info"] {
+  background: #edf5ff;
+  color: #245f94;
+}
+
+.ptl-application [data-adumun-component="StatusBadge"][data-tone="success"] {
+  background: #e8f8f3;
+  color: #08765f;
+}
+
+.ptl-application [data-adumun-component="StatusBadge"][data-tone="warning"] {
+  background: #fff5dc;
+  color: #8a6411;
+}
+
+.ptl-application [data-adumun-component="StatusBadge"][data-tone="critical"] {
+  background: #fff0f0;
+  color: #a82929;
+}
+
+.annual-overview,
+.annual-applicability-profile {
+  display: grid;
+  gap: 20px;
 }
 
 .annual-overview-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: .85rem;
-}
-
-.annual-overview-card {
-  padding: 1rem;
-  border: 1px solid rgba(127, 127, 127, .22);
-  border-radius: .75rem;
-  background: var(--surface, #fff);
-}
-
-.annual-overview-card h3 {
-  margin-top: 0;
+  gap: 12px;
 }
 
 .annual-overview-card dl {
   display: grid;
-  gap: .55rem;
+  gap: 8px;
   margin: 0;
 }
 
 .annual-overview-card dl > div {
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 18px;
 }
 
 .annual-overview-card dt {
-  opacity: .72;
+  color: #66747d;
 }
 
 .annual-overview-card dd {
   margin: 0;
   text-align: right;
-  font-weight: 600;
+  font-weight: 650;
+}
+
+.annual-overview-card p {
+  margin: 0;
+}
+
+.annual-overview-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .annual-overview-wide {
   grid-column: 1 / -1;
 }
 
+.annual-overview-information {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 36px;
+}
+
+.annual-overview-information > div {
+  padding: 6px 0;
+  border-bottom: 1px solid #edf1f2;
+}
+
+.annual-overview-rules [data-adumun-section-card-region="content"] {
+  padding-top: 10px;
+}
+
 .annual-applicability-profile {
-  margin: 1rem;
-  padding: 1rem;
-  border: 1px solid rgba(127, 127, 127, .22);
-  border-radius: .75rem;
-  background: var(--surface, #fff);
-}
-
-.annual-applicability-heading {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: start;
-}
-
-.annual-applicability-heading h2,
-.annual-applicability-heading p {
-  margin-top: 0;
+  max-width: 1120px;
 }
 
 .annual-applicability-summary {
   display: flex;
-  gap: .75rem;
-  white-space: nowrap;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.annual-applicability-card [data-adumun-section-card-region="content"] {
+  padding: 14px;
 }
 
 .annual-applicability-list {
   display: grid;
-  gap: .65rem;
+  gap: 8px;
 }
 
 .annual-applicability-row {
   display: grid;
-  grid-template-columns: minmax(16rem, 1fr) minmax(18rem, auto);
-  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 340px);
+  gap: 24px;
   align-items: center;
-  padding: .8rem;
-  border-radius: .55rem;
-  background: rgba(127, 127, 127, .06);
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f6f8f8;
 }
 
 .annual-applicability-row.needs-review {
-  outline: 2px solid currentColor;
+  outline: 1px solid #e6a1a1;
+  background: #fffafa;
 }
 
 .annual-applicability-situation,
 .annual-applicability-conflict {
   display: grid;
-  gap: .25rem;
+  gap: 5px;
+}
+
+.annual-applicability-situation > small {
+  color: #66747d;
 }
 
 .annual-applicability-conflict {
-  margin-top: .35rem;
-  font-size: .9rem;
+  margin-top: 4px;
+  font-size: .88rem;
 }
 
 .annual-applicability-options {
   display: flex;
+  justify-content: flex-start;
   flex-wrap: wrap;
-  gap: .75rem;
+  gap: 12px;
 }
 
 .annual-applicability-options label {
-  display: flex;
-  gap: .3rem;
+  display: inline-flex;
+  gap: 5px;
   align-items: center;
+  white-space: nowrap;
 }
 
 .annual-applicability-actions {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: 10px;
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid #e5ebed;
 }
 
 .annual-applicability-error {
   margin-bottom: .75rem;
 }
 
-@media (max-width: 720px) {
-  .annual-workspace-header,
-  .annual-applicability-heading {
-    align-items: stretch;
-    flex-direction: column;
-  }
-  .annual-workspace-create {
-    margin-left: 0;
-  }
-  .annual-overview-grid,
-  .annual-applicability-row {
+@media (max-width: 900px) {
+  .annual-overview-information {
     grid-template-columns: 1fr;
   }
-  .annual-overview-wide {
-    grid-column: auto;
-  }
-  .annual-overview-card dl > div {
-    align-items: start;
+
+  .annual-applicability-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }
 
-/* AW-001 makes AnnualWorkspace the sole visible year-navigation authority. */
+@media (max-width: 720px) {
+  .annual-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .annual-overview-wide {
+    grid-column: auto;
+  }
+
+  .annual-overview-card dl > div {
+    align-items: start;
+  }
+
+  .annual-applicability-summary {
+    justify-content: flex-start;
+  }
+}
+
 .year-picker {
   display: none !important;
 }
 
-/* Compatibility settings.year remains persisted internally, but Configuración tributaria no longer exposes a second year switcher. */
 .grid.two > .card:first-child > h2 + .form-grid > label:first-child {
   display: none !important;
 }
