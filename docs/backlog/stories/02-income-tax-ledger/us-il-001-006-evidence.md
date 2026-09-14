@@ -16,6 +16,21 @@ It combines:
 - `PTL-US-IL-001 — Ver el ledger anual unificado de ingresos`;
 - `PTL-US-IL-006 — Conservar trazabilidad, autoridad y aislamiento anual del ledger`.
 
+## Shared React dogfood
+
+The surrounding application consumes canonical primitives from `adumun/react-components`:
+
+- `AppShell`;
+- `PrimaryNav`;
+- `ContextHeader`;
+- `PageHeader`;
+- `SectionCard`;
+- `StatusBadge`.
+
+PTL remains responsible for product information architecture, copy, annual-workspace authority, feature composition and visual theme.
+
+`Tabs` has been cross-repo reconciled and implemented in `adumun/react-components`, but this evidence does **not** claim its PTL dogfood complete while `WorkspaceView` still contains local `sub-tabs`.
+
 ## Visible behavior
 
 `AnnualIncomeLedgerSection` renders as an explicit surface under the active annual workspace and shows:
@@ -25,19 +40,21 @@ It combines:
 - normalized rows for dependent income, domestic BHE and other existing income-source kinds;
 - factual amount / withholding / PPM when registered;
 - explicit `No registrado` for absent values;
-- recognition state;
-- stable owner aggregate and owner record id;
+- recognition state through the shared semantic status primitive;
+- human-readable owner origin without exposing internal owner record IDs as normal copy;
 - responsive table/card behavior for narrow viewports;
 - factual-boundary copy that explicitly excludes tax liability, refund and SII reconciliation semantics.
 
-The surrounding application now consumes shared ADÜMÜN React primitives from `adumun/react-components`:
+The annual navigation now uses product language:
 
-- `AppShell`;
-- `PrimaryNav`;
-- `ContextHeader`;
-- `PageHeader`.
+```text
+Período
+  Resumen del año
+  Ingresos del año
+  Perfil del año
+```
 
-PTL retains product-specific information architecture, copy, annual-workspace authority and theming.
+The duplicate active-period footer formerly rendered in the sidebar was removed. The global header is now the visible annual-context authority.
 
 ## Authority and isolation
 
@@ -48,6 +65,8 @@ It does not create a generic ledger mutation path and does not replace aggregate
 A request serial plus `commercialYear` verification suppresses stale responses after annual-context transitions. A response for a prior year is not allowed to replace the current visible ledger state.
 
 The active `AnnualWorkspace` remains the only annual-context authority. The former secondary year selector owned by `WorkspaceView` was removed.
+
+Owner aggregate and owner record identity remain part of the ledger contract even though the raw record identifier is no longer rendered as normal user-facing copy.
 
 ## Deferred owner actions
 
@@ -60,7 +79,7 @@ No placeholder mutation or fake ledger editor is authorized.
 
 ## Automated evidence
 
-The focused validation was executed through the canonical Make façade on 2026-09-13:
+An earlier head of this branch was executed through the canonical Make façade on 2026-09-13:
 
 ```text
 make bootstrap
@@ -68,7 +87,7 @@ make typecheck
 make test-ledger-ui
 ```
 
-Observed result:
+Observed result for that earlier head:
 
 ```text
 tests 11
@@ -81,21 +100,13 @@ todo 0
 
 `make typecheck` completed without TypeScript errors.
 
-The focused suite covers:
+### Current-head status
 
-1. factual ledger structure and exact filters;
-2. normalized supported kinds without dual-write semantics;
-3. owner aggregate + owner record identity;
-4. stale-response suppression on annual-context changes;
-5. ledger placement as a surface of the single shared `AppShell`;
-6. removal of the competing `WorkspaceView` sidebar and annual selector;
-7. consumption of shared `PageHeader` by annual surfaces;
-8. read-only client boundary;
-9. IL-004 HTTP filter delegation and mutation rejection;
-10. explicit conflict behavior for invalid annual context;
-11. local composition/client exposure of the canonical read surface only.
+The branch advanced after the above green evidence to introduce shared `SectionCard` / `StatusBadge`, product-language navigation changes, ledger origin presentation changes and new focused assertions.
 
-`make bootstrap` also emitted an npm `allowScripts` warning for install scripts in `electron-winstaller` and the Git-consumed `@adumun/react-components` package. It did not block bootstrap, typecheck or focused tests. This is a bootstrap determinism observation to reconcile separately; it is not treated as visual acceptance evidence.
+Therefore the 11/11 run is retained as historical evidence only. A **fresh** Make-wrapped focused run is required before claiming the current head technically green.
+
+`make bootstrap` also emitted an npm `allowScripts` warning for install scripts in `electron-winstaller` and the Git-consumed `@adumun/react-components` package. It did not block the earlier bootstrap, typecheck or focused tests. This is a bootstrap determinism observation to reconcile separately; it is not treated as visual acceptance evidence.
 
 ## Visual acceptance gate
 
@@ -103,7 +114,7 @@ This slice has direct UI impact and therefore follows an explicit visual gate:
 
 ```text
 IMPLEMENTED
- -> targeted automated validation [GREEN]
+ -> targeted automated validation
  -> VISUAL_VALIDATION_PENDING
  -> user runs the branch in the development environment
  -> user reviews layout, information hierarchy, copy, filters and visible states
@@ -126,6 +137,5 @@ This slice does not implement:
 - foreign-service / FX income;
 - SII reconciliation;
 - evidence vault semantics;
-- readiness;
 - annual tax liability/refund;
 - optimization advice.
