@@ -5,6 +5,7 @@ import {
   ContextHeader,
   ContextHeaderItem,
   FormActions,
+  PageHeader,
   PrimaryNav,
   PrimaryNavGroup,
   PrimaryNavItem,
@@ -41,6 +42,18 @@ const systemSurfaces: readonly [WorkspaceTab, string][] = [
   ['sources', 'Fuentes oficiales'],
   ['logs', 'Bitácora']
 ];
+
+const workspacePageMeta: Record<WorkspaceTab, { title: string; description: string; eyebrow?: string }> = {
+  dashboard: { eyebrow: 'Proyección', title: 'Resumen anual estimado', description: 'Integra sueldos, honorarios, premios, hipotecario y APV en una sola proyección.' },
+  incomes: { eyebrow: 'Trabajo', title: 'Fuentes de ingreso laboral', description: 'Administra empleadores y un ingreso simplificado por honorarios.' },
+  fees: { eyebrow: 'Trabajo', title: 'Boletas de honorarios', description: 'Registra boletas de honorarios con cálculo de retención, PPM, gastos y consolidación tributaria.' },
+  mortgages: { eyebrow: 'Trabajo', title: 'Créditos hipotecarios y art. 55 bis', description: 'Registra créditos hipotecarios y estima el beneficio del artículo 55 bis de la LIR.' },
+  apv: { eyebrow: 'Trabajo', title: 'Simulación APV A versus B', description: 'Compara el efecto tributario inmediato de los regímenes A y B.' },
+  scenarios: { eyebrow: 'Trabajo', title: 'Simulación anual y escenarios', description: 'Compara escenarios combinando hipotecario, APV y tipos de honorarios.' },
+  settings: { eyebrow: 'Sistema', title: 'Configuración tributaria', description: 'Parámetros editables del motor tributario, versionados por año comercial.' },
+  sources: { eyebrow: 'Sistema', title: 'Fuentes oficiales', description: 'Fuentes oficiales consultadas y trazabilidad de reglas tributarias.' },
+  logs: { eyebrow: 'Sistema', title: 'Bitácora de ejecuciones', description: 'Registro de ejecuciones síncronas y asíncronas, con filtros y paginación.' }
+};
 
 function isWorkspaceTab(surface: PtlSurface): surface is WorkspaceTab {
   return !['annual-overview', 'annual-ledger', 'tax-profile'].includes(surface);
@@ -240,7 +253,15 @@ export default function AnnualWorkspaceGate() {
       {surface === 'annual-overview' && <AnnualWorkspaceOverviewSection commercialYear={catalog.activeCommercialYear} />}
       {surface === 'annual-ledger' && <AnnualIncomeLedgerSection commercialYear={catalog.activeCommercialYear} />}
       {surface === 'tax-profile' && <ApplicabilityProfileSection commercialYear={catalog.activeCommercialYear} />}
-      {isWorkspaceTab(surface) && <WorkspaceView key={catalog.activeCommercialYear} tab={surface} />}
+      {isWorkspaceTab(surface) && <>
+        <PageHeader
+          eyebrow={workspacePageMeta[surface].eyebrow}
+          title={workspacePageMeta[surface].title}
+          description={workspacePageMeta[surface].description}
+          actions={surface === 'dashboard' ? <StatusBadge tone="warning">No vinculante</StatusBadge> : undefined}
+        />
+        <div className="legacy-workspace-page"><WorkspaceView key={catalog.activeCommercialYear} tab={surface} /></div>
+      </>}
     </AppShell>
 
     {createOpen && <div className="annual-workspace-modal-backdrop" role="presentation">
