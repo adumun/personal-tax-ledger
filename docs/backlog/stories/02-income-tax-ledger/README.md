@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger
 
-**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED`  
+**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 IN_PROGRESS`  
 **Primary capability:** `TAX-04 — Tax Ledger`  
 **Related capabilities:** `TAX-01`, `TAX-02`, `TAX-06`, `TAX-07`, `TAX-08`, `TAX-09`  
 **Related extension:** `PTL-EXT-01 — International Contractor Income Planning`
@@ -9,7 +9,7 @@
 
 Turn the existing year-scoped income and BHE aggregates into a single explainable annual income ledger without creating a second source of truth.
 
-Block 02 establishes a canonical **ledger projection** over authoritative domain facts. It does not replace aggregate ownership, calculate final annual tax, reconcile against SII or ingest documentary evidence.
+Block 02 establishes a canonical **ledger projection, not a second canonical persistence store**. It does not replace aggregate ownership, calculate final annual tax, reconcile against SII or ingest documentary evidence.
 
 ## Current implementation baseline
 
@@ -52,10 +52,38 @@ Decision evidence: [`spike-il-001-ledger-authority.md`](spike-il-001-ledger-auth
 | `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
 | `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
 | `PTL-US-IL-004` | Registrar ingresos por servicios con pagador extranjero | `NEW_FLOW`, `FIELD_ADDITION` | L2 | BLOCKED_BY_SPIKE_IL_002 |
-| `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | REFINING |
+| `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | IN_PROGRESS |
 | `PTL-US-IL-006` | Conservar trazabilidad, autoridad y aislamiento anual del ledger | `STATE_CHANGE` | L1 | DONE |
 
 Detailed contracts: [`user-stories.md`](user-stories.md).
+
+## Current executable slice — IL-005
+
+`PTL-US-IL-005` adds the factual annual income position over the canonical ledger read model.
+
+The implementation boundary is:
+
+```text
+all entries in active AnnualTaxWorkspace
+  -> recognition-aware factual summary
+  -> totals grouped by entryKind and currency
+  -> compact annual position
+  -> Ver entradas -> ledger filter
+```
+
+Only `RECOGNIZED` entries contribute money. `PENDING` and `EXCLUDED` remain visible as factual counts but cannot inflate annual factual amounts.
+
+The annual position remains unfiltered while the ledger table may be filtered. This keeps the position annual and makes each category traceable through `Ver entradas` without changing source-of-truth semantics.
+
+Hard boundary:
+
+```text
+NOT refund forecast
+NOT tax liability
+NOT readiness percentage
+NOT SII reconciliation result
+NOT optimization advice
+```
 
 ## Closed slice — IL-B
 
@@ -110,10 +138,10 @@ See [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md).
 4. `PTL-TASK-IL-004 — Ledger HTTP/client surface` — DONE;
 5. `PTL-US-IL-001 + PTL-US-IL-006` — DONE;
 6. `PTL-US-IL-002 + PTL-US-IL-003` — DONE;
-7. `PTL-US-IL-005` factual annual position is the next executable story;
+7. `PTL-US-IL-005` factual annual position — **CURRENT**;
 8. close FX/foreign-service spike before `PTL-US-IL-004`;
 9. terminal `PTL-TASK-IL-006` regression/DoD gate.
 
-`PTL-US-IL-005` is dependency-ready from the closed annual ledger read model and can proceed without waiting for the foreign-service spike. `PTL-US-IL-004` remains blocked until `PTL-SPIKE-IL-002` closes FX/recognition/provenance semantics.
+`PTL-US-IL-004` remains blocked until `PTL-SPIKE-IL-002` closes FX/recognition/provenance semantics.
 
-See [`implementation-roadmap.md`](implementation-roadmap.md), [`enablers-and-dependencies.md`](enablers-and-dependencies.md) and [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md).
+See [`implementation-roadmap.md`](implementation-roadmap.md), [`enablers-and-dependencies.md`](enablers-and-dependencies.md), [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md) and [`il-005-factual-position-evidence.md`](il-005-factual-position-evidence.md).
