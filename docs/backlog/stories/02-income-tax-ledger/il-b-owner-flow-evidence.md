@@ -1,7 +1,7 @@
 # Slice IL-B — Existing owner flows inside ledger shell — Evidence
 
 **Stories:** `PTL-US-IL-002`, `PTL-US-IL-003`  
-**Status:** `IMPLEMENTED_PARTIAL / OWNER_TARGETING_PENDING`  
+**Status:** `IMPLEMENTED / AUTOMATED_VALIDATION_PENDING`  
 **Priority:** P0  
 **UI impact:** `FLOW_CHANGE`, `FIELD_REUSE`
 
@@ -19,6 +19,7 @@ without creating generic ledger mutation authority or dual-write.
 ```text
 Annual ledger
   -> owner-aware action
+  -> explicit owner intent (aggregate + record id + create/edit mode)
   -> existing owner editor
   -> canonical owner save/cancel
   -> return to annual ledger
@@ -29,21 +30,15 @@ Annual ledger
 
 - ledger page exposes `+ Renta / ingreso` and `+ BHE` owner-entry actions;
 - each ledger row exposes `Ver / editar`;
-- annual compositor routes `INCOME_SOURCE` entries to `Ingresos laborales`;
-- annual compositor routes `FEE_RECEIPT` entries to `Boletas de honorarios`;
+- `AnnualWorkspaceGate` carries `ownerAggregate`, `ownerRecordId` and `CREATE|EDIT` as an explicit local navigation intent;
+- `INCOME_SOURCE` opens the existing `WorkspaceView` income editor and targets the exact source by canonical owner record id;
+- `FEE_RECEIPT` opens the existing `FeeReceiptsModule` form and targets the exact BHE by canonical owner record id;
+- create actions open the corresponding existing create form directly;
+- owner saves continue through `incomeService` / `feeReceiptService` only;
+- ledger-originated save and cancel return to `Ingresos del año`;
+- return increments `ledgerRevision`, remounting the read-only ledger and forcing a fresh canonical projection read;
 - unsupported owner aggregates fail explicitly instead of inventing a generic editor;
-- `AnnualIncomeLedgerSection` contains no owner mutation service and introduces no POST/PUT/PATCH/DELETE surface;
-- source-level regression test covers the owner-routing boundary.
-
-## Still required before IL-B can be DONE
-
-- carry `ownerRecordId` as an explicit navigation intent;
-- open the exact existing income-source editor for `INCOME_SOURCE` rows;
-- open the exact existing BHE editor for `FEE_RECEIPT` rows;
-- creation actions must open the corresponding create form, not only the owner surface;
-- save/cancel from a ledger-originated owner flow must return to `Ingresos del año`;
-- ledger must reload from the canonical projection after successful owner save;
-- visual validation of the complete round-trip.
+- `AnnualIncomeLedgerSection` contains no owner mutation service and introduces no POST/PUT/PATCH/DELETE surface.
 
 ## Invariants
 
@@ -64,8 +59,22 @@ Current focused contract:
 test/ledger-owner-flow-frontend.test.mjs
 ```
 
-Run through the canonical Make façade using `make test` until a dedicated recurring target is justified.
+The previous intermediate `make test` was green before exact targeting was added. The current head requires a fresh:
+
+```text
+make typecheck
+make test
+```
+
+Only after this fresh head is green may the slice move to `VISUAL_VALIDATION_PENDING`.
 
 ## Visual gate
 
-Because this slice changes navigation and owner-edit flows, completion requires local visual validation after focused automated tests and before canonical `make validate` / merge.
+Because this slice changes navigation and owner-edit flows, completion requires local visual validation of all four paths before canonical `make validate` / merge:
+
+1. ledger -> create income -> cancel/save -> ledger;
+2. ledger row -> exact income edit -> cancel/save -> ledger;
+3. ledger -> create BHE -> cancel/save -> ledger;
+4. ledger row -> exact BHE edit -> cancel/save -> ledger.
+
+The ledger must visibly refresh after successful save and must never become a mutation authority itself.
