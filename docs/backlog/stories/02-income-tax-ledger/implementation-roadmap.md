@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 VALIDATION_PENDING`  
+**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 DONE / US-IL-004 READY`  
 **Date:** 2026-09-14
 
 ## Baseline inherited from Block 01
@@ -28,10 +28,11 @@ Block 02 consumes these contracts rather than reintroducing a second year author
 - `PTL-US-IL-005` — DONE: factual annual income position.
 - `PTL-US-IL-006` — DONE: authority/traceability/year isolation.
 - `PTL-SPIKE-IL-002` — DONE: foreign payer/source-jurisdiction split, perception recognition and frozen FX provenance accepted.
+- `PTL-TASK-IL-005` — DONE: foreign-service aggregate, append-only FX provenance, exact-date BCCh contract and ledger provider implemented; canonical `make validate` PASS.
 
-## Current implementation node — PTL-TASK-IL-005
+## Current implementation node — PTL-US-IL-004
 
-Implemented foundation:
+The enabling foundation is closed:
 
 ```text
 foreign_service_income
@@ -42,16 +43,14 @@ foreign_service_income
   + FOREIGN_SERVICE_INCOME ledger provider
 ```
 
-Current state: `IMPLEMENTED / AUTOMATED_VALIDATION_PENDING`.
-
-The implementation preserves the accepted split:
+The remaining product flow must preserve the accepted split:
 
 ```text
 foreign payer
   -> source jurisdiction
      -> CHILE
         -> fee_receipts/BHE remains canonical
-        -> foreign settlement cannot enter foreign_service_income
+        -> foreign settlement is provenance only
      -> FOREIGN
         -> foreign_service_income
         -> perception date controls year
@@ -59,19 +58,18 @@ foreign payer
         -> frozen CLP conversion snapshot
 ```
 
-Evidence: [`task-il-005-evidence.md`](task-il-005-evidence.md).
+Evidence for the closed enabler: [`task-il-005-evidence.md`](task-il-005-evidence.md).
 
 ## Remaining IL-C sequence
 
-1. validate and close `PTL-TASK-IL-005`;
-2. implement `PTL-US-IL-004` product flow:
+1. implement `PTL-US-IL-004` product flow:
    - explicit source-jurisdiction classification;
    - Path A BHE/settlement flow;
    - Path B foreign-source owner flow;
    - owner-aware round-trip from annual ledger;
-3. user visual validation for the new flow;
-4. canonical validation;
-5. run terminal `PTL-TASK-IL-006` regression/DoD gate.
+2. user visual validation for the new flow;
+3. canonical validation;
+4. run terminal `PTL-TASK-IL-006` regression/DoD gate.
 
 ## Terminal gate
 
@@ -98,8 +96,7 @@ Block 02 does not own evidence vault, SII reconciliation, readiness, annual tax 
 ## Current executable path
 
 ```text
-PTL-TASK-IL-005 validation + closure
-  -> PTL-US-IL-004
+PTL-US-IL-004
   -> PTL-TASK-IL-006
   -> Block 02 CLOSED
 ```
