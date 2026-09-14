@@ -9,6 +9,7 @@ import SourcesModule from '../features/sources/SourcesModule';
 import LogsModule from '../features/logs/LogsModule';
 import { useFeedback, LOG } from '../feedback';
 import CalculationExplanationPanel from '../calculation-explanation-panel';
+import { useLedgerOwnerFlow } from './ledger-owner-flow-context';
 import { IncomesSection, SummaryMetrics } from '@personal-tax-ledger/shared-ui';
 
 const money = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
@@ -49,6 +50,7 @@ export default function WorkspaceView({ tab }: { tab: WorkspaceTab }) {
   const salarySources = useMemo(() => sources.filter(s => s.kind === 'SALARY'), [sources]);
   const taxYear = Number(settings?.year) || new Date().getFullYear();
   const { beginSync, endSync, notify, log, confirm } = useFeedback();
+  const ownerFlow = useLedgerOwnerFlow();
 
   const refreshSimulation = useCallback(async () => {
     if (!settings) return;
@@ -104,6 +106,30 @@ export default function WorkspaceView({ tab }: { tab: WorkspaceTab }) {
 
   useEffect(() => { loadInitial(); }, []);
 
+  useEffect(() => {
+    const intent = ownerFlow.intent;
+    if (!settings || tab !== 'incomes' || ownerFlow.opened || intent?.ownerAggregate !== 'INCOME_SOURCE') return;
+
+    if (intent.mode === 'CREATE') {
+      setEditing({ ...emptySource, taxYear });
+      setIncomesTab('form');
+      ownerFlow.markOpened();
+      return;
+    }
+
+    const target = sources.find(source => String(source.id) === intent.ownerRecordId);
+    if (!target) {
+      notify('No se encontró el ingreso propietario', { tone: 'error', message: `Registro ${intent.ownerRecordId || 'desconocido'}.` });
+      ownerFlow.markOpened();
+      ownerFlow.complete();
+      return;
+    }
+
+    setEditing({ ...target });
+    setIncomesTab('form');
+    ownerFlow.markOpened();
+  }, [settings, tab, sources, taxYear, ownerFlow.intent, ownerFlow.opened]);
+
   const refreshFeeReceipts = async () => {
     const list = await api.listFeeReceipts({ taxYear });
     setFeeReceipts(list);
@@ -142,6 +168,15 @@ export default function WorkspaceView({ tab }: { tab: WorkspaceTab }) {
     try { await api.updateSettings(next); } catch (e) { setError(errMsg(e)); }
   };
 
+  const cancelSourceEdit = () => {
+    setEditing({ ...emptySource });
+    if (ownerFlow.opened && ownerFlow.intent?.ownerAggregate === 'INCOME_SOURCE') {
+      ownerFlow.complete();
+      return;
+    }
+    setIncomesTab('list');
+  };
+
   const saveSource = async () => {
     setBusy(true); setError('');
     const started = performance.now();
@@ -149,10 +184,11 @@ export default function WorkspaceView({ tab }: { tab: WorkspaceTab }) {
       const source = { ...editing, taxYear: editing.id ? Number(editing.taxYear) || taxYear : taxYear };
       if (source.id) await incomeService.update(source); else await incomeService.create(source);
       setEditing({ ...emptySource });
-      setIncomesTab('list');
       await refreshCore();
       log({ kind: 'ASYNC', operation: LOG.SAVE_INCOME, status: 'OK', message: source.name, auditMessage: JSON.stringify({ id: source.id, kind: source.kind, amount: source.amount, frequency: source.frequency, months: source.months, taxYear: source.taxYear }), durationMs: Math.round(performance.now() - started) });
       notify('Ingreso guardado', { message: source.name });
+      if (ownerFlow.opened && ownerFlow.intent?.ownerAggregate === 'INCOME_SOURCE') ownerFlow.complete();
+      else setIncomesTab('list');
     } catch (e) {
       const msg = errMsg(e);
       setError(msg);
@@ -324,7 +360,10 @@ export default function WorkspaceView({ tab }: { tab: WorkspaceTab }) {
       <Tabs<IncomesTab>
         label="Vistas de ingresos laborales"
         value={incomesTab}
-        onChange={setIncomesTab}
+        onChange={next => {
+          if (ownerFlow.opened && ownerFlow.intent?.ownerAggregate === 'INCOME_SOURCE' && next === 'list') cancelSourceEdit();
+          else setIncomesTab(next);
+        }}
         variant="segmented"
         items={[
           { id: 'list', label: 'Ingresos guardados' },
@@ -366,7 +405,7 @@ export default function WorkspaceView({ tab }: { tab: WorkspaceTab }) {
           {(editing.kind === 'BONUS' || editing.kind === 'OTHER') && <><Field label="Afecto a impuesto"><select value={editing.taxable?'yes':'no'} onChange={e=>setEditing({...editing,taxable:e.target.value==='yes'})}><option value="yes">Sí</option><option value="no">No</option></select></Field><Field label="Retención aplicada"><input type="number" step="0.01" value={editing.withholdingRate} onChange={e=>setEditing({...editing,withholdingRate:Number(e.target.value)})}/></Field></>}
           <Field label="Notas" wide><textarea value={editing.notes} onChange={e=>setEditing({...editing,notes:e.target.value})}/></Field>
         </div>
-        <div className="actions"><button className="primary" disabled={busy || !editing.name || !editing.amount} onClick={saveSource}>{editing.id?'Guardar cambios':'Agregar ingreso'}</button><button onClick={()=>{setEditing({...emptySource});setIncomesTab('list');}}>Cancelar</button></div>
+        <div className="actions"><button className="primary" disabled={busy || !editing.name || !editing.amount} onClick={saveSource}>{editing.id?'Guardar cambios':'Agregar ingreso'}</button><button onClick={cancelSourceEdit}>Cancelar</button></div>
       </Card>}
     </>}
 
