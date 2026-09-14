@@ -101,6 +101,20 @@ function money(value: number) {
   return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(value);
 }
 
+function fxSourceLabel(source: ForeignServiceConversion['fxSource']) {
+  return source === 'BCCH' ? 'Banco Central de Chile' : 'Conversión manual';
+}
+
+function officialResolutionReasonLabel(reason: string) {
+  const labels: Record<string, string> = {
+    MISSING_RECEIVED_AT: 'falta la fecha de percepción',
+    OFFICIAL_PROVIDER_UNAVAILABLE: 'la fuente oficial no está disponible en esta ejecución',
+    BCCH_RATE_DATE_MISMATCH: 'la fuente oficial no devolvió una tasa para la fecha exacta',
+    RATE_UNAVAILABLE: 'no existe una tasa oficial segura para la fecha indicada'
+  };
+  return labels[reason] || 'la conversión oficial no pudo resolverse de forma segura';
+}
+
 export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId, onClose, onComplete, onCreateFeeReceipt }: Props) {
   const [jurisdiction, setJurisdiction] = useState<Jurisdiction | ''>(mode === 'EDIT' ? 'FOREIGN' : '');
   const [payerCountry, setPayerCountry] = useState('');
@@ -209,7 +223,7 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
       setConversions(await foreignServiceClient.listConversions(saved.id));
       setManualRateDate(saved.receivedAt || today());
       setInfo(foreignRecord
-        ? 'Hecho económico actualizado. La conversión anterior deja de ser vigente y su historial se conserva.'
+        ? 'Hecho económico actualizado. Si cambió un dato que determina la conversión, la conversión anterior dejó de ser vigente y su historial se conserva.'
         : 'Hecho de fuente extranjera guardado. Falta resolver su conversión a CLP para reconocerlo en el ledger.');
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
@@ -223,9 +237,9 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
       const result = await foreignServiceClient.resolveOfficial(foreignRecord.id);
       if (result.status === 'RESOLVED') {
         await loadForeign(foreignRecord.id);
-        setInfo('Conversión oficial resuelta y congelada con su provenance.');
+        setInfo('Conversión oficial resuelta y congelada con su procedencia.');
       } else {
-        setInfo(`La conversión oficial requiere revisión (${result.reason}). Puedes conservar el registro pendiente o ingresar una conversión manual documentada.`);
+        setInfo(`La conversión oficial requiere revisión porque ${officialResolutionReasonLabel(result.reason)}. Puedes conservar el registro pendiente o ingresar una conversión manual documentada.`);
       }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
@@ -268,7 +282,7 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
         providerReference: settlement.providerReference || null,
         notes: settlement.notes || null
       });
-      setInfo('Settlement guardado como provenance de la BHE. No se creó una segunda entrada de ingreso.');
+      onComplete();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally { setBusy(false); }
@@ -312,7 +326,7 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
           <label><span>Referencia banco / proveedor</span><input value={settlement.providerReference} onChange={e => setSettlement(current => ({ ...current, providerReference: e.target.value }))} /></label>
           <label className="wide"><span>Notas</span><textarea value={settlement.notes} onChange={e => setSettlement(current => ({ ...current, notes: e.target.value }))} /></label>
         </div>
-        <div className="foreign-service-flow-actions"><Button disabled={busy || !selectedReceiptId} onClick={saveSettlement}>Guardar settlement</Button><Button variant="ghost" onClick={onComplete}>Volver al ledger</Button></div>
+        <div className="foreign-service-flow-actions"><Button disabled={busy || !selectedReceiptId} onClick={saveSettlement}>Guardar settlement y volver al ledger</Button><Button variant="ghost" onClick={onClose}>Cancelar</Button></div>
       </SectionCard>}
 
       {jurisdiction === 'FOREIGN' && <>
@@ -332,12 +346,12 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
             <label className="wide"><span>Notas</span><textarea value={foreignForm.notes} onChange={e => setForeignForm(current => ({ ...current, notes: e.target.value }))} /></label>
           </div>
           <p className="foreign-service-boundary">Registrar impuesto extranjero aquí conserva el hecho; PTL no calcula en esta story el crédito del artículo 41 A.</p>
-          <div className="foreign-service-flow-actions"><Button disabled={busy} onClick={saveForeignFact}>{foreignRecord ? 'Guardar corrección del hecho' : 'Guardar hecho'}</Button>{foreignRecord ? <Button variant="ghost" onClick={onComplete}>Volver al ledger</Button> : null}</div>
+          <div className="foreign-service-flow-actions"><Button disabled={busy} onClick={saveForeignFact}>{foreignRecord ? 'Guardar corrección del hecho' : 'Guardar hecho'}</Button>{foreignRecord ? <Button variant="ghost" onClick={onComplete}>Volver al ledger</Button> : <Button variant="ghost" onClick={onClose}>Cancelar</Button>}</div>
         </SectionCard>
 
         {foreignRecord && <SectionCard>
-          <div className="foreign-service-flow-section-heading"><div><h3>Conversión a CLP</h3><p>Una conversión reconocida queda congelada con tasa, fecha, fuente y referencia. Corregirla agrega un snapshot; no sobrescribe el histórico.</p></div>{currentConversion ? <StatusBadge tone={currentConversion.fxSource === 'BCCH' ? 'success' : 'warning'}>{currentConversion.fxSource}</StatusBadge> : <StatusBadge tone="warning">NEEDS_REVIEW</StatusBadge>}</div>
-          {currentConversion ? <dl className="foreign-service-conversion-current"><div><dt>Monto CLP vigente</dt><dd>{money(currentConversion.clpAmount)}</dd></div><div><dt>Tipo de cambio</dt><dd>{currentConversion.fxRate}</dd></div><div><dt>Fecha tasa</dt><dd>{currentConversion.fxRateDate}</dd></div><div><dt>Fuente / referencia</dt><dd>{currentConversion.fxSource} · {currentConversion.fxSourceReference}</dd></div></dl> : <p>Este hecho permanece `PENDING`: todavía no aporta un monto CLP reconocido al ledger.</p>}
+          <div className="foreign-service-flow-section-heading"><div><h3>Conversión a CLP</h3><p>Una conversión reconocida queda congelada con tasa, fecha, fuente y referencia. Corregirla agrega un snapshot; no sobrescribe el histórico.</p></div>{currentConversion ? <StatusBadge tone={currentConversion.fxSource === 'BCCH' ? 'success' : 'warning'}>{fxSourceLabel(currentConversion.fxSource)}</StatusBadge> : <StatusBadge tone="warning">Requiere revisión</StatusBadge>}</div>
+          {currentConversion ? <dl className="foreign-service-conversion-current"><div><dt>Monto CLP vigente</dt><dd>{money(currentConversion.clpAmount)}</dd></div><div><dt>Tipo de cambio</dt><dd>{currentConversion.fxRate}</dd></div><div><dt>Fecha tasa</dt><dd>{currentConversion.fxRateDate}</dd></div><div><dt>Fuente / referencia</dt><dd>{fxSourceLabel(currentConversion.fxSource)} · {currentConversion.fxSourceReference}</dd></div></dl> : <p>Este hecho permanece pendiente: todavía no aporta un monto CLP reconocido al ledger.</p>}
           <div className="foreign-service-flow-actions"><Button variant="ghost" disabled={busy} onClick={resolveOfficial}>Intentar resolver con fuente oficial</Button></div>
 
           <h4>Conversión manual documentada</h4>
@@ -349,7 +363,7 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
           </div>
           <div className="foreign-service-flow-actions"><Button disabled={busy} onClick={saveManualConversion}>Guardar nuevo snapshot manual</Button></div>
 
-          {conversions.length > 0 && <div className="foreign-service-history"><h4>Historial de conversiones</h4><ol>{conversions.map(item => <li key={item.id}><strong>{item.fxSource} · {item.fxRateDate}</strong><span>{item.fxRate} → {money(item.clpAmount)}</span><small>{item.supersedesConversionId ? `Reemplaza ${item.supersedesConversionId}` : 'Conversión inicial'} · {item.fxSourceReference}</small></li>)}</ol></div>}
+          {conversions.length > 0 && <div className="foreign-service-history"><h4>Historial de conversiones</h4><ol>{conversions.map(item => <li key={item.id}><strong>{fxSourceLabel(item.fxSource)} · {item.fxRateDate}</strong><span>{item.fxRate} → {money(item.clpAmount)}</span><small>{item.supersedesConversionId ? `Reemplaza la conversión anterior (${item.supersedesConversionId})` : 'Conversión inicial'} · {item.fxSourceReference}</small></li>)}</ol></div>}
         </SectionCard>}
       </>}
     </section>
