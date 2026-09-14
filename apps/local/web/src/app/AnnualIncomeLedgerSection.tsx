@@ -8,6 +8,7 @@ import {
   type TaxLedgerFilters
 } from './tax-ledger-client';
 import ForeignServiceFlow from './ForeignServiceFlow';
+import { useLedgerOwnerFlow } from './ledger-owner-flow-context';
 import './annual-income-ledger.css';
 
 type LoadState = 'LOADING' | 'EMPTY' | 'READY' | 'ERROR' | 'STALE_SUPPRESSED';
@@ -18,8 +19,6 @@ type Props = {
   onAddFeeReceipt?: () => void;
   onOpenOwner?: (entry: TaxLedgerEntry) => void;
 };
-
-type ForeignFlowState = { mode: 'CREATE' | 'EDIT'; ownerRecordId?: string } | null;
 
 const money = new Intl.NumberFormat('es-CL', {
   style: 'currency',
@@ -109,8 +108,8 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
   const [positionResult, setPositionResult] = useState<AnnualTaxLedgerResult | null>(null);
   const [state, setState] = useState<LoadState>('LOADING');
   const [error, setError] = useState('');
-  const [foreignFlow, setForeignFlow] = useState<ForeignFlowState>(null);
   const requestSerial = useRef(0);
+  const ownerFlow = useLedgerOwnerFlow();
 
   const reload = async () => {
     const serial = ++requestSerial.current;
@@ -144,6 +143,10 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
     return () => { requestSerial.current += 1; };
   }, [commercialYear, filters.entryKind, filters.recognitionState]);
 
+  useEffect(() => {
+    if (ownerFlow.intent?.ownerAggregate === 'FOREIGN_SERVICE_INCOME' && !ownerFlow.opened) ownerFlow.markOpened();
+  }, [ownerFlow.intent, ownerFlow.opened]);
+
   const registeredWithholding = useMemo(() => {
     const withholding = totalRegistered(positionResult, 'withholding');
     const ppm = totalRegistered(positionResult, 'ppm');
@@ -158,21 +161,13 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
 
   const openEntry = (entry: TaxLedgerEntry) => {
     if (entry.ownerAggregate === 'FOREIGN_SERVICE_INCOME') {
-      setForeignFlow({ mode: 'EDIT', ownerRecordId: entry.ownerRecordId });
+      ownerFlow.begin({ ownerAggregate: 'FOREIGN_SERVICE_INCOME', mode: 'EDIT', ownerRecordId: entry.ownerRecordId });
       return;
     }
     onOpenOwner?.(entry);
   };
 
-  const completeForeignFlow = () => {
-    setForeignFlow(null);
-    void reload();
-  };
-
-  const createBheFromForeignFlow = () => {
-    setForeignFlow(null);
-    onAddFeeReceipt?.();
-  };
+  const foreignIntent = ownerFlow.intent?.ownerAggregate === 'FOREIGN_SERVICE_INCOME' ? ownerFlow.intent : null;
 
   return <section className="annual-income-ledger" aria-labelledby="annual-income-ledger-title">
     <PageHeader
@@ -183,7 +178,7 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
       actions={<div className="annual-income-ledger-owner-actions">
         <Button onClick={onAddIncome}>+ Renta / ingreso</Button>
         <Button onClick={onAddFeeReceipt}>+ BHE</Button>
-        <Button onClick={() => setForeignFlow({ mode: 'CREATE' })}>+ Servicio con pagador extranjero</Button>
+        <Button onClick={() => ownerFlow.begin({ ownerAggregate: 'FOREIGN_SERVICE_INCOME', mode: 'CREATE' })}>+ Servicio con pagador extranjero</Button>
       </div>}
     />
 
@@ -258,13 +253,13 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
       <p className="annual-income-ledger-boundary">Las acciones abren el editor del agregado propietario. El ledger continúa siendo una proyección de solo lectura y no crea una segunda escritura. Una BHE en CLP con settlement extranjero sigue siendo una sola entrada de ingreso. Esta vista no representa el impuesto final, una devolución estimada, el estado de preparación tributaria ni una conciliación con el SII.</p>
     </SectionCard>
 
-    {foreignFlow && <ForeignServiceFlow
+    {foreignIntent && <ForeignServiceFlow
       commercialYear={commercialYear}
-      mode={foreignFlow.mode}
-      ownerRecordId={foreignFlow.ownerRecordId}
-      onClose={() => setForeignFlow(null)}
-      onComplete={completeForeignFlow}
-      onCreateFeeReceipt={createBheFromForeignFlow}
+      mode={foreignIntent.mode}
+      ownerRecordId={foreignIntent.ownerRecordId}
+      onClose={ownerFlow.complete}
+      onComplete={ownerFlow.complete}
+      onCreateFeeReceipt={onAddFeeReceipt || (() => undefined)}
     />}
   </section>;
 }
