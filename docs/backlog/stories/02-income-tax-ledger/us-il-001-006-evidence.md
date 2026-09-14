@@ -98,17 +98,43 @@ No placeholder mutation or fake ledger editor is authorized.
 
 ## Automated evidence
 
-Earlier heads produced green focused evidence, including an 11/11 run. Those results are historical only because the branch has advanced through shared `Tabs`, action/form primitives, page-layer composition and product-language reconciliation.
+Earlier heads produced green focused evidence, including an 11/11 run. Those results are historical only because the branch advanced through shared `Tabs`, action/form primitives, page-layer composition and product-language reconciliation.
 
-The current head requires fresh execution through the canonical Make façade:
+On 2026-09-14 the user executed the broader canonical gate prematurely while the story was still `VISUAL_VALIDATION_PENDING`:
 
 ```text
 make bootstrap
-make typecheck
-make test-ledger-ui
+make validate
 ```
 
-A fresh canonical `make validate` remains intentionally deferred until user visual approval.
+Observed automated result:
+
+```text
+tests 215
+pass 210
+fail 5
+cancelled 0
+skipped 0
+todo 0
+```
+
+TypeScript completed successfully before the test phase. The five failures were isolated to static frontend assertions that still encoded pre-reconciliation UI implementation details:
+
+1. overview expected the former `Año tributario` / structural-copy wording instead of the current `Resumen del año` product surface;
+2. annual-authority test depended on a deleted explanatory CSS comment instead of asserting the actual single-authority contract;
+3. transition test expected `Cambiando contexto` while the product copy now says `Cambiando período`;
+4. income integration required `incomeService.list()` even though the current initial read is explicitly provided by bootstrap while CRUD mutations remain delegated to `incomeService`;
+5. applicability test expected literal `role="radiogroup"` in the feature source after that semantic responsibility moved into the canonical shared `RadioGroup` component.
+
+The affected tests were reconciled to assert current contracts and product semantics rather than obsolete implementation text. This reconciliation does not constitute a new green run; fresh execution is still required.
+
+The next pre-visual technical gate is intentionally limited to:
+
+```text
+make test
+```
+
+A fresh canonical `make validate` remains deferred until user visual approval.
 
 The known npm `allowScripts` warning for install scripts in `electron-winstaller` and the Git-consumed `@adumun/react-components` package remains a bootstrap-determinism observation to reconcile separately; it is not treated as visual acceptance evidence.
 
