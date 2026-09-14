@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger
 
-**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING`  
+**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED`  
 **Primary capability:** `TAX-04 — Tax Ledger`  
 **Related capabilities:** `TAX-01`, `TAX-02`, `TAX-06`, `TAX-07`, `TAX-08`, `TAX-09`  
 **Related extension:** `PTL-EXT-01 — International Contractor Income Planning`
@@ -21,6 +21,7 @@ PTL already has:
 - trusted `AnnualWorkspaceContext` and strict year isolation from Block 01;
 - Annual Workspace overview counts/presence consuming those aggregates;
 - unified annual ledger UI over the closed IL-001..IL-004 projection/read contracts;
+- owner-aware create/edit flows from the ledger back to the canonical `income_sources` and `fee_receipts` editors;
 - first React-profile dogfood through `adumun/react-components`.
 
 ## Closed architectural decision
@@ -48,20 +49,19 @@ Decision evidence: [`spike-il-001-ledger-authority.md`](spike-il-001-ledger-auth
 | ID | Story | UI impact | Fidelity | Status |
 |---|---|---|---|---|
 | `PTL-US-IL-001` | Ver el ledger anual unificado de ingresos | `NEW_SECTION`, `FLOW_CHANGE` | L2 | DONE |
-| `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING |
-| `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING |
+| `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
+| `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
 | `PTL-US-IL-004` | Registrar ingresos por servicios con pagador extranjero | `NEW_FLOW`, `FIELD_ADDITION` | L2 | BLOCKED_BY_SPIKE_IL_002 |
 | `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | REFINING |
 | `PTL-US-IL-006` | Conservar trazabilidad, autoridad y aislamiento anual del ledger | `STATE_CHANGE` | L1 | DONE |
 
 Detailed contracts: [`user-stories.md`](user-stories.md).
 
-## Current executable slice — IL-B
+## Closed slice — IL-B
 
-- `PTL-US-IL-002 — Dependent income owner flow`
-- `PTL-US-IL-003 — Domestic BHE owner flow`
+`PTL-US-IL-002` and `PTL-US-IL-003` are closed.
 
-Required interaction:
+The implemented interaction is:
 
 ```text
 Annual ledger
@@ -72,9 +72,14 @@ Annual ledger
   -> reload projection
 ```
 
-No generic ledger editor or dual-write is authorized.
+Closure evidence:
 
-Automated validation for the current head is green and local visual validation of all required owner-flow round-trips is approved. Canonical `make validate` is the only remaining closure gate for IL-B.
+- focused automated validation — PASS;
+- local visual validation of income/BHE create/edit + save/cancel round-trips — PASS;
+- canonical `make validate` — PASS;
+- no generic ledger editor or dual-write introduced.
+
+See [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md).
 
 ## Scope boundary
 
@@ -104,9 +109,11 @@ Automated validation for the current head is green and local visual validation o
 3. `PTL-TASK-IL-003 — Annual ledger query/read model` — DONE;
 4. `PTL-TASK-IL-004 — Ledger HTTP/client surface` — DONE;
 5. `PTL-US-IL-001 + PTL-US-IL-006` — DONE;
-6. `PTL-US-IL-002 + PTL-US-IL-003` — **CURRENT / USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING**;
+6. `PTL-US-IL-002 + PTL-US-IL-003` — DONE;
 7. close FX/foreign-service spike before `PTL-US-IL-004`;
 8. `PTL-US-IL-005` factual annual position;
 9. terminal `PTL-TASK-IL-006` regression/DoD gate.
+
+The next executable decision point is `PTL-SPIKE-IL-002` versus `PTL-US-IL-005`, subject to dependency review.
 
 See [`implementation-roadmap.md`](implementation-roadmap.md), [`enablers-and-dependencies.md`](enablers-and-dependencies.md) and [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md).
