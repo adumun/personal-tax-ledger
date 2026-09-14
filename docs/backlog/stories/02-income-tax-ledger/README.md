@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger
 
-**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 CLOSED / SPIKE-IL-002 CLOSED / TASK-IL-005 CLOSED / US-IL-004 READY`  
+**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 CLOSED / SPIKE-IL-002 CLOSED / TASK-IL-005 CLOSED / US-IL-004 AUTOMATED_VALIDATION_PENDING`  
 **Primary capability:** `TAX-04 — Tax Ledger`  
 **Related capabilities:** `TAX-01`, `TAX-02`, `TAX-06`, `TAX-07`, `TAX-08`, `TAX-09`  
 **Related extension:** `PTL-EXT-01 — International Contractor Income Planning`
@@ -65,6 +65,32 @@ Implemented invariants:
 Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).  
 Implementation evidence: [`task-il-005-evidence.md`](task-il-005-evidence.md).
 
+## Current slice — PTL-US-IL-004
+
+Implementation is present and awaits automated + visual validation.
+
+Path A:
+
+```text
+foreign payer + service performed in CHILE
+  -> existing BHE owner
+  -> fee_receipt_foreign_settlements provenance
+  -> no additional TaxLedgerEntry
+```
+
+Path B:
+
+```text
+foreign payer + service performed FOREIGN
+  -> foreign_service_income owner
+  -> original value + perception date
+  -> official exact-date FX attempt OR documented manual FX
+  -> append-only conversion history
+  -> FOREIGN_SERVICE_INCOME projection
+```
+
+The annual ledger exposes one explicit `Servicio con pagador extranjero` action and foreign-source owner rows open their dedicated editor. No legal source-jurisdiction inference is performed by PTL.
+
 ## Stories
 
 | ID | Story | UI impact | Fidelity | Status |
@@ -72,7 +98,7 @@ Implementation evidence: [`task-il-005-evidence.md`](task-il-005-evidence.md).
 | `PTL-US-IL-001` | Ver el ledger anual unificado de ingresos | `NEW_SECTION`, `FLOW_CHANGE` | L2 | DONE |
 | `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
 | `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
-| `PTL-US-IL-004` | Registrar servicios con pagador extranjero sin duplicar el hecho tributario | `NEW_FLOW`, `FIELD_ADDITION` | L2 | READY |
+| `PTL-US-IL-004` | Registrar servicios con pagador extranjero sin duplicar el hecho tributario | `NEW_FLOW`, `FIELD_ADDITION` | L2 | IMPLEMENTED / AUTOMATED_VALIDATION_PENDING |
 | `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | DONE |
 | `PTL-US-IL-006` | Conservar trazabilidad, autoridad y aislamiento anual del ledger | `STATE_CHANGE` | L1 | DONE |
 
@@ -87,6 +113,7 @@ Detailed contracts: [`user-stories.md`](user-stories.md).
 - domestic income/BHE owner flows;
 - annual factual totals;
 - foreign-service classification;
+- BHE-linked foreign settlement provenance without double counting;
 - original-value + FX-conversion provenance for genuine foreign-source honoraria;
 - explicit year/recognition semantics.
 
@@ -103,10 +130,10 @@ Detailed contracts: [`user-stories.md`](user-stories.md).
 
 ## Remaining execution order
 
-1. implement `PTL-US-IL-004` product flow;
-2. perform visual validation for the new flow;
-3. run canonical validation;
+1. run pre-visual automated Make gates for `PTL-US-IL-004`;
+2. perform user visual validation for Path A and Path B;
+3. run canonical `make validate` and close `PTL-US-IL-004`;
 4. run `PTL-TASK-IL-006` terminal regression/DoD;
 5. close Block 02.
 
-See [`implementation-roadmap.md`](implementation-roadmap.md), [`enablers-and-dependencies.md`](enablers-and-dependencies.md), [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md), [`task-il-005-evidence.md`](task-il-005-evidence.md), [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md) and [`il-005-factual-position-evidence.md`](il-005-factual-position-evidence.md).
+See [`implementation-roadmap.md`](implementation-roadmap.md), [`enablers-and-dependencies.md`](enablers-and-dependencies.md), [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md), [`task-il-005-evidence.md`](task-il-005-evidence.md), [`il-004-foreign-service-flow-evidence.md`](il-004-foreign-service-flow-evidence.md), [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md) and [`il-005-factual-position-evidence.md`](il-005-factual-position-evidence.md).
