@@ -128,3 +128,74 @@ export function createFeeReceiptTaxLedgerProvider({ feeReceiptUseCases, settings
     }
   });
 }
+
+function currentResolvedConversion(conversions, currentConversionId) {
+  const conversion = conversions.find(item => item.id === currentConversionId) ?? null;
+  return conversion?.conversionStatus === 'RESOLVED' ? conversion : null;
+}
+
+export function createForeignServiceTaxLedgerProvider({ foreignServiceUseCases }) {
+  const listForeignServiceIncome = requiredFunction(
+    foreignServiceUseCases?.listForeignServiceIncome,
+    'foreignServiceUseCases.listForeignServiceIncome'
+  );
+  const listForeignServiceConversions = requiredFunction(
+    foreignServiceUseCases?.listForeignServiceConversions,
+    'foreignServiceUseCases.listForeignServiceConversions'
+  );
+
+  return assertTaxLedgerProviderContract({
+    async list(context) {
+      const scoped = assertAnnualWorkspaceContext(context);
+      const rows = await listForeignServiceIncome(scoped);
+      const entries = [];
+
+      for (const income of rows) {
+        const conversions = await listForeignServiceConversions(scoped, income.id);
+        const conversion = currentResolvedConversion(conversions, income.currentConversionId);
+        const recognized = Boolean(income.receivedAt && conversion);
+        entries.push(createTaxLedgerEntry({
+          ledgerEntryId: `foreign-service-income:${income.id}`,
+          annualWorkspaceId: scoped.annualWorkspaceId,
+          commercialYear: scoped.commercialYear,
+          entryKind: TAX_LEDGER_ENTRY_KIND.FOREIGN_SERVICE_INCOME,
+          ownerAggregate: TAX_LEDGER_OWNER_AGGREGATE.FOREIGN_SERVICE_INCOME,
+          ownerRecordId: income.id,
+          occurredOn: income.receivedAt ?? null,
+          periodRef: income.receivedAt
+            ? `MONTH:${String(income.receivedAt).slice(0, 7)}`
+            : `YEAR:${scoped.commercialYear}`,
+          recognitionState: recognized
+            ? TAX_LEDGER_RECOGNITION_STATE.RECOGNIZED
+            : TAX_LEDGER_RECOGNITION_STATE.PENDING,
+          amounts: {
+            currency: 'CLP',
+            gross: recognized ? conversion.clpAmount : null,
+            withholding: null,
+            ppm: null,
+            net: null
+          },
+          counterpartySummary: income.payerName,
+          provenanceSummary: {
+            source: 'foreign_service_income',
+            payerCountry: income.payerCountry,
+            serviceSourceJurisdiction: income.serviceSourceJurisdiction,
+            originalAmount: income.originalAmount,
+            originalCurrency: income.originalCurrency,
+            receivedAt: income.receivedAt,
+            conversionId: conversion?.id ?? null,
+            fxRate: conversion?.fxRate ?? null,
+            fxRateDate: conversion?.fxRateDate ?? null,
+            fxSource: conversion?.fxSource ?? null,
+            fxSourceReference: conversion?.fxSourceReference ?? null,
+            foreignTaxAmountOriginal: income.foreignTaxAmountOriginal ?? null,
+            foreignTaxCurrency: income.foreignTaxCurrency ?? null
+          },
+          updatedAt: stableTimestamp(income)
+        }));
+      }
+
+      return entries;
+    }
+  });
+}
