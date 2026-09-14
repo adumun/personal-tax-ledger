@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger
 
-**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING`  
+**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 CLOSED`  
 **Primary capability:** `TAX-04 — Tax Ledger`  
 **Related capabilities:** `TAX-01`, `TAX-02`, `TAX-06`, `TAX-07`, `TAX-08`, `TAX-09`  
 **Related extension:** `PTL-EXT-01 — International Contractor Income Planning`
@@ -22,6 +22,7 @@ PTL already has:
 - Annual Workspace overview counts/presence consuming those aggregates;
 - unified annual ledger UI over the closed IL-001..IL-004 projection/read contracts;
 - owner-aware create/edit flows from the ledger back to the canonical `income_sources` and `fee_receipts` editors;
+- factual annual income position grouped by ledger category with recognition-aware totals and trace-back to supporting entries;
 - first React-profile dogfood through `adumun/react-components`.
 
 ## Closed architectural decision
@@ -52,16 +53,16 @@ Decision evidence: [`spike-il-001-ledger-authority.md`](spike-il-001-ledger-auth
 | `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
 | `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
 | `PTL-US-IL-004` | Registrar ingresos por servicios con pagador extranjero | `NEW_FLOW`, `FIELD_ADDITION` | L2 | BLOCKED_BY_SPIKE_IL_002 |
-| `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING |
+| `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | DONE |
 | `PTL-US-IL-006` | Conservar trazabilidad, autoridad y aislamiento anual del ledger | `STATE_CHANGE` | L1 | DONE |
 
 Detailed contracts: [`user-stories.md`](user-stories.md).
 
-## Current executable slice — IL-005
+## Closed slice — IL-005
 
-`PTL-US-IL-005` adds the factual annual income position over the canonical ledger read model.
+`PTL-US-IL-005` is closed.
 
-The implementation boundary is:
+The implemented factual position is:
 
 ```text
 all entries in active AnnualTaxWorkspace
@@ -75,17 +76,15 @@ Only `RECOGNIZED` entries contribute money. `PENDING` and `EXCLUDED` remain visi
 
 The annual position remains unfiltered while the ledger table may be filtered. This keeps the position annual and makes each category traceable through `Ver entradas` without changing source-of-truth semantics.
 
-Pre-visual automated validation is green (`make bootstrap`, `make typecheck`, `make test`) and local visual validation is approved. The slice is now `USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING`; canonical `make validate` is the only remaining closure gate.
+Closure evidence:
 
-Hard boundary:
+- `make bootstrap` / `make typecheck` / `make test` — PASS;
+- local visual validation — PASS;
+- canonical `make validate` — PASS;
+- no liability, refund, readiness, SII reconciliation or optimization semantics introduced;
+- no generic ledger mutation or duplicate persistence introduced.
 
-```text
-NOT refund forecast
-NOT tax liability
-NOT readiness percentage
-NOT SII reconciliation result
-NOT optimization advice
-```
+See [`il-005-factual-position-evidence.md`](il-005-factual-position-evidence.md).
 
 ## Closed slice — IL-B
 
@@ -140,10 +139,10 @@ See [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md).
 4. `PTL-TASK-IL-004 — Ledger HTTP/client surface` — DONE;
 5. `PTL-US-IL-001 + PTL-US-IL-006` — DONE;
 6. `PTL-US-IL-002 + PTL-US-IL-003` — DONE;
-7. `PTL-US-IL-005` factual annual position — **CURRENT / USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING**;
+7. `PTL-US-IL-005` factual annual position — DONE;
 8. close FX/foreign-service spike before `PTL-US-IL-004`;
 9. terminal `PTL-TASK-IL-006` regression/DoD gate.
 
-`PTL-US-IL-004` remains blocked until `PTL-SPIKE-IL-002` closes FX/recognition/provenance semantics.
+`PTL-US-IL-004` remains blocked until `PTL-SPIKE-IL-002` closes FX/recognition/provenance semantics. The next executable work in Block 02 is therefore the FX/foreign-service spike, followed by `PTL-US-IL-004`, and finally the terminal regression/DoD gate.
 
 See [`implementation-roadmap.md`](implementation-roadmap.md), [`enablers-and-dependencies.md`](enablers-and-dependencies.md), [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md) and [`il-005-factual-position-evidence.md`](il-005-factual-position-evidence.md).
