@@ -93,6 +93,16 @@ test('React profile dogfood: WorkspaceView deja de poseer sidebar y segundo sele
   assert.doesNotMatch(workspace, /const changeYear\s*=/);
 });
 
+test('React profile dogfood: WorkspaceView adopta Tabs compartido para resumen e ingresos', async () => {
+  const workspace = await readFile(workspacePath, 'utf8');
+  assert.match(workspace, /import \{ Tabs \} from '@adumun\/react-components'/);
+  assert.match(workspace, /<Tabs<SummaryTab>/);
+  assert.match(workspace, /label="Vistas de estimación anual"/);
+  assert.match(workspace, /<Tabs<IncomesTab>/);
+  assert.match(workspace, /label="Vistas de ingresos laborales"/);
+  assert.doesNotMatch(workspace, /className="sub-tabs"/);
+});
+
 test('US-IL-006: el cliente del ledger continúa siendo estrictamente read-only', async () => {
   const client = await readFile(clientPath, 'utf8');
   assert.match(client, /\/api\/tax-ledger/);
