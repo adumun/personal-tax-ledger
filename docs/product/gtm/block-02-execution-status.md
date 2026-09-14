@@ -1,70 +1,37 @@
 # PTL GTM Cycle 01 — Block 02 Execution Status
 
 **Block:** 02 — Conversión  
-**Status:** IMPLEMENTATION IN PROGRESS  
+**Status:** CLOSED WITH EXPLICIT EXTERNAL DEFERRAL  
 **Date:** 2026-09-13
 
-## Completed in repository source (`master`)
+## Closure decision
 
-- `site/index.html` converted from UAT/release-status-oriented homepage to product-conversion landing.
-- primary category aligned to `Gestión tributaria personal`.
-- hero aligned to `Entiende tu situación tributaria antes de que llegue abril.`
-- primary CTA standardized to `Obtener en Microsoft Store`.
-- UAT removed as competing hero CTA.
-- Store ID / smoke-state / dual-lane explanations removed from the core conversion journey.
-- `Para quién` section added.
-- temporal problem section added.
-- current capability grouping changed to Organiza / Proyecta / Compara / Entiende.
-- privacy/trust surfaced before final CTA.
-- current capability boundaries made explicit.
-- Windows 10/11 requirement surfaced near CTA.
-- page title/meta description moved away from `simulador tributario` as product identity.
-- `site/privacy.html` reconciled to current public desktop product rather than UAT-only framing.
-- privacy wording now avoids promising uninstall persistence or complete export before verification.
-- `site/usage.html` reconciled from UAT-specific framing to current public-product capabilities.
-- `site/faq.html` refocused on conversion objections: SII, accountant, Excel, local data, credentials, uninstall, export, official status.
-- Open Graph title/description/type added to the primary landing.
+Block 02 is closed for the active GTM cycle.
 
-## Completed in public projection (`gh-pages`)
+The product owner explicitly decided not to open a new Microsoft Partner Center submission at this time because the current focus is elsewhere. This is a prioritization decision, not a technical blocker and not a missing conversion artifact.
 
-The following files are synchronized from the conversion source:
+Partner Center work is therefore classified as:
 
-- `site/index.html`
-- `site/styles.css`
-- `site/privacy.html`
-- `site/usage.html`
-- `site/faq.html`
-- `site/assets/product/e1-annual-workspace.png`
-- `site/assets/product/e2-fee-receipts.png`
-- `site/assets/product/e3-mortgage-benefit.png`
-- `site/assets/product/e4-apv-scenario-comparison.png`
-- `site/assets/product/e5-calculation-explanation.png`
+`DEFERRED_BY_PRIORITY / READY_TO_RESUME`
 
-The existing root redirect to `site/index.html` remains unchanged. No `page/` directory is introduced.
+It does not block continuation of the remaining GTM cycle.
 
-## Store execution
+## Completed conversion surface
 
-### Completed
+- `site/index.html` is a product-conversion landing rather than a UAT/release-status homepage.
+- category: `Gestión tributaria personal`.
+- hero: `Entiende tu situación tributaria antes de que llegue abril.`
+- primary CTA: `Obtener en Microsoft Store`.
+- UAT no longer competes with the conversion CTA.
+- `Para quién`, temporal problem, Privacy & Trust, current capability boundaries and conversion FAQ are present.
+- metadata is no longer centered on `simulador tributario` as product identity.
+- `site/privacy.html`, `site/usage.html` and `site/faq.html` are reconciled to the current public product.
+- Windows 10/11 availability is surfaced near the CTA.
+- Open Graph title/description/type are present on the primary landing.
 
-- canonical Partner Center copy/specification persisted at `docs/product/gtm/store-listing-v2.md`;
-- ASO language v1 defined;
-- screenshot order v1 defined;
-- present/future/do-not-claim boundaries defined;
-- canonical real-product screenshots E1–E5 are capture-complete, normalized and ready for Store use.
+## Product evidence E1–E5 — CLOSED
 
-### Pending external action
-
-`Microsoft Store Listing v2` is **READY FOR PARTNER CENTER IMPLEMENTATION**.
-
-No available connected integration provides Microsoft Partner Center / Microsoft Store listing mutation in this environment. Therefore the Store listing has not been falsely marked as remotely updated.
-
-## Product evidence E1-E5
-
-### Capture, selection and provenance — CLOSED
-
-The product owner re-captured and supplied a complete real-product screenshot set on 2026-09-13.
-
-The canonical public selection is:
+Canonical evidence:
 
 1. E1 — `Resumen anual estimado — Indicadores` → `e1-annual-workspace.png`
 2. E2 — `Boletas de honorarios — Resumen anual` → `e2-fee-receipts.png`
@@ -72,45 +39,67 @@ The canonical public selection is:
 4. E4 — `Simulación APV A versus B` → `e4-apv-scenario-comparison.png`
 5. E5 — `¿Cómo se calculan estos valores? — renta tributable consolidada` → `e5-calculation-explanation.png`
 
-The machine-readable provenance record is:
+The machine-readable provenance record remains:
 
 ```text
 docs/site/product-evidence-manifest-2026-09-13.json
 ```
 
-### Drive binary evidence — CLOSED
-
-The normalized PNGs, backup screenshots and checksums are persisted under:
-
-```text
-Personal Tax Ledger/Evidence/Block 02 - Conversion/Product Screenshots/
-```
-
-### Repository + landing integration — CLOSED
-
-E1–E5 are now physically present under `site/assets/product/` on both `master` and `gh-pages`.
-
-The public landing now renders the canonical product journey:
+E1–E5 are physically present under `site/assets/product/` on `master` and `gh-pages` and are rendered in the public journey:
 
 ```text
 reunir → completar → modelar → comparar → entender
 ```
 
-Each screenshot has explicit alt text and a user-facing caption. The temporary internal message about screenshot normalization was removed.
+Drive retains normalized PNGs, backups, checksums and the packaged evidence set under `Personal Tax Ledger/Evidence/Block 02 - Conversion/`.
 
-Repository projection/readback has been verified. External HTTP rendering of the GitHub Pages URL has not yet been independently verified from this environment, so that verification remains separate from repository projection state.
+## Public projection — VERIFIED
 
-## P0 status
+The external GitHub Pages surface was visually verified on 2026-09-13 at:
+
+```text
+https://adumun.github.io/personal-tax-ledger/site/index.html
+```
+
+Verified browser-visible surfaces include:
+
+- primary navigation;
+- product evidence rendering;
+- `Para quién`;
+- `Privacidad`;
+- `FAQ`.
+
+No `page/` directory was introduced.
+
+## Microsoft Store / Partner Center
+
+Preparation is complete:
+
+- canonical Listing v2 specification: `docs/product/gtm/store-listing-v2.md`;
+- ASO language v1 defined;
+- E1–E5 Store-ready evidence prepared;
+- present/future/do-not-claim boundaries defined.
+
+Execution is intentionally deferred:
+
+- no new Partner Center submission will be opened now;
+- Store Listing v2 is not claimed as remotely applied;
+- Store screenshot reordering is not claimed as applied;
+- the existing public Microsoft Store listing remains untouched.
+
+Resume condition: product owner explicitly re-prioritizes Microsoft Store listing optimization.
+
+## P0 final state
 
 | P0 | State |
 |---|---|
-| P0-01 Store hierarchy v2 | SPEC READY / PARTNER CENTER PENDING |
-| P0-02 Store Listing v2 copy | DONE SPEC / REMOTE APPLY PENDING |
-| P0-03 E1-E5 Store screenshots | READY / PARTNER CENTER UPLOAD PENDING |
+| P0-01 Store hierarchy v2 | READY / DEFERRED_BY_PRIORITY |
+| P0-02 Store Listing v2 copy | SPEC DONE / DEFERRED_BY_PRIORITY |
+| P0-03 E1-E5 Store screenshots | READY / DEFERRED_BY_PRIORITY |
 | P0-04 Landing hero v1 | DONE |
 | P0-05 Remove UAT hero competition | DONE |
 | P0-06 Remove Store lineage/smoke noise | DONE |
-| P0-07 Integrate real E1-E5 landing evidence | DONE IN MASTER + GH-PAGES |
+| P0-07 Integrate real E1-E5 landing evidence | DONE / PUBLIC_HTTP_VERIFIED |
 | P0-08 `Para quién` section | DONE |
 | P0-09 Temporal problem section | DONE |
 | P0-10 Privacy & Trust section | DONE |
@@ -121,12 +110,8 @@ Repository projection/readback has been verified. External HTTP rendering of the
 | P0-15 Windows requirement near CTA | DONE |
 | P0-16 Conversion FAQ | DONE |
 
-## Block closure rule
+## Final state
 
-Block 02 remains **implementation in progress** only because the Microsoft Store surface is still pending external Partner Center application/verification:
+`BLOCK_02_CLOSED / CONVERSION_SURFACE_VERIFIED / PRODUCT_EVIDENCE_PUBLISHED / PARTNER_CENTER_DEFERRED_BY_PRIORITY`
 
-1. apply Store Listing v2 in Partner Center;
-2. upload/reorder E1–E5 in the Store listing;
-3. verify the resulting Store surface.
-
-Landing-side P0 implementation is closed. Do not advance Block 03 as a substitute for the remaining Partner Center work.
+The GTM cycle may continue. Partner Center is a resumable deferred lane, not a gate for the next block.
