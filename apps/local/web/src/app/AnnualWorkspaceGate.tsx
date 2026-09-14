@@ -5,7 +5,8 @@ import {
   ContextHeaderItem,
   PrimaryNav,
   PrimaryNavGroup,
-  PrimaryNavItem
+  PrimaryNavItem,
+  StatusBadge
 } from '@adumun/react-components';
 import WorkspaceView, { type WorkspaceTab } from './WorkspaceView';
 import AnnualWorkspaceOverviewSection from './AnnualWorkspaceOverviewSection';
@@ -188,10 +189,9 @@ export default function AnnualWorkspaceGate() {
   const navigation = <PrimaryNav
     label="Navegación principal"
     brand={<div className="ptl-brand"><span>PTL</span><div><strong>Personal Tax Ledger</strong><small>Impuestos personales · Chile</small></div></div>}
-    footer={<div className="ptl-nav-context"><strong>{catalog.activeCommercialYear}</strong><span>{activeOption.workspace.derivedTaxYearLabel}</span><small>Período activo</small></div>}
   >
-    <PrimaryNavGroup label="Año tributario">
-      <PrimaryNavItem current={surface === 'annual-overview'} onSelect={() => setSurface('annual-overview')}>Año tributario</PrimaryNavItem>
+    <PrimaryNavGroup label="Período">
+      <PrimaryNavItem current={surface === 'annual-overview'} onSelect={() => setSurface('annual-overview')}>Resumen del año</PrimaryNavItem>
       <PrimaryNavItem current={surface === 'annual-ledger'} onSelect={() => setSurface('annual-ledger')}>Ingresos del año</PrimaryNavItem>
       <PrimaryNavItem current={surface === 'tax-profile'} onSelect={() => setSurface('tax-profile')}>Perfil del año</PrimaryNavItem>
     </PrimaryNavGroup>
@@ -204,8 +204,8 @@ export default function AnnualWorkspaceGate() {
   </PrimaryNav>;
 
   const contextHeader = <ContextHeader
-    title="Contexto anual"
-    subtitle="El período activo aplica a todas las secciones de la aplicación."
+    title="Período activo"
+    subtitle="Este período aplica a toda la aplicación."
     actions={<button className="annual-workspace-create" disabled={busy} onClick={openCreate}>+ Crear año</button>}
   >
     <ContextHeaderItem label="Año comercial">
@@ -224,7 +224,7 @@ export default function AnnualWorkspaceGate() {
       </select>
     </ContextHeaderItem>
     <ContextHeaderItem label="Operación Renta"><strong>{activeOption.workspace.derivedTaxYearLabel}</strong></ContextHeaderItem>
-    <ContextHeaderItem label="Estado"><span className="ptl-context-status">En preparación</span></ContextHeaderItem>
+    <ContextHeaderItem label="Estado"><StatusBadge tone="warning" dot>En preparación</StatusBadge></ContextHeaderItem>
     {busy ? <ContextHeaderItem label="Actualización"><span>Cambiando período…</span></ContextHeaderItem> : null}
   </ContextHeader>;
 
