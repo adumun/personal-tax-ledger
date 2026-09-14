@@ -2,7 +2,7 @@
 
 **Block:** 03 — Early Activation  
 **Macrostate:** ACTIVATE  
-**Status:** OPEN / BATCH B QUALIFICATION DRAFTS READY  
+**Status:** OPEN / LINKEDIN SELF-QUALIFICATION LIVE  
 **Date:** 2026-09-14
 
 ## Block entry condition
@@ -46,66 +46,58 @@ Completed:
 - Block 03 closure rules defined;
 - native Drive strategy document created: `10 - Early Activation v1 - Personal Tax Ledger`;
 - native Drive activation tracker created: `11 - Early Activation Log - Personal Tax Ledger`;
-- activation tracker contains `Activation Log`, `Summary` and `Lists` tabs;
-- summary formulas initialize the five Block 03 evidence thresholds at zero and update from the activation log;
+- activation tracker contains `Activation Log`, `Summary`, `Lists` and `Channel Events` tabs;
 - GitHub execution issue created: `PTL-3 — Early Activation Cohort` (#27).
 
-## Batch B — Qualification progress
+## Batch B — Self-qualification path
 
-### Validator lane seeded
+### Decision
 
-Two previous UAT participants were found with explicit consent for follow-up and sufficient prior product exposure to be useful validator candidates.
+The founder rejected cold individual qualification as the active path and chose a LinkedIn open call instead.
 
-They are recorded as `VAL-01` and `VAL-02` in the private Drive activation tracker.
+The LinkedIn post has been published and now acts as the first self-qualification channel for the primary cohort.
 
-Important boundary:
+Canonical event:
 
-- both are classified as `VALIDATOR` only;
-- they are **not** counted toward the primary ICP cohort unless explicit evidence confirms that their own tax situation matches one of the primary ICP profiles;
-- no identifying information or private tax data is copied into public GitHub artifacts.
+`CH-LI-01 — LinkedIn Open Call`
 
-### Alternative qualification path selected
+State:
 
-Instead of assuming tax profile from profession, employer or relationship, the founder selected a **qualification-first outreach** path.
+`PUBLISHED / AWAITING_RESPONSES`
 
-Five reachable warm/professional contacts were prepared as `QUAL-01` through `QUAL-05` in the private activation tracker. Each has a Gmail draft that asks only whether one or more primary ICP situations applies to them.
+The exact LinkedIn URL has not been recorded yet; publication is based on founder confirmation.
 
-The qualification message explicitly covers:
+### Why this path is preferred
+
+The open call allows relevant people to self-identify based on their own situation rather than requiring the founder to infer tax profile from employer, profession or relationship.
+
+A response qualifies for review when the person indicates relevance to one or more primary ICP situations, including:
 
 1. salary + fee receipts / mixed income;
-2. independent or freelance work;
-3. reaching Operación Renta and only then organizing/reconstructing the year;
-4. using Excel, notes or another self-built system to track tax situation.
+2. independent worker issuing fee receipts;
+3. freelance professional with variable income;
+4. repeatedly reaches Operación Renta without having organized the year;
+5. advanced spreadsheet/manual tax tracker.
 
-No PTL install request is included at this stage.
+### Prior email qualification drafts
 
-### Qualification semantics
+The five previously prepared qualification drafts are not part of the active acquisition path and must not be sent unless explicitly reactivated later.
 
-- a qualification draft is **not** a qualified prospect;
-- a sent qualification message is **not** counted as an activation contact toward the 10 qualified-prospect threshold until a qualifying ICP signal is confirmed;
-- negative responses are useful evidence but do not enter the primary activation cohort;
-- only after qualification will message variants M1–M5 and the PTL landing/install ask be assigned.
+They do not count toward activation evidence.
 
-### Prepared cohort
+### Validator lane
 
-Private tracker records:
-
-- `QUAL-01` — qualification draft ready;
-- `QUAL-02` — qualification draft ready;
-- `QUAL-03` — qualification draft ready;
-- `QUAL-04` — qualification draft ready;
-- `QUAL-05` — qualification draft ready.
-
-All five remain `UNQUALIFIED / QUALIFICATION_DRAFT` until responses are received.
+`VAL-01` and `VAL-02` remain available as a separate professional-validation lane. They are not counted as primary-ICP validation unless their own profile is explicitly confirmed.
 
 ## Next execution — Batch B
 
-1. review the five Gmail qualification drafts;
-2. send the qualification batch after explicit founder approval;
-3. capture responses in the activation tracker;
-4. promote qualifying respondents into the primary ICP cohort;
-5. assign at least two M1–M5 message variants across qualified respondents;
-6. begin installation/meaningful-use activation only after qualification.
+1. observe LinkedIn comments and direct messages;
+2. capture each relevant response as a new activation record;
+3. confirm ICP fit before counting a person as a qualified prospect;
+4. assign an activation ID and source `LinkedIn / CH-LI-01`;
+5. send landing + Microsoft Store only after a qualifying signal or explicit request to try PTL;
+6. record Store open, install attempt, launch and meaningful-first-use evidence;
+7. review evidence after the first five qualified respondents before expanding further.
 
 ## P0 status
 
@@ -114,8 +106,8 @@ All five remain `UNQUALIFIED / QUALIFICATION_DRAFT` until responses are received
 | A3-01 | Canonical early-activation strategy | DONE |
 | A3-02 | Activation evidence schema + tracker | DONE / IMPLEMENTED |
 | A3-03 | Message variants M1–M5 | DONE |
-| A3-04 | First 5 qualified prospects selected | IN PROGRESS / QUALIFICATION DRAFTS READY |
-| A3-05 | First 5 contact attempts completed | BLOCKED ON QUALIFICATION RESPONSES |
+| A3-04 | First 5 qualified prospects selected | IN PROGRESS / LINKEDIN SELF-QUALIFICATION LIVE |
+| A3-05 | First 5 contact attempts completed | WAITING ON SELF-QUALIFIED RESPONSES |
 | A3-06 | First 2 observed meaningful sessions | PENDING |
 | A3-07 | Cohort expanded to 10 qualified prospects | PENDING |
 | A3-08 | At least 3 structured primary-ICP feedback records | PENDING |
@@ -124,4 +116,4 @@ All five remain `UNQUALIFIED / QUALIFICATION_DRAFT` until responses are received
 
 ## Current state
 
-`ACTIVATE / BLOCK_03_OPEN / BATCH_B_QUALIFICATION_DRAFTS_READY / SEND_APPROVAL_NEXT`
+`ACTIVATE / BLOCK_03_OPEN / LINKEDIN_OPEN_CALL_PUBLISHED / SELF_QUALIFIED_RESPONSES_NEXT`
