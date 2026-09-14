@@ -1,7 +1,7 @@
 # PTL-US-IL-004 — Foreign payer / foreign-source flow — Evidence
 
 **Story:** `PTL-US-IL-004`  
-**Status:** `IMPLEMENTED / VISUAL_VALIDATION_PENDING`  
+**Status:** `IMPLEMENTED / PRE_VISUAL_GATE_RERUN_PENDING`  
 **Capability:** `TAX-04`  
 **UI impact:** `NEW_FLOW`, `FIELD_ADDITION`  
 **Design:** `DESIGN-IL-004`
@@ -75,7 +75,7 @@ If no official FX adapter is available or an exact safe rate cannot be resolved,
 
 ## Owner-flow integration
 
-`ledger-owner-flow-context.tsx` now recognizes:
+`ledger-owner-flow-context.tsx` recognizes:
 
 ```text
 INCOME_SOURCE
@@ -84,6 +84,8 @@ FOREIGN_SERVICE_INCOME
 ```
 
 The annual ledger starts foreign create/edit intents through the same owner-flow context used for other aggregate owners. Closing/cancelling/completing the foreign flow returns to the same annual ledger and triggers the parent ledger remount/reload path; no generic ledger mutation endpoint is introduced.
+
+`ownerRecordId` is therefore an internal routing identity required to reopen the exact canonical owner. It is not rendered as user-facing ledger data.
 
 ## Product language boundary
 
@@ -122,7 +124,7 @@ The local composition binds these routes to trusted annual-context use cases. Th
 
 ## Engineering consistency review
 
-The branch was re-inspected against `master` before Draft PR creation. The review confirmed:
+The branch was re-inspected against `master` before Draft PR validation. The review confirmed:
 
 - JS contracts and `.d.ts` declarations expose the settlement repository and foreign-service contracts consistently;
 - repository contract tests prevent settlement provenance from satisfying the BHE repository authority contract;
@@ -132,10 +134,10 @@ The branch was re-inspected against `master` before Draft PR creation. The revie
 - official FX remains exact-date and returns explicit review-required results when unavailable/mismatched;
 - metadata-only corrections preserve a valid current FX pointer;
 - FX-driving economic corrections invalidate only the current pointer while historical snapshots remain append-only;
-- owner-aware frontend flow is now consistent with the existing income/BHE pattern;
+- owner-aware frontend flow is consistent with the existing income/BHE pattern;
 - no generic ledger mutation or dual-write path was added.
 
-## Automated coverage prepared
+## Automated coverage
 
 `test/foreign-service-flow.test.mjs` proves:
 
@@ -163,11 +165,9 @@ The branch was re-inspected against `master` before Draft PR creation. The revie
 - BCCh date mismatch cannot silently substitute a different date;
 - unresolved conversion remains non-recognized in the ledger.
 
-## Validation state
+## Pre-visual gate observation — 2026-09-14
 
-The implementation is ready for the local pre-visual gate, but this evidence does **not** claim that the user's local branch has passed it yet.
-
-Required pre-visual gate:
+The user executed:
 
 ```text
 make bootstrap
@@ -175,7 +175,45 @@ make typecheck
 make test
 ```
 
-If that gate is green, the next step is `make up` and visual validation of both Paths.
+Observed result before correction:
+
+```text
+bootstrap   PASS
+typecheck   PASS
+test        236 PASS / 1 FAIL / 237 total
+```
+
+The single failing test was `US-IL-006: cambio anual invalida respuestas stale y la identidad propietaria sigue en el contrato sin exponer ids internos` in `test/annual-income-ledger-frontend.test.mjs`.
+
+The production behavior was correct. The obsolete assertion prohibited any source reference to `entry.ownerRecordId`, but `PTL-US-IL-004` requires that stable owner identity to reopen the exact `FOREIGN_SERVICE_INCOME` aggregate from `Ver / editar`. Removing that production routing would have violated the closed owner-flow contract.
+
+The test was corrected in commit `7927797f3a71b7965d52a6b8dd2f6e5d2041e776` to verify the intended boundary instead:
+
+- `ownerRecordId` must remain available for internal owner routing;
+- the exact owner ID must not be rendered as visible ledger data.
+
+No production code was weakened to satisfy the stale test.
+
+## Validation state
+
+The corrected head requires one rerun of the pre-visual gate. No green result is claimed until that rerun is observed.
+
+Required rerun:
+
+```text
+make typecheck
+make test
+```
+
+`make bootstrap` already passed in the same local checkout and need not be repeated unless dependencies changed locally.
+
+If the rerun is green, the story advances to:
+
+```text
+IMPLEMENTED / VISUAL_VALIDATION_PENDING
+  -> make up
+  -> Path A + Path B visual validation
+```
 
 Because this story introduces a visible new flow, closure requires:
 
