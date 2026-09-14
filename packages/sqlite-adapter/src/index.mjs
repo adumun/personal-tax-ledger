@@ -3,6 +3,7 @@ export { createSqliteSettingsRepository } from './settings-repository.mjs';
 export { createSqliteExecutionLogRepository } from './execution-log-repository.mjs';
 export { createSqliteFeeReceiptRepository } from './fee-receipt-repository.mjs';
 export { createSqliteFeeExpenseSettingsRepository } from './fee-expense-settings-repository.mjs';
+export { createSqliteForeignServiceIncomeRepository } from './foreign-service-income-repository.mjs';
 export { createSqliteMortgageRepository } from './mortgage-repository.mjs';
 export { createSqliteMortgageAnnualRecordRepository } from './mortgage-annual-record-repository.mjs';
 export { createSqliteTaxParameterRepository } from './tax-parameter-repository.mjs';
