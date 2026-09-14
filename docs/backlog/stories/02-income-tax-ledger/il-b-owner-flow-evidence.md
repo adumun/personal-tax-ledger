@@ -1,7 +1,7 @@
 # Slice IL-B — Existing owner flows inside ledger shell — Evidence
 
 **Stories:** `PTL-US-IL-002`, `PTL-US-IL-003`  
-**Status:** `IMPLEMENTED / AUTOMATED_VALIDATION_PENDING`  
+**Status:** `VISUAL_VALIDATION_PENDING`  
 **Priority:** P0  
 **UI impact:** `FLOW_CHANGE`, `FIELD_REUSE`
 
@@ -59,14 +59,14 @@ Current focused contract:
 test/ledger-owner-flow-frontend.test.mjs
 ```
 
-The previous intermediate `make test` was green before exact targeting was added. The current head requires a fresh:
+Fresh head validation completed successfully through the canonical Make façade:
 
 ```text
 make typecheck
 make test
 ```
 
-Only after this fresh head is green may the slice move to `VISUAL_VALIDATION_PENDING`.
+Result: PASS. No canonical `make validate` has been executed for this final head yet because visual validation is mandatory before the canonical closure gate.
 
 ## Visual gate
 
@@ -78,3 +78,14 @@ Because this slice changes navigation and owner-edit flows, completion requires 
 4. ledger row -> exact BHE edit -> cancel/save -> ledger.
 
 The ledger must visibly refresh after successful save and must never become a mutation authority itself.
+
+## Closure gate
+
+```text
+VISUAL_VALIDATION_PENDING
+  -> USER_VISUAL_APPROVED
+  -> make validate
+  -> story/evidence reconciliation
+  -> PR ready
+  -> merge
+```
