@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger
 
-**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 IN_PROGRESS`  
+**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 VISUAL_VALIDATION_PENDING`  
 **Primary capability:** `TAX-04 — Tax Ledger`  
 **Related capabilities:** `TAX-01`, `TAX-02`, `TAX-06`, `TAX-07`, `TAX-08`, `TAX-09`  
 **Related extension:** `PTL-EXT-01 — International Contractor Income Planning`
@@ -52,7 +52,7 @@ Decision evidence: [`spike-il-001-ledger-authority.md`](spike-il-001-ledger-auth
 | `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
 | `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
 | `PTL-US-IL-004` | Registrar ingresos por servicios con pagador extranjero | `NEW_FLOW`, `FIELD_ADDITION` | L2 | BLOCKED_BY_SPIKE_IL_002 |
-| `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | IN_PROGRESS |
+| `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | VISUAL_VALIDATION_PENDING |
 | `PTL-US-IL-006` | Conservar trazabilidad, autoridad y aislamiento anual del ledger | `STATE_CHANGE` | L1 | DONE |
 
 Detailed contracts: [`user-stories.md`](user-stories.md).
@@ -74,6 +74,8 @@ all entries in active AnnualTaxWorkspace
 Only `RECOGNIZED` entries contribute money. `PENDING` and `EXCLUDED` remain visible as factual counts but cannot inflate annual factual amounts.
 
 The annual position remains unfiltered while the ledger table may be filtered. This keeps the position annual and makes each category traceable through `Ver entradas` without changing source-of-truth semantics.
+
+Pre-visual automated validation is green on the current head (`make bootstrap`, `make typecheck`, `make test`). Because this is a `NEW_SECTION`, the slice is now `VISUAL_VALIDATION_PENDING`; canonical `make validate` remains after user visual approval.
 
 Hard boundary:
 
@@ -138,7 +140,7 @@ See [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md).
 4. `PTL-TASK-IL-004 — Ledger HTTP/client surface` — DONE;
 5. `PTL-US-IL-001 + PTL-US-IL-006` — DONE;
 6. `PTL-US-IL-002 + PTL-US-IL-003` — DONE;
-7. `PTL-US-IL-005` factual annual position — **CURRENT**;
+7. `PTL-US-IL-005` factual annual position — **CURRENT / VISUAL_VALIDATION_PENDING**;
 8. close FX/foreign-service spike before `PTL-US-IL-004`;
 9. terminal `PTL-TASK-IL-006` regression/DoD gate.
 
