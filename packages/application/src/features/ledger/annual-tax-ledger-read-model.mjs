@@ -58,6 +58,41 @@ function ensureCurrencyTotals(target, currency) {
   return target[currency];
 }
 
+function accumulateRecognizedAmounts(target, entry) {
+  const currencyTotals = ensureCurrencyTotals(target, entry.amounts.currency);
+  for (const key of AMOUNT_KEYS) {
+    const value = entry.amounts[key];
+    if (value == null) {
+      currencyTotals[key].missingCount += 1;
+    } else {
+      currencyTotals[key].amount += value;
+      currencyTotals[key].presentCount += 1;
+    }
+  }
+}
+
+function freezeTotalsByCurrency(totalsByCurrency) {
+  return Object.freeze(Object.fromEntries(
+    Object.entries(totalsByCurrency).map(([currency, fields]) => [
+      currency,
+      Object.freeze(Object.fromEntries(
+        Object.entries(fields).map(([key, total]) => [key, Object.freeze({ ...total })])
+      ))
+    ])
+  ));
+}
+
+function ensureEntryKindSummary(target, entryKind) {
+  if (!target[entryKind]) {
+    target[entryKind] = {
+      entryCount: 0,
+      recognitionCounts: { RECOGNIZED: 0, PENDING: 0, EXCLUDED: 0 },
+      totalsByCurrency: {}
+    };
+  }
+  return target[entryKind];
+}
+
 function buildFactualSummary(entries) {
   const recognitionCounts = {
     RECOGNIZED: 0,
@@ -65,32 +100,33 @@ function buildFactualSummary(entries) {
     EXCLUDED: 0
   };
   const totalsByCurrency = {};
+  const totalsByEntryKind = {};
 
   for (const entry of entries) {
     recognitionCounts[entry.recognitionState] += 1;
+
+    const kindSummary = ensureEntryKindSummary(totalsByEntryKind, entry.entryKind);
+    kindSummary.entryCount += 1;
+    kindSummary.recognitionCounts[entry.recognitionState] += 1;
+
     if (entry.recognitionState !== TAX_LEDGER_RECOGNITION_STATE.RECOGNIZED) continue;
 
-    const currencyTotals = ensureCurrencyTotals(totalsByCurrency, entry.amounts.currency);
-    for (const key of AMOUNT_KEYS) {
-      const value = entry.amounts[key];
-      if (value == null) {
-        currencyTotals[key].missingCount += 1;
-      } else {
-        currencyTotals[key].amount += value;
-        currencyTotals[key].presentCount += 1;
-      }
-    }
+    accumulateRecognizedAmounts(totalsByCurrency, entry);
+    accumulateRecognizedAmounts(kindSummary.totalsByCurrency, entry);
   }
 
   return Object.freeze({
     entryCount: entries.length,
     recognitionCounts: Object.freeze({ ...recognitionCounts }),
-    totalsByCurrency: Object.freeze(Object.fromEntries(
-      Object.entries(totalsByCurrency).map(([currency, fields]) => [
-        currency,
-        Object.freeze(Object.fromEntries(
-          Object.entries(fields).map(([key, total]) => [key, Object.freeze({ ...total })])
-        ))
+    totalsByCurrency: freezeTotalsByCurrency(totalsByCurrency),
+    totalsByEntryKind: Object.freeze(Object.fromEntries(
+      Object.entries(totalsByEntryKind).map(([entryKind, summary]) => [
+        entryKind,
+        Object.freeze({
+          entryCount: summary.entryCount,
+          recognitionCounts: Object.freeze({ ...summary.recognitionCounts }),
+          totalsByCurrency: freezeTotalsByCurrency(summary.totalsByCurrency)
+        })
       ])
     ))
   });
