@@ -60,7 +60,7 @@ test('US-IL-005: posición factual anual separa categorías y conserva frontera 
   assert.match(client, /totalsByEntryKind:\s*Record<string, TaxLedgerCategorySummary>/);
 });
 
-test('US-IL-006: cambio anual invalida respuestas stale y la identidad propietaria sigue en el contrato sin exponer ids internos', async () => {
+test('US-IL-006: cambio anual invalida respuestas stale y la identidad propietaria se usa sólo para owner routing, no como dato visible', async () => {
   const [source, client] = await Promise.all([
     readFile(componentPath, 'utf8'),
     readFile(clientPath, 'utf8')
@@ -70,8 +70,10 @@ test('US-IL-006: cambio anual invalida respuestas stale y la identidad propietar
   assert.match(source, /next\.commercialYear !== commercialYear/);
   assert.match(source, /STALE_SUPPRESSED/);
   assert.match(source, /entry\.ownerAggregate/);
-  assert.doesNotMatch(source, /entry\.ownerRecordId/);
+  assert.match(source, /ownerRecordId:\s*entry\.ownerRecordId/);
   assert.match(client, /ownerRecordId:\s*string/);
+  assert.doesNotMatch(source, />\s*\{entry\.ownerRecordId\}\s*</);
+  assert.doesNotMatch(source, /data-label="[^"]*(?:ID|Id|id)[^"]*"[^>]*>\s*\{entry\.ownerRecordId\}/);
 });
 
 test('React profile dogfood: surfaces anuales consumen PageHeader, SectionCard y StatusBadge compartidos', async () => {
