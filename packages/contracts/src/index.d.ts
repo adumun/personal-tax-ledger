@@ -163,8 +163,54 @@ export interface PriorYearInitializationRepository {
 export const PRIOR_YEAR_INITIALIZATION_REPOSITORY_METHODS: readonly string[];
 export function assertPriorYearInitializationRepositoryContract(repository: unknown): PriorYearInitializationRepository;
 
-export type TaxLedgerEntryKind = 'DEPENDENT_INCOME' | 'DOMESTIC_FEE_INCOME' | 'OTHER_INCOME_SOURCE';
-export type TaxLedgerOwnerAggregate = 'INCOME_SOURCE' | 'FEE_RECEIPT';
+export type ForeignServiceIncomeRecord = Record<string, unknown> & {
+  id: string;
+  taxYear: number;
+  payerName: string;
+  payerCountry: string;
+  serviceSourceJurisdiction: 'FOREIGN';
+  receivedAt: string | null;
+  originalAmount: number;
+  originalCurrency: string;
+  currentConversionId: string | null;
+};
+export type ForeignServiceFxConversionRecord = {
+  id: string;
+  foreignServiceIncomeId: string;
+  originalAmount: number;
+  originalCurrency: string;
+  fxRate: number;
+  fxRateDate: string;
+  fxSource: 'BCCH' | 'MANUAL';
+  fxSourceReference: string;
+  fxReason: string | null;
+  clpAmount: number;
+  conversionStatus: 'RESOLVED' | 'NEEDS_REVIEW';
+  supersedesConversionId: string | null;
+  createdAt: string;
+};
+export interface ForeignServiceIncomeRepository {
+  list(context: AnnualWorkspaceContext, filters?: { taxYear?: number }): Promise<ForeignServiceIncomeRecord[]>;
+  get(context: AnnualWorkspaceContext, id: string): Promise<ForeignServiceIncomeRecord | null>;
+  create(context: AnnualWorkspaceContext, input: Record<string, unknown>): Promise<ForeignServiceIncomeRecord>;
+  updateEconomicFact(context: AnnualWorkspaceContext, id: string, input: Record<string, unknown>): Promise<ForeignServiceIncomeRecord | null>;
+  appendConversion(context: AnnualWorkspaceContext, id: string, input: Record<string, unknown>): Promise<ForeignServiceFxConversionRecord | null>;
+  listConversions(context: AnnualWorkspaceContext, id: string): Promise<ForeignServiceFxConversionRecord[]>;
+}
+export const FOREIGN_SERVICE_INCOME_REPOSITORY_METHODS: readonly string[];
+export function assertForeignServiceIncomeRepositoryContract(repository: unknown): ForeignServiceIncomeRepository;
+
+export type ForeignExchangeResolution =
+  | { status: 'RESOLVED'; rate: number; rateDate: string; source: 'BCCH'; sourceReference: string }
+  | { status: 'NEEDS_REVIEW'; reason: string; [key: string]: unknown };
+export interface ForeignExchangeProvider {
+  resolveRate(input: { currency: string; date: string; targetCurrency?: 'CLP' }): Promise<ForeignExchangeResolution>;
+}
+export const FOREIGN_EXCHANGE_PROVIDER_METHODS: readonly string[];
+export function assertForeignExchangeProviderContract(provider: unknown): ForeignExchangeProvider;
+
+export type TaxLedgerEntryKind = 'DEPENDENT_INCOME' | 'DOMESTIC_FEE_INCOME' | 'FOREIGN_SERVICE_INCOME' | 'OTHER_INCOME_SOURCE';
+export type TaxLedgerOwnerAggregate = 'INCOME_SOURCE' | 'FEE_RECEIPT' | 'FOREIGN_SERVICE_INCOME';
 export type TaxLedgerRecognitionState = 'RECOGNIZED' | 'PENDING' | 'EXCLUDED';
 export type TaxLedgerAmounts = {
   currency: string;
