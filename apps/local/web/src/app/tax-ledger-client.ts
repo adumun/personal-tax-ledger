@@ -10,6 +10,12 @@ export type TaxLedgerAmountTotal = {
   missingCount: number;
 };
 
+export type TaxLedgerCategorySummary = {
+  entryCount: number;
+  recognitionCounts: Record<string, number>;
+  totalsByCurrency: Record<string, Record<'gross' | 'withholding' | 'ppm' | 'net', TaxLedgerAmountTotal>>;
+};
+
 export type TaxLedgerEntry = {
   ledgerEntryId: string;
   annualWorkspaceId: string;
@@ -45,6 +51,7 @@ export type AnnualTaxLedgerResult = {
     entryCount: number;
     recognitionCounts: Record<string, number>;
     totalsByCurrency: Record<string, Record<'gross' | 'withholding' | 'ppm' | 'net', TaxLedgerAmountTotal>>;
+    totalsByEntryKind: Record<string, TaxLedgerCategorySummary>;
   };
 };
 

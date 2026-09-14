@@ -121,6 +121,57 @@ test('IL-003: totales sólo usan RECOGNIZED y conservan ausencia como missingCou
   assert.deepEqual(result.factualSummary.totalsByCurrency.CLP.withholding, { amount: 0, presentCount: 0, missingCount: 2 });
 });
 
+test('IL-005: posición factual separa categorías y excluye pending/excluded de montos', async () => {
+  const model = createAnnualTaxLedgerReadModel({ providers: [provider([
+    entry({
+      ledgerEntryId: 'income-source:salary',
+      entryKind: TAX_LEDGER_ENTRY_KIND.DEPENDENT_INCOME,
+      amounts: { currency: 'CLP', gross: 1200, withholding: 120, ppm: null, net: 1080 }
+    }),
+    entry({
+      ledgerEntryId: 'fee-receipt:recognized',
+      ownerAggregate: TAX_LEDGER_OWNER_AGGREGATE.FEE_RECEIPT,
+      ownerRecordId: 'fee-1',
+      entryKind: TAX_LEDGER_ENTRY_KIND.DOMESTIC_FEE_INCOME,
+      amounts: { currency: 'CLP', gross: 500, withholding: 75, ppm: 0, net: 425 }
+    }),
+    entry({
+      ledgerEntryId: 'fee-receipt:pending',
+      ownerAggregate: TAX_LEDGER_OWNER_AGGREGATE.FEE_RECEIPT,
+      ownerRecordId: 'fee-2',
+      entryKind: TAX_LEDGER_ENTRY_KIND.DOMESTIC_FEE_INCOME,
+      recognitionState: TAX_LEDGER_RECOGNITION_STATE.PENDING,
+      amounts: { currency: 'CLP', gross: 9000, withholding: 1000, ppm: 0, net: 8000 }
+    }),
+    entry({
+      ledgerEntryId: 'other:excluded',
+      entryKind: TAX_LEDGER_ENTRY_KIND.OTHER_INCOME_SOURCE,
+      ownerRecordId: 'other-1',
+      recognitionState: TAX_LEDGER_RECOGNITION_STATE.EXCLUDED,
+      amounts: { currency: 'CLP', gross: 7000, withholding: null, ppm: null, net: 7000 }
+    })
+  ])] });
+
+  const result = await model.listAnnualLedger(context);
+  const salary = result.factualSummary.totalsByEntryKind.DEPENDENT_INCOME;
+  const fees = result.factualSummary.totalsByEntryKind.DOMESTIC_FEE_INCOME;
+  const other = result.factualSummary.totalsByEntryKind.OTHER_INCOME_SOURCE;
+
+  assert.equal(salary.entryCount, 1);
+  assert.deepEqual(salary.recognitionCounts, { RECOGNIZED: 1, PENDING: 0, EXCLUDED: 0 });
+  assert.equal(salary.totalsByCurrency.CLP.gross.amount, 1200);
+  assert.equal(salary.totalsByCurrency.CLP.withholding.amount, 120);
+
+  assert.equal(fees.entryCount, 2);
+  assert.deepEqual(fees.recognitionCounts, { RECOGNIZED: 1, PENDING: 1, EXCLUDED: 0 });
+  assert.equal(fees.totalsByCurrency.CLP.gross.amount, 500);
+  assert.equal(fees.totalsByCurrency.CLP.withholding.amount, 75);
+
+  assert.equal(other.entryCount, 1);
+  assert.deepEqual(other.recognitionCounts, { RECOGNIZED: 0, PENDING: 0, EXCLUDED: 1 });
+  assert.deepEqual(other.totalsByCurrency, {});
+});
+
 test('IL-003: IDs duplicados entre providers se rechazan en vez de colapsar facts', async () => {
   const duplicate = entry({ ledgerEntryId: 'shared:1' });
   const model = createAnnualTaxLedgerReadModel({ providers: [provider([duplicate]), provider([duplicate])] });

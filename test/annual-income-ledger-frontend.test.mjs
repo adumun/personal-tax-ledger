@@ -18,7 +18,7 @@ test('US-IL-001: ledger anual visible conserva estructura factual y filtros exac
   assert.match(source, /Retenciones \/ PPM registrados/);
   assert.match(source, /entryKind/);
   assert.match(source, /recognitionState/);
-  assert.match(source, /No hay ingresos registrados para este año/);
+  assert.match(source, /La ausencia de registros no se interpreta como \$0 de ingresos/);
   assert.match(source, /No registrado/);
   assert.match(source, /Esta vista no representa el impuesto final, una devolución estimada, el estado de preparación tributaria ni una conciliación con el SII/);
   assert.doesNotMatch(source, /TAX-04/);
@@ -36,6 +36,28 @@ test('US-IL-001: renta dependiente, BHE y otros owners se distinguen sin dual-wr
   assert.match(source, /proyección de solo lectura/);
   assert.match(source, /no crea una segunda escritura/);
   assert.doesNotMatch(source, /method:\s*['"](?:POST|PUT|PATCH|DELETE)['"]/);
+});
+
+test('US-IL-005: posición factual anual separa categorías y conserva frontera no tributaria', async () => {
+  const [source, client] = await Promise.all([
+    readFile(componentPath, 'utf8'),
+    readFile(clientPath, 'utf8')
+  ]);
+
+  assert.match(source, /Posición factual anual/);
+  assert.match(source, /Lo registrado para \{commercialYear\}/);
+  assert.match(source, /totalsByEntryKind/);
+  assert.match(source, /Bruto factual reconocido/);
+  assert.match(source, /Retención registrada/);
+  assert.match(source, /PPM registrado/);
+  assert.match(source, /Ver entradas/);
+  assert.match(source, /setFilters\(current => \(\{ \.\.\.current, entryKind \}\)\)/);
+  assert.match(source, /taxLedgerClient\.list\(\{\}\)/);
+  assert.match(source, /No calcula tu impuesto anual ni anticipa devolución o pago/);
+  assert.doesNotMatch(source, /posición factual[^\n]*(?:refund|liability|readiness|optimización)/i);
+
+  assert.match(client, /TaxLedgerCategorySummary/);
+  assert.match(client, /totalsByEntryKind:\s*Record<string, TaxLedgerCategorySummary>/);
 });
 
 test('US-IL-006: cambio anual invalida respuestas stale y la identidad propietaria sigue en el contrato sin exponer ids internos', async () => {

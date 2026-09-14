@@ -82,6 +82,10 @@ A compact section above or adjacent to the ledger may show:
 - factual gross by category;
 - registered withholding/PPM by category/provider when meaningful.
 
+The annual position is derived from the complete active-year ledger and remains stable when interaction filters are applied to the ledger table. Category-level `Ver entradas` actions may apply the corresponding category filter to the table to expose supporting rows without redefining the annual position.
+
+Missing monetary facts are represented as `No registrado`; absence must not be inferred as zero. Only `RECOGNIZED` entries contribute monetary totals, while `PENDING` and `EXCLUDED` remain visible as factual counts.
+
 Hard boundary:
 
 ```text
@@ -91,6 +95,8 @@ NOT readiness percentage
 NOT SII reconciliation result
 NOT optimization advice
 ```
+
+Visual validation for the implemented L2 section is approved; canonical closure remains governed by the story evidence and `make validate`.
 
 ## Responsive/accessibility
 
