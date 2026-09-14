@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger
 
-**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 CLOSED / SPIKE-IL-002 DECISION_PROPOSED`  
+**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 CLOSED / SPIKE-IL-002 CLOSED / TASK-IL-005 CLOSED / US-IL-004 READY`  
 **Primary capability:** `TAX-04 — Tax Ledger`  
 **Related capabilities:** `TAX-01`, `TAX-02`, `TAX-06`, `TAX-07`, `TAX-08`, `TAX-09`  
 **Related extension:** `PTL-EXT-01 — International Contractor Income Planning`
@@ -31,11 +31,11 @@ Closed stories:
 - `PTL-US-IL-005` — DONE;
 - `PTL-US-IL-006` — DONE.
 
-## Current critical path — foreign service / FX
+## Closed foreign-service foundation
 
-The remaining product story, `PTL-US-IL-004`, was blocked because “foreign payer” had not been separated from “foreign-source income” and no recognition/FX provenance contract existed.
+`PTL-SPIKE-IL-002` and `PTL-TASK-IL-005` are closed.
 
-`PTL-SPIKE-IL-002` now proposes the following explicit split:
+The accepted and implemented split is:
 
 ```text
 foreign payer
@@ -50,7 +50,7 @@ foreign payer
         -> frozen CLP conversion snapshot with BCCh provenance
 ```
 
-Core invariants:
+Implemented invariants:
 
 1. `foreign payer != foreign-source income`;
 2. payer country and source jurisdiction are separate fields;
@@ -59,10 +59,11 @@ Core invariants:
 5. original amount/currency are preserved;
 6. recognized CLP value is backed by a frozen, auditable conversion snapshot;
 7. unresolved FX remains `PENDING / NEEDS_REVIEW` rather than silently guessing;
-8. conversion corrections retain historical snapshots;
+8. conversion corrections retain historical snapshots in deterministic append order;
 9. Block 02 does not calculate article 41 A foreign-tax-credit entitlement.
 
-Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).
+Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).  
+Implementation evidence: [`task-il-005-evidence.md`](task-il-005-evidence.md).
 
 ## Stories
 
@@ -71,7 +72,7 @@ Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-0
 | `PTL-US-IL-001` | Ver el ledger anual unificado de ingresos | `NEW_SECTION`, `FLOW_CHANGE` | L2 | DONE |
 | `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
 | `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
-| `PTL-US-IL-004` | Registrar servicios con pagador extranjero sin duplicar el hecho tributario | `NEW_FLOW`, `FIELD_ADDITION` | L2 | BLOCKED_BY_SPIKE_DECISION_ACCEPTANCE |
+| `PTL-US-IL-004` | Registrar servicios con pagador extranjero sin duplicar el hecho tributario | `NEW_FLOW`, `FIELD_ADDITION` | L2 | READY |
 | `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | DONE |
 | `PTL-US-IL-006` | Conservar trazabilidad, autoridad y aislamiento anual del ledger | `STATE_CHANGE` | L1 | DONE |
 
@@ -102,10 +103,10 @@ Detailed contracts: [`user-stories.md`](user-stories.md).
 
 ## Remaining execution order
 
-1. accept/close `PTL-SPIKE-IL-002`;
-2. implement `PTL-TASK-IL-005` foreign-service aggregate/provider/value contract;
-3. implement `PTL-US-IL-004` product flow;
+1. implement `PTL-US-IL-004` product flow;
+2. perform visual validation for the new flow;
+3. run canonical validation;
 4. run `PTL-TASK-IL-006` terminal regression/DoD;
 5. close Block 02.
 
-See [`implementation-roadmap.md`](implementation-roadmap.md), [`enablers-and-dependencies.md`](enablers-and-dependencies.md), [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md), [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md) and [`il-005-factual-position-evidence.md`](il-005-factual-position-evidence.md).
+See [`implementation-roadmap.md`](implementation-roadmap.md), [`enablers-and-dependencies.md`](enablers-and-dependencies.md), [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md), [`task-il-005-evidence.md`](task-il-005-evidence.md), [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md) and [`il-005-factual-position-evidence.md`](il-005-factual-position-evidence.md).
