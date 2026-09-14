@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 DONE / US-IL-004 AUTOMATED_VALIDATION_PENDING`  
+**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 DONE / US-IL-004 IMPLEMENTED / VISUAL_VALIDATION_PENDING`  
 **Date:** 2026-09-14
 
 ## Baseline inherited from Block 01
@@ -32,7 +32,7 @@ Block 02 consumes these contracts rather than reintroducing a second year author
 
 ## Current implementation node — PTL-US-IL-004
 
-Implementation is complete enough for automated validation.
+The implementation slice is technically assembled and statically reconciled across contracts, application, SQLite, HTTP, frontend owner flow, tests and evidence. Its state is `IMPLEMENTED / VISUAL_VALIDATION_PENDING`; this does **not** claim user visual approval or canonical validation.
 
 ```text
 Servicio con pagador extranjero
@@ -41,6 +41,7 @@ Servicio con pagador extranjero
      -> CHILE
         -> fee_receipts/BHE remains canonical
         -> fee_receipt_foreign_settlements provenance
+        -> save/cancel returns through the annual-ledger owner flow
         -> no second TaxLedgerEntry
      -> FOREIGN
         -> foreign_service_income
@@ -49,21 +50,25 @@ Servicio con pagador extranjero
         -> exact-date official FX attempt
         -> documented manual FX fallback when required
         -> append-only conversion history
+        -> owner-aware create/edit round trip
         -> FOREIGN_SERVICE_INCOME ledger projection
 ```
 
-Additional correction semantics now distinguish an FX-driving economic-fact edit from metadata-only edits: perception date, original amount or original currency invalidate the current conversion pointer; payer metadata, notes and factual foreign-tax metadata do not invalidate an otherwise valid conversion.
+Additional correction semantics distinguish an FX-driving economic-fact edit from metadata-only edits: perception date, original amount or original currency invalidate the current conversion pointer; payer metadata, notes and factual foreign-tax metadata do not invalidate an otherwise valid conversion.
+
+The ledger owner-flow contract now includes `FOREIGN_SERVICE_INCOME`; the foreign editor no longer operates as an unrelated local mutation path. Product UI labels hide raw technical conversion-state/source enums.
 
 Evidence: [`il-004-foreign-service-flow-evidence.md`](il-004-foreign-service-flow-evidence.md).
 
 ## Remaining IL-C sequence
 
-1. run `make bootstrap`, `make typecheck`, `make test` on the current IL-004 head;
-2. if green, mark `VISUAL_VALIDATION_PENDING`;
-3. visually validate both classification paths and foreign owner edit round-trip;
-4. after explicit user visual approval, run canonical `make validate`;
-5. close `PTL-US-IL-004`;
-6. run terminal `PTL-TASK-IL-006` regression/DoD gate.
+1. run the pre-visual local gate on the exact branch head: `make bootstrap`, `make typecheck`, `make test`;
+2. if green, run `make up` and visually validate Path A + Path B;
+3. after explicit user visual approval, run canonical `make validate`;
+4. close `PTL-US-IL-004` as DONE and finalize evidence;
+5. mark the Draft PR ready and merge exact-head;
+6. run terminal `PTL-TASK-IL-006` regression/DoD gate;
+7. close Block 02 if the terminal gate passes.
 
 ## Terminal gate
 
@@ -90,9 +95,10 @@ Block 02 does not own evidence vault, SII reconciliation, readiness, annual tax 
 ## Current executable path
 
 ```text
-PTL-US-IL-004 automated gate
-  -> visual validation
-  -> canonical validation / closure
+PTL-US-IL-004 pre-visual Make gate
+  -> make up / visual validation
+  -> canonical make validate
+  -> DONE / PR ready / exact-head merge
   -> PTL-TASK-IL-006
   -> Block 02 CLOSED
 ```
