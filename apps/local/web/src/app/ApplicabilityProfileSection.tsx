@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { PageHeader, SectionCard, StatusBadge } from '@adumun/react-components';
+import { Button, FormActions, PageHeader, RadioGroup, SectionCard, StatusBadge } from '@adumun/react-components';
 import {
   applicabilityProfileClient,
   type ApplicabilityAnswer,
@@ -83,30 +83,26 @@ export default function ApplicabilityProfileSection({ commercialYear }: { commer
               </div>}
               {item.factPresence === 'UNAVAILABLE' && <small>PTL aún no dispone de una fuente canónica para contrastar esta categoría.</small>}
             </div>
-            <div className="annual-applicability-options" role="radiogroup" aria-label={meta.label}>
-              {OPTIONS.map(option => <label key={option.value}>
-                <input
-                  type="radio"
-                  name={`applicability-${item.dimension}`}
-                  value={option.value}
-                  checked={current === option.value}
-                  disabled={busy}
-                  onChange={() => {
-                    setSaved(false);
-                    setAnswers(previous => ({ ...previous, [item.dimension]: option.value }));
-                  }}
-                />
-                {option.label}
-              </label>)}
-            </div>
+            <RadioGroup
+              label={meta.label}
+              value={current}
+              options={OPTIONS}
+              disabled={busy}
+              inline
+              name={`applicability-${item.dimension}`}
+              onChange={value => {
+                setSaved(false);
+                setAnswers(previous => ({ ...previous, [item.dimension]: value }));
+              }}
+            />
           </div>;
         })}
       </div>
 
-      <div className="annual-applicability-actions">
-        {saved && <StatusBadge tone="success" role="status">Perfil guardado</StatusBadge>}
-        <button className="primary" disabled={busy || !review} onClick={save}>{busy ? 'Guardando…' : 'Guardar perfil'}</button>
-      </div>
+      <FormActions
+        status={saved ? <StatusBadge tone="success" role="status">Perfil guardado</StatusBadge> : undefined}
+        primary={<Button variant="primary" loading={busy} disabled={!review} onClick={save}>Guardar perfil</Button>}
+      />
     </SectionCard>}
   </section>;
 }
