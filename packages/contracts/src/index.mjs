@@ -30,3 +30,7 @@ export {
   FOREIGN_EXCHANGE_PROVIDER_METHODS,
   assertForeignExchangeProviderContract
 } from './features/foreign-service/foreign-service-income.mjs';
+export {
+  FEE_RECEIPT_FOREIGN_SETTLEMENT_REPOSITORY_METHODS,
+  assertFeeReceiptForeignSettlementRepositoryContract
+} from './features/foreign-service/fee-receipt-foreign-settlement.mjs';
