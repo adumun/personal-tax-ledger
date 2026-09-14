@@ -24,3 +24,9 @@ export { ANNUAL_TAX_WORKSPACE_REPOSITORY_METHODS, assertAnnualTaxWorkspaceReposi
 export { TAX_APPLICABILITY_PROFILE_REPOSITORY_METHODS, assertTaxApplicabilityProfileRepositoryContract } from './features/annual-workspace/tax-applicability-profile.mjs';
 export { PRIOR_YEAR_INITIALIZATION_REPOSITORY_METHODS, assertPriorYearInitializationRepositoryContract } from './features/annual-workspace/prior-year-initialization.mjs';
 export { TAX_LEDGER_PROVIDER_METHODS, assertTaxLedgerProviderContract } from './features/ledger/tax-ledger-provider.mjs';
+export {
+  FOREIGN_SERVICE_INCOME_REPOSITORY_METHODS,
+  assertForeignServiceIncomeRepositoryContract,
+  FOREIGN_EXCHANGE_PROVIDER_METHODS,
+  assertForeignExchangeProviderContract
+} from './features/foreign-service/foreign-service-income.mjs';
