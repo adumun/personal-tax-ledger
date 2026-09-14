@@ -1,7 +1,7 @@
 # PTL-US-IL-004 — Foreign payer / foreign-source flow — Evidence
 
 **Story:** `PTL-US-IL-004`  
-**Status:** `IMPLEMENTED / AUTOMATED_VALIDATION_PENDING`  
+**Status:** `IMPLEMENTED / VISUAL_VALIDATION_PENDING`  
 **Capability:** `TAX-04`  
 **UI impact:** `NEW_FLOW`, `FIELD_ADDITION`  
 **Design:** `DESIGN-IL-004`
@@ -51,7 +51,8 @@ Invariants:
 - settlement persistence is not registered as a `TaxLedgerProvider`;
 - no second income row is created;
 - the linked BHE must belong to the active `AnnualWorkspace`;
-- stale/cross-year protection remains inherited from Block 01.
+- stale/cross-year protection remains inherited from Block 01;
+- successful settlement save returns through the annual-ledger owner flow rather than leaving a detached mutation surface open.
 
 ## Path B — genuine foreign-source honorarium
 
@@ -70,7 +71,31 @@ It exposes:
 - manual conversion with rate/date/source-reference/reason;
 - append-only conversion history.
 
-If no official FX adapter is available or an exact safe rate cannot be resolved, the operation reports `NEEDS_REVIEW` and the ledger remains `PENDING`; the UI does not guess a rate.
+If no official FX adapter is available or an exact safe rate cannot be resolved, the operation remains pending/requires review and the ledger does not gain a recognized CLP amount; the UI does not guess a rate.
+
+## Owner-flow integration
+
+`ledger-owner-flow-context.tsx` now recognizes:
+
+```text
+INCOME_SOURCE
+FEE_RECEIPT
+FOREIGN_SERVICE_INCOME
+```
+
+The annual ledger starts foreign create/edit intents through the same owner-flow context used for other aggregate owners. Closing/cancelling/completing the foreign flow returns to the same annual ledger and triggers the parent ledger remount/reload path; no generic ledger mutation endpoint is introduced.
+
+## Product language boundary
+
+Raw conversion-state/source enums are not rendered as product labels. The UI presents user-facing language such as:
+
+- `Conversión resuelta`;
+- `Pendiente de conversión`;
+- `Requiere revisión`;
+- `Banco Central de Chile`;
+- `Conversión manual`.
+
+Provider failure reasons are translated to non-technical explanations before display.
 
 ## Correction semantics
 
@@ -95,6 +120,21 @@ GET/PUT    /api/fee-receipts/:id/foreign-settlement
 
 The local composition binds these routes to trusted annual-context use cases. The annual ledger itself remains read-only.
 
+## Engineering consistency review
+
+The branch was re-inspected against `master` before Draft PR creation. The review confirmed:
+
+- JS contracts and `.d.ts` declarations expose the settlement repository and foreign-service contracts consistently;
+- repository contract tests prevent settlement provenance from satisfying the BHE repository authority contract;
+- SQLite keeps settlement storage separate and constrains source jurisdiction to `CHILE`;
+- settlement use cases resolve the BHE owner and enforce active-year ownership before persistence;
+- foreign-service use cases continue to reject `CHILE` source jurisdiction;
+- official FX remains exact-date and returns explicit review-required results when unavailable/mismatched;
+- metadata-only corrections preserve a valid current FX pointer;
+- FX-driving economic corrections invalidate only the current pointer while historical snapshots remain append-only;
+- owner-aware frontend flow is now consistent with the existing income/BHE pattern;
+- no generic ledger mutation or dual-write path was added.
+
 ## Automated coverage prepared
 
 `test/foreign-service-flow.test.mjs` proves:
@@ -106,10 +146,12 @@ The local composition binds these routes to trusted annual-context use cases. Th
 `test/foreign-service-flow-frontend.test.mjs` proves the frontend contract for:
 
 1. explicit foreign-payer entry point;
-2. payer-country/source-jurisdiction separation;
-3. Path A BHE settlement boundary;
-4. Path B fact/conversion/history boundary;
-5. article 41 A exclusion.
+2. owner-aware `FOREIGN_SERVICE_INCOME` create/edit integration;
+3. payer-country/source-jurisdiction separation;
+4. Path A BHE settlement boundary and save-to-ledger round trip;
+5. Path B fact/conversion/history boundary;
+6. no raw technical conversion-state/source labels;
+7. article 41 A exclusion.
 
 `test/foreign-service-http.test.mjs` proves owner-specific HTTP delegation for Path A and Path B.
 
@@ -117,11 +159,13 @@ The local composition binds these routes to trusted annual-context use cases. Th
 
 - non-conversion metadata edits preserve a valid current FX snapshot;
 - changing an FX-driving economic fact invalidates only the current pointer;
-- historical conversion evidence remains intact.
+- historical conversion evidence remains intact;
+- BCCh date mismatch cannot silently substitute a different date;
+- unresolved conversion remains non-recognized in the ledger.
 
 ## Validation state
 
-No automated green result is claimed yet for this implementation head.
+The implementation is ready for the local pre-visual gate, but this evidence does **not** claim that the user's local branch has passed it yet.
 
 Required pre-visual gate:
 
@@ -131,7 +175,9 @@ make typecheck
 make test
 ```
 
-Because this story introduces a visible new flow, closure requires after that:
+If that gate is green, the next step is `make up` and visual validation of both Paths.
+
+Because this story introduces a visible new flow, closure requires:
 
 ```text
 USER_VISUAL_APPROVED
@@ -139,4 +185,4 @@ USER_VISUAL_APPROVED
   -> DONE
 ```
 
-Until visual approval, the pull request remains Draft and the story must not be marked `DONE`.
+Until visual approval and canonical validation, the pull request remains Draft and the story must not be marked `DONE`.
