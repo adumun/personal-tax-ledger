@@ -3,7 +3,7 @@
 **Type:** Story slice  
 **Capability:** TAX-04  
 **Priority:** P0  
-**Status:** `USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING`  
+**Status:** `DONE`  
 **Date:** 2026-09-14  
 **Original branch:** `feat/block-02-unified-income-ledger-ui`  
 **Post-merge closure branch:** `fix/block-02-post-merge-runtime-reconciliation`
@@ -76,7 +76,7 @@ The duplicate active-period footer formerly rendered in the sidebar was removed.
 
 `Perfil del año` uses shared `RadioGroup` plus `FormActions` / `Button` rather than locally rebuilding radio semantics and action layout.
 
-`Ingresos laborales` must not expose persisted enum values such as `SALARY` as user-facing copy; the effective exported `@personal-tax-ledger/shared-ui` runtime maps them to product language such as `Renta dependiente`.
+`Ingresos laborales` does not expose persisted enum values such as `SALARY` as user-facing copy; the effective exported `@personal-tax-ledger/shared-ui` runtime maps them to product language such as `Renta dependiente`.
 
 ## Shared-ui runtime determinism
 
@@ -121,18 +121,20 @@ On 2026-09-14 an intermediate canonical `make validate` reached 215 tests with 2
 
 After reconciliation, the user reported the requested `make test` flow green. After the shared-ui runtime fix, the user also reported the requested `make bootstrap` + `make test` + development runtime flow green.
 
-Because PR #26 was merged before the final shared-ui runtime correction was persisted, the closure patch is replayed on a fresh branch from current `master` rather than merging the stale original feature branch, which had diverged from `master`.
+Because PR #26 was merged before the final shared-ui runtime correction was persisted, the closure patch was replayed on a fresh branch from current `master` rather than merging the stale original feature branch, which had diverged from `master`.
 
-The final remaining automated gate for the closure branch is:
+The user then executed the final current-head canonical closure gate on `fix/block-02-post-merge-runtime-reconciliation`:
 
 ```text
 make bootstrap
 make validate
 ```
 
-No DONE claim is authorized until that current-head canonical gate is green.
+The user reported the gate green. No failure, cancellation or outstanding validation blocker was reported for that final run.
 
-The known npm `allowScripts` warning for install scripts in `electron-winstaller` and the Git-consumed `@adumun/react-components` package remains a bootstrap-determinism observation to reconcile separately; it did not block the validated development flows and is not treated as visual acceptance evidence.
+The runtime-reconciliation delta was merged through PTL PR #28 with merge commit `65be7764c55558b794e802fb7087f68f7fa28d2b`.
+
+The known npm `allowScripts` warning for install scripts in `electron-winstaller` and the Git-consumed `@adumun/react-components` package remains a separate bootstrap-determinism observation; it did not block the validated closure and is not part of this story slice acceptance.
 
 ## Visual acceptance gate
 
@@ -146,7 +148,7 @@ The user reviewed the representative development surfaces after the shared React
 
 The review confirmed the single-shell architecture, shared page hierarchy, scoped `No vinculante` status, shared tabs/forms/actions, annual-context authority and final product-language projection of `SALARY` as `Renta dependiente`.
 
-The explicit visual gate is therefore complete:
+The explicit visual and canonical gates are complete:
 
 ```text
 IMPLEMENTED
@@ -154,10 +156,15 @@ IMPLEMENTED
  -> local development review
  -> USER_VISUAL_APPROVED
  -> POST-MERGE RUNTIME RECONCILIATION
- -> CANONICAL_VALIDATION_PENDING   <-- current state
  -> make validate PASS
  -> DONE
 ```
+
+## Closure
+
+`PTL-US-IL-001` and `PTL-US-IL-006` are closed for this slice.
+
+The React shared-component baseline remains `PRE-STABLE` at platform level; this PTL closure proves first-consumer dogfood and does not by itself promote shared primitives to `STABLE`.
 
 ## Boundaries
 
