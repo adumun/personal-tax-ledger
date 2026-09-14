@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger
 
-**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B VISUAL_VALIDATION_PENDING`  
+**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING`  
 **Primary capability:** `TAX-04 — Tax Ledger`  
 **Related capabilities:** `TAX-01`, `TAX-02`, `TAX-06`, `TAX-07`, `TAX-08`, `TAX-09`  
 **Related extension:** `PTL-EXT-01 — International Contractor Income Planning`
@@ -48,8 +48,8 @@ Decision evidence: [`spike-il-001-ledger-authority.md`](spike-il-001-ledger-auth
 | ID | Story | UI impact | Fidelity | Status |
 |---|---|---|---|---|
 | `PTL-US-IL-001` | Ver el ledger anual unificado de ingresos | `NEW_SECTION`, `FLOW_CHANGE` | L2 | DONE |
-| `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | VISUAL_VALIDATION_PENDING |
-| `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | VISUAL_VALIDATION_PENDING |
+| `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING |
+| `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING |
 | `PTL-US-IL-004` | Registrar ingresos por servicios con pagador extranjero | `NEW_FLOW`, `FIELD_ADDITION` | L2 | BLOCKED_BY_SPIKE_IL_002 |
 | `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | REFINING |
 | `PTL-US-IL-006` | Conservar trazabilidad, autoridad y aislamiento anual del ledger | `STATE_CHANGE` | L1 | DONE |
@@ -74,7 +74,7 @@ Annual ledger
 
 No generic ledger editor or dual-write is authorized.
 
-Automated validation for the current head is green. The slice is waiting for local visual validation of create/edit + save/cancel round-trips before canonical `make validate`.
+Automated validation for the current head is green and local visual validation of all required owner-flow round-trips is approved. Canonical `make validate` is the only remaining closure gate for IL-B.
 
 ## Scope boundary
 
@@ -104,7 +104,7 @@ Automated validation for the current head is green. The slice is waiting for loc
 3. `PTL-TASK-IL-003 — Annual ledger query/read model` — DONE;
 4. `PTL-TASK-IL-004 — Ledger HTTP/client surface` — DONE;
 5. `PTL-US-IL-001 + PTL-US-IL-006` — DONE;
-6. `PTL-US-IL-002 + PTL-US-IL-003` — **CURRENT / VISUAL_VALIDATION_PENDING**;
+6. `PTL-US-IL-002 + PTL-US-IL-003` — **CURRENT / USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING**;
 7. close FX/foreign-service spike before `PTL-US-IL-004`;
 8. `PTL-US-IL-005` factual annual position;
 9. terminal `PTL-TASK-IL-006` regression/DoD gate.
