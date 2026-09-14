@@ -32,34 +32,47 @@ test('US-IL-001: renta dependiente, BHE y otros owners se distinguen sin dual-wr
   assert.match(source, /DOMESTIC_FEE_INCOME/);
   assert.match(source, /OTHER_INCOME_SOURCE/);
   assert.match(source, /ownerAggregate/);
-  assert.match(source, /ownerRecordId/);
   assert.match(source, /Solo lectura/);
   assert.doesNotMatch(source, /method:\s*['"](?:POST|PUT|PATCH|DELETE)['"]/);
 });
 
-test('US-IL-006: cambio anual invalida respuestas visuales stale y preserva identidad propietaria', async () => {
-  const source = await readFile(componentPath, 'utf8');
+test('US-IL-006: cambio anual invalida respuestas stale y la identidad propietaria sigue en el contrato sin exponer ids internos', async () => {
+  const [source, client] = await Promise.all([
+    readFile(componentPath, 'utf8'),
+    readFile(clientPath, 'utf8')
+  ]);
   assert.match(source, /requestSerial/);
   assert.match(source, /serial !== requestSerial\.current/);
   assert.match(source, /next\.commercialYear !== commercialYear/);
   assert.match(source, /STALE_SUPPRESSED/);
   assert.match(source, /entry\.ownerAggregate/);
-  assert.match(source, /entry\.ownerRecordId/);
+  assert.doesNotMatch(source, /entry\.ownerRecordId/);
+  assert.match(client, /ownerRecordId:\s*string/);
 });
 
-test('React profile dogfood: surfaces anuales consumen PageHeader compartido', async () => {
+test('React profile dogfood: surfaces anuales consumen PageHeader, SectionCard y StatusBadge compartidos', async () => {
   const [ledger, overview, profile] = await Promise.all([
     readFile(componentPath, 'utf8'),
     readFile(overviewPath, 'utf8'),
     readFile(profilePath, 'utf8')
   ]);
-  assert.match(ledger, /import \{ PageHeader \} from '@adumun\/react-components'/);
-  assert.match(overview, /import \{ PageHeader \} from '@adumun\/react-components'/);
-  assert.match(profile, /import \{ PageHeader \} from '@adumun\/react-components'/);
-  assert.match(ledger, /<PageHeader/);
-  assert.match(overview, /<PageHeader/);
-  assert.match(profile, /<PageHeader/);
+  for (const source of [ledger, overview, profile]) {
+    assert.match(source, /PageHeader/);
+    assert.match(source, /SectionCard/);
+    assert.match(source, /StatusBadge/);
+    assert.match(source, /from '@adumun\/react-components'/);
+  }
   assert.doesNotMatch(profile, />NEEDS_REVIEW</);
+});
+
+test('React profile dogfood: navegación elimina contexto anual duplicado y usa lenguaje de producto', async () => {
+  const gate = await readFile(gatePath, 'utf8');
+  assert.match(gate, /PrimaryNavGroup label="Período"/);
+  assert.match(gate, />Resumen del año</);
+  assert.match(gate, /title="Período activo"/);
+  assert.match(gate, /StatusBadge tone="warning" dot>En preparación/);
+  assert.doesNotMatch(gate, /ptl-nav-context/);
+  assert.doesNotMatch(gate, /PrimaryNavGroup label="Año tributario"/);
 });
 
 test('US-IL-001: ledger vive como surface del único AppShell bajo el AnnualWorkspace activo', async () => {
