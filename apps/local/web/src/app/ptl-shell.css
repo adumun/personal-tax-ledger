@@ -323,6 +323,53 @@
   flex-shrink: 0;
 }
 
+.ptl-application [data-adumun-component="Tabs"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  margin-bottom: 20px;
+  padding: 5px;
+  border: 1px solid #dbe3e6;
+  border-radius: 12px;
+  background: #e7edef;
+}
+
+.ptl-application [data-adumun-component="Tab"] {
+  border: 0;
+  border-radius: 9px;
+  padding: 9px 16px;
+  background: transparent;
+  color: #52616a;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ptl-application [data-adumun-component="Tab"]:hover {
+  color: #0f5c4e;
+}
+
+.ptl-application [data-adumun-component="Tab"]:focus-visible {
+  outline: 3px solid rgba(53, 199, 167, .28);
+  outline-offset: 1px;
+}
+
+.ptl-application [data-adumun-component="Tab"][data-current="true"] {
+  background: #fff;
+  color: #137b67;
+  box-shadow: 0 2px 8px rgba(28, 46, 54, .14);
+}
+
+.ptl-application [data-adumun-tab-count] {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #dce6e8;
+  font-size: 11px;
+}
+
 .workspace-surface {
   display: block;
 }
@@ -429,5 +476,9 @@
 
   .ptl-application [data-adumun-page-header-region="actions"] {
     justify-content: flex-start;
+  }
+
+  .ptl-application [data-adumun-component="Tabs"] {
+    width: 100%;
   }
 }
