@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PageHeader } from '@adumun/react-components';
+import { PageHeader, SectionCard, StatusBadge } from '@adumun/react-components';
 import { getAnnualWorkspaceOverview, type AnnualWorkspaceOverview } from './annual-workspace-overview-client';
 
 function countLabel(count: number, singular: string, plural: string) {
@@ -11,6 +11,25 @@ function rulesLabel(state: string) {
   if (state === 'SUPPORTED_WITH_WARNINGS') return 'Reglas disponibles con observaciones';
   if (state === 'UNSUPPORTED') return 'Reglas incompletas';
   return state;
+}
+
+function rulesTone(state: string) {
+  if (state === 'SUPPORTED') return 'success' as const;
+  if (state === 'SUPPORTED_WITH_WARNINGS') return 'warning' as const;
+  if (state === 'UNSUPPORTED') return 'critical' as const;
+  return 'neutral' as const;
+}
+
+function formatUpdatedAt(value: string | null) {
+  if (!value) return 'Sin actualización registrada';
+  return new Intl.DateTimeFormat('es-CL', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(new Date(value)).replace(',', ' ·');
 }
 
 export default function AnnualWorkspaceOverviewSection({ commercialYear }: { commercialYear: number }) {
@@ -29,47 +48,52 @@ export default function AnnualWorkspaceOverviewSection({ commercialYear }: { com
 
   return <section className="annual-overview" aria-labelledby="annual-overview-title">
     <PageHeader
-      title="Año tributario"
+      eyebrow="Período"
+      title="Resumen del año"
       titleId="annual-overview-title"
-      description="Estado estructural del período activo y de la información que ya tienes registrada."
+      description="Estado del período activo y de la información que ya tienes registrada."
     />
 
     {error && <div className="annual-workspace-error">{error}</div>}
     {!overview && !error && <p>Cargando resumen del período…</p>}
 
     {overview && <div className="annual-overview-grid">
-      <article className="annual-overview-card">
-        <h2>Período</h2>
+      <SectionCard title="Período" titleId="annual-period-title" className="annual-overview-card">
         <dl>
           <div><dt>Año comercial</dt><dd>{overview.period.commercialYear}</dd></div>
           <div><dt>Operación Renta</dt><dd>{overview.period.derivedTaxYearLabel}</dd></div>
-          <div><dt>Estado</dt><dd>{overview.period.lifecycleState === 'PREPARING' ? 'En preparación' : overview.period.lifecycleState}</dd></div>
-          <div><dt>Actualizado</dt><dd>{overview.period.updatedAt ? new Intl.DateTimeFormat('es-CL', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(overview.period.updatedAt)) : 'Sin actualización registrada'}</dd></div>
+          <div><dt>Estado</dt><dd><StatusBadge tone="warning" dot>{overview.period.lifecycleState === 'PREPARING' ? 'En preparación' : overview.period.lifecycleState}</StatusBadge></dd></div>
+          <div><dt>Actualizado</dt><dd>{formatUpdatedAt(overview.period.updatedAt)}</dd></div>
         </dl>
-      </article>
+      </SectionCard>
 
-      <article className="annual-overview-card">
-        <h2>Perfil del año</h2>
+      <SectionCard title="Perfil del año" titleId="annual-profile-summary-title" className="annual-overview-card">
         <p><strong>{overview.profile.answeredCount} de {overview.profile.totalCount}</strong> respondidos</p>
-        <p>{overview.profile.pendingCount} pendientes · {overview.profile.needsReviewCount} por revisar</p>
-      </article>
+        <div className="annual-overview-statuses">
+          <StatusBadge tone={overview.profile.pendingCount > 0 ? 'warning' : 'success'}>{overview.profile.pendingCount} pendiente{overview.profile.pendingCount === 1 ? '' : 's'}</StatusBadge>
+          <StatusBadge tone={overview.profile.needsReviewCount > 0 ? 'critical' : 'neutral'}>{overview.profile.needsReviewCount} por revisar</StatusBadge>
+        </div>
+      </SectionCard>
 
-      <article className="annual-overview-card annual-overview-wide">
-        <h2>Información disponible</h2>
-        <dl>
+      <SectionCard title="Información disponible" titleId="annual-information-title" className="annual-overview-card annual-overview-wide">
+        <dl className="annual-overview-information">
           <div><dt>Ingresos laborales</dt><dd>{countLabel(overview.information.dependentIncomeSources, 'fuente', 'fuentes')}</dd></div>
           <div><dt>Boletas de honorarios</dt><dd>{countLabel(overview.information.feeReceipts, 'registrada', 'registradas')}</dd></div>
           <div><dt>Hipotecario</dt><dd>{countLabel(overview.information.mortgages, 'crédito registrado', 'créditos registrados')}</dd></div>
           <div><dt>Evidencia</dt><dd>{overview.information.evidence.label}</dd></div>
         </dl>
-      </article>
+      </SectionCard>
 
-      <article className="annual-overview-card annual-overview-wide">
-        <h2>Reglas del período</h2>
-        <p><strong>{rulesLabel(overview.rules.state)}</strong></p>
+      <SectionCard
+        title="Reglas del período"
+        titleId="annual-rules-title"
+        className="annual-overview-card annual-overview-wide annual-overview-rules"
+        actions={<StatusBadge tone={rulesTone(overview.rules.state)} dot>{rulesLabel(overview.rules.state)}</StatusBadge>}
+      >
         {overview.rules.state === 'UNSUPPORTED' && <p>Faltan reglas requeridas para trabajar este período con seguridad.</p>}
         {overview.rules.state === 'SUPPORTED_WITH_WARNINGS' && <p>Las reglas son utilizables, pero existen observaciones de procedencia que conviene revisar.</p>}
-      </article>
+        {overview.rules.state === 'SUPPORTED' && <p>El período dispone de las reglas necesarias para continuar trabajando.</p>}
+      </SectionCard>
     </div>}
   </section>;
 }
