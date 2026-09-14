@@ -8,6 +8,7 @@ import { createAnnualWorkspaceOverviewComposition } from '../annual-workspace-ov
 import { createPriorYearInitializationComposition } from '../prior-year-initialization-composition.mjs';
 import { createExecutionLogComposition } from '../execution-log-composition.mjs';
 import { createFeeReceiptComposition } from '../fee-receipt-composition.mjs';
+import { createForeignServiceComposition } from '../foreign-service-composition.mjs';
 import { createMortgageComposition } from '../mortgage-composition.mjs';
 import { createTaxLedgerComposition } from '../tax-ledger-composition.mjs';
 import { createTaxParameterComposition, createTaxRuleSourceComposition } from '../tax-catalog-composition.mjs';
@@ -38,11 +39,13 @@ export function createLocalComposition(dependencies) {
   const income = createIncomeComposition(compositionDependencies);
   const logs = createExecutionLogComposition(compositionDependencies);
   const fees = createFeeReceiptComposition(compositionDependencies);
+  const foreignService = createForeignServiceComposition(compositionDependencies);
   const mortgages = createMortgageComposition(compositionDependencies);
   const taxLedger = createTaxLedgerComposition({
     ...compositionDependencies,
     incomeUseCases: income.incomeUseCases,
-    feeReceiptUseCases: fees.feeReceiptUseCases
+    feeReceiptUseCases: fees.feeReceiptUseCases,
+    foreignServiceUseCases: foreignService.foreignServiceUseCases
   });
   const applicability = createApplicabilityProfileComposition({
     ...compositionDependencies,
@@ -82,6 +85,7 @@ export function createLocalComposition(dependencies) {
     ...settings,
     ...logs,
     ...fees,
+    ...foreignService,
     ...mortgages,
     ...taxLedger,
     ...taxParameters,
