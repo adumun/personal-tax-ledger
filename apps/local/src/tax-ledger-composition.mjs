@@ -1,6 +1,7 @@
 import {
   createAnnualTaxLedgerReadModel,
   createFeeReceiptTaxLedgerProvider,
+  createForeignServiceTaxLedgerProvider,
   createIncomeSourceTaxLedgerProvider
 } from '@personal-tax-ledger/application';
 import { createTaxLedgerRouter } from '@personal-tax-ledger/http-api';
@@ -13,6 +14,13 @@ export function createTaxLedgerComposition(dependencies) {
       settingsUseCases: dependencies.settingsUseCases
     })
   ];
+
+  if (dependencies.foreignServiceUseCases) {
+    providers.push(createForeignServiceTaxLedgerProvider({
+      foreignServiceUseCases: dependencies.foreignServiceUseCases
+    }));
+  }
+
   const readModel = createAnnualTaxLedgerReadModel({ providers });
 
   return {
