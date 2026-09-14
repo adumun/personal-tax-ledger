@@ -7,12 +7,7 @@
 
 ## Objective
 
-Allow the annual factual ledger to open the canonical owner editor for:
-
-- dependent / other income-source facts;
-- domestic fee receipts / BHE;
-
-without creating generic ledger mutation authority or dual-write.
+Allow the annual factual ledger to open the canonical owner editor for dependent / other income-source facts and domestic fee receipts / BHE without creating generic ledger mutation authority or dual-write.
 
 ## Required flow
 
@@ -52,12 +47,6 @@ Annual ledger
 - stale/cross-year protections from Block 01 remain authoritative.
 
 ## Automated gate
-
-Current focused contract:
-
-```text
-test/ledger-owner-flow-frontend.test.mjs
-```
 
 Fresh head validation completed successfully through the canonical Make façade:
 
