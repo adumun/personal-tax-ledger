@@ -1,7 +1,7 @@
 # Slice IL-B — Existing owner flows inside ledger shell — Evidence
 
 **Stories:** `PTL-US-IL-002`, `PTL-US-IL-003`  
-**Status:** `VISUAL_VALIDATION_PENDING`  
+**Status:** `USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING`  
 **Priority:** P0  
 **UI impact:** `FLOW_CHANGE`, `FIELD_REUSE`
 
@@ -66,35 +66,36 @@ make typecheck
 make test
 ```
 
-Result: PASS. No canonical `make validate` has been executed for this final head yet because visual validation is mandatory before the canonical closure gate.
+Result: PASS.
 
 ## Visual gate
 
-Because this slice changes navigation and owner-edit flows, completion requires local visual validation of all four paths before canonical `make validate` / merge:
+User visual validation completed successfully for all four required round-trips:
 
-1. ledger -> create income -> cancel/save -> ledger;
-2. ledger row -> exact income edit -> cancel/save -> ledger;
-3. ledger -> create BHE -> cancel/save -> ledger;
-4. ledger row -> exact BHE edit -> cancel/save -> ledger.
+1. ledger -> create income -> cancel/save -> ledger — PASS;
+2. ledger row -> exact income edit -> cancel/save -> ledger — PASS;
+3. ledger -> create BHE -> cancel/save -> ledger — PASS;
+4. ledger row -> exact BHE edit -> cancel/save -> ledger — PASS.
 
-For every path, verify:
+Confirmed visually:
 
 - the expected existing owner editor opens, not a generic ledger editor;
 - edit opens the exact selected canonical record;
 - cancel returns to `Ingresos del año` without persisting a change;
 - save returns to `Ingresos del año` and the visible ledger reflects the saved canonical fact;
-- the active commercial year does not change;
-- owner/type identity cannot be rebound by the ledger.
+- the active commercial year remains unchanged;
+- owner/type identity is not rebound by the ledger.
 
-The ledger must visibly refresh after successful save and must never become a mutation authority itself.
+Result: `USER_VISUAL_APPROVED`.
 
 ## Closure gate
 
 ```text
-VISUAL_VALIDATION_PENDING
-  -> USER_VISUAL_APPROVED
+USER_VISUAL_APPROVED
   -> make validate
   -> story/evidence reconciliation
   -> PR ready
   -> merge
 ```
+
+Canonical `make validate` is the only remaining gate for this slice.
