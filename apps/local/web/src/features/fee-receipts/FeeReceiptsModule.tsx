@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ApiRequestError } from '../../api';
 import { feeReceiptService } from '../../services';
 import { useFeedback, LOG } from '../../feedback';
+import { useLedgerOwnerFlow } from '../../app/ledger-owner-flow-context';
 import { computeFeeReceiptPreview, computeFeeSummary, filterFeeReceipts } from '@personal-tax-ledger/frontend-application';
 import type { FeeReceipt, FeeExpenseSettings, Settings } from '../../types';
 
@@ -48,6 +49,7 @@ export default function FeeReceiptsModule({ settings, taxYear, onSettingsChange,
   const [sortBy, setSortBy] = useState<'date' | 'amount'>('date');
   const [feeTab, setFeeTab] = useState<'summary' | 'gastos' | 'boletas'>('summary');
   const { notify, log, confirm } = useFeedback();
+  const ownerFlow = useLedgerOwnerFlow();
 
   const refresh = async () => {
     const [list, expenseList] = await Promise.all([feeReceiptService.list({ taxYear }), feeReceiptService.listExpenseSettings()]);
@@ -58,12 +60,44 @@ export default function FeeReceiptsModule({ settings, taxYear, onSettingsChange,
 
   useEffect(() => { refresh().catch(e => setError(errMsg(e))); }, [taxYear]);
 
+  useEffect(() => {
+    const intent = ownerFlow.intent;
+    if (ownerFlow.opened || intent?.ownerAggregate !== 'FEE_RECEIPT') return;
+
+    setFeeTab('boletas');
+    if (intent.mode === 'CREATE') {
+      setEditing({ ...emptyReceipt, taxYear });
+      setShowForm(true);
+      ownerFlow.markOpened();
+      return;
+    }
+
+    const target = receipts.find(receipt => String(receipt.id) === intent.ownerRecordId);
+    if (!target) {
+      if (receipts.length === 0) return;
+      notify('No se encontró la boleta propietaria', { tone: 'error', message: `Registro ${intent.ownerRecordId || 'desconocido'}.` });
+      ownerFlow.markOpened();
+      ownerFlow.complete();
+      return;
+    }
+
+    setEditing({ ...target });
+    setShowForm(true);
+    ownerFlow.markOpened();
+  }, [receipts, taxYear, ownerFlow.intent, ownerFlow.opened]);
+
   // Recompute canonical values locally using settings in real-time.
   const preview = useMemo(() => computeFeeReceiptPreview(editing, settings), [editing.amountInputType, editing.netAmount, editing.grossAmount, editing.withholdingMode, editing.withholdingRate, settings.honorariosRetentionRate]);
 
   const summary = useMemo(() => computeFeeSummary(receipts, settings), [receipts, settings.feeRecognitionMode]);
 
   const filtered = useMemo(() => filterFeeReceipts(receipts, filters, sortBy), [receipts, filters, sortBy]);
+
+  const cancelOwnerEdit = () => {
+    setShowForm(false);
+    setEditing({ ...emptyReceipt, taxYear });
+    if (ownerFlow.opened && ownerFlow.intent?.ownerAggregate === 'FEE_RECEIPT') ownerFlow.complete();
+  };
 
   const save = async () => {
     setBusy(true); setError('');
@@ -91,6 +125,7 @@ export default function FeeReceiptsModule({ settings, taxYear, onSettingsChange,
       onSimulationStale();
       log({ kind: 'ASYNC', operation: LOG.SAVE_FEE_RECEIPT, status: 'OK', message: payload.clientName || payload.folio || '', auditMessage: JSON.stringify({ id: payload.id, folio: payload.folio, clientName: payload.clientName, gross: payload.grossAmount, net: payload.netAmount, taxYear: payload.taxYear }), durationMs: Math.round(performance.now() - started) });
       notify('Boleta guardada');
+      if (ownerFlow.opened && ownerFlow.intent?.ownerAggregate === 'FEE_RECEIPT') ownerFlow.complete();
     } catch (e) {
       const msg = errMsg(e);
       setError(msg);
@@ -119,7 +154,7 @@ export default function FeeReceiptsModule({ settings, taxYear, onSettingsChange,
     const started = performance.now();
     try {
       await feeReceiptService.duplicate(id); await refresh(); onSimulationStale();
-      log({ kind: 'ASYNC', operation: LOG.DUPLICATE_FEE_RECEIPT, status: 'OK', message: id, auditMessage: `sourceId=${id}`, durationMs: Math.round(performance.now() - started) });
+      log({ kind: 'ASYNC', operation: LOG.DUPLICATE_FEE_STATUS, status: 'OK', message: id, auditMessage: `sourceId=${id}`, durationMs: Math.round(performance.now() - started) });
       notify('Boleta duplicada');
     } catch (e) {
       const msg = errMsg(e);
@@ -289,7 +324,7 @@ export default function FeeReceiptsModule({ settings, taxYear, onSettingsChange,
             </div>
             <div className="actions">
               <button className="primary" disabled={busy || !editing.clientName || (preview.grossAmount === 0 && preview.netAmount === 0)} onClick={save}>{editing.id ? 'Guardar cambios' : 'Crear boleta'}</button>
-              <button onClick={() => { setShowForm(false); setEditing({ ...emptyReceipt, taxYear }); }}>Cancelar</button>
+              <button onClick={cancelOwnerEdit}>Cancelar</button>
             </div>
           </div>
         )}
