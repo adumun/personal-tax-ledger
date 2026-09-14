@@ -1,7 +1,7 @@
 # PTL-US-IL-005 — Factual annual income position — Evidence
 
 **Story:** `PTL-US-IL-005`  
-**Status:** `IMPLEMENTED / AUTOMATED_VALIDATION_PENDING`  
+**Status:** `VISUAL_VALIDATION_PENDING`  
 **Priority:** P1  
 **UI impact:** `NEW_SECTION`
 
@@ -106,15 +106,36 @@ No generic ledger mutation, persistence table, acquisition logic or foreign-exch
   - explicit non-tax boundary;
   - typed `totalsByEntryKind` client contract.
 
-## Validation state
+## Automated validation
 
-The current implementation has not yet been claimed green.
-
-Required pre-visual gate:
+Fresh validation of the current head completed successfully through the canonical Make façade:
 
 ```text
+make bootstrap
 make typecheck
 make test
 ```
 
-Because this is a `NEW_SECTION`, a local visual gate is mandatory before canonical `make validate` and merge.
+Result: **PASS**.
+
+No canonical `make validate` has been executed for this final head yet because the `NEW_SECTION` visual gate is mandatory first.
+
+## Visual validation
+
+Current state: `VISUAL_VALIDATION_PENDING`.
+
+Local visual review must verify:
+
+- `Posición factual anual` is clearly factual and visually subordinate to the annual context;
+- overall annual totals do not change when the ledger table is filtered;
+- category cards distinguish Renta dependiente / Honorarios-BHE / other categories without raw internal enums;
+- `No registrado` is used when a monetary fact is absent rather than inferring zero;
+- recognized / pending / excluded counts remain understandable;
+- `Ver entradas` filters the supporting ledger rows for that category;
+- no copy or hierarchy suggests tax liability, refund forecast, readiness, SII reconciliation or optimization.
+
+After visual approval, the remaining closure gate is:
+
+```text
+make validate
+```
