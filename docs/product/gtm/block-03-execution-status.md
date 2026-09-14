@@ -2,7 +2,7 @@
 
 **Block:** 03 — Early Activation  
 **Macrostate:** ACTIVATE  
-**Status:** OPEN / BATCH B QUALIFICATION IN PROGRESS  
+**Status:** OPEN / BATCH B QUALIFICATION DRAFTS READY  
 **Date:** 2026-09-14
 
 ## Block entry condition
@@ -64,31 +64,48 @@ Important boundary:
 - they are **not** counted toward the primary ICP cohort unless explicit evidence confirms that their own tax situation matches one of the primary ICP profiles;
 - no identifying information or private tax data is copied into public GitHub artifacts.
 
-### Warm-network candidate pool discovered
+### Alternative qualification path selected
 
-Connected contacts contain a usable professional-network pool, including several known professional contacts. However, contact metadata alone does not establish salary + honorarios, independent/freelance status, recurring Operación Renta preparation pain or advanced manual-tracker behavior.
+Instead of assuming tax profile from profession, employer or relationship, the founder selected a **qualification-first outreach** path.
 
-Therefore the first five primary prospects are **not yet canonically selected**. Qualification must be explicit rather than inferred from employer, profession or relationship.
+Five reachable warm/professional contacts were prepared as `QUAL-01` through `QUAL-05` in the private activation tracker. Each has a Gmail draft that asks only whether one or more primary ICP situations applies to them.
 
-### Qualification rule for A3-04
+The qualification message explicitly covers:
 
-A person qualifies for the first-five primary cohort when at least one of the following is explicitly known or confirmed:
+1. salary + fee receipts / mixed income;
+2. independent or freelance work;
+3. reaching Operación Renta and only then organizing/reconstructing the year;
+4. using Excel, notes or another self-built system to track tax situation.
 
-1. salary + honorarios / mixed income;
-2. independent worker issuing fee receipts;
-3. freelance professional with variable income;
-4. repeatedly reaches Operación Renta without having organized the year;
-5. advanced spreadsheet/manual tax tracker.
+No PTL install request is included at this stage.
 
-Reachability alone is insufficient.
+### Qualification semantics
+
+- a qualification draft is **not** a qualified prospect;
+- a sent qualification message is **not** counted as an activation contact toward the 10 qualified-prospect threshold until a qualifying ICP signal is confirmed;
+- negative responses are useful evidence but do not enter the primary activation cohort;
+- only after qualification will message variants M1–M5 and the PTL landing/install ask be assigned.
+
+### Prepared cohort
+
+Private tracker records:
+
+- `QUAL-01` — qualification draft ready;
+- `QUAL-02` — qualification draft ready;
+- `QUAL-03` — qualification draft ready;
+- `QUAL-04` — qualification draft ready;
+- `QUAL-05` — qualification draft ready.
+
+All five remain `UNQUALIFIED / QUALIFICATION_DRAFT` until responses are received.
 
 ## Next execution — Batch B
 
-1. confirm five people who satisfy at least one primary ICP rule;
-2. assign message variants across the five, with at least two variants represented;
-3. only then count A3-04 as DONE;
-4. execute A3-05 founder-led outreach and capture reaction before installation assistance;
-5. keep `VAL-01` and `VAL-02` as a parallel professional-validation lane.
+1. review the five Gmail qualification drafts;
+2. send the qualification batch after explicit founder approval;
+3. capture responses in the activation tracker;
+4. promote qualifying respondents into the primary ICP cohort;
+5. assign at least two M1–M5 message variants across qualified respondents;
+6. begin installation/meaningful-use activation only after qualification.
 
 ## P0 status
 
@@ -97,8 +114,8 @@ Reachability alone is insufficient.
 | A3-01 | Canonical early-activation strategy | DONE |
 | A3-02 | Activation evidence schema + tracker | DONE / IMPLEMENTED |
 | A3-03 | Message variants M1–M5 | DONE |
-| A3-04 | First 5 qualified prospects selected | IN PROGRESS / EXPLICIT ICP CONFIRMATION REQUIRED |
-| A3-05 | First 5 contact attempts completed | PENDING |
+| A3-04 | First 5 qualified prospects selected | IN PROGRESS / QUALIFICATION DRAFTS READY |
+| A3-05 | First 5 contact attempts completed | BLOCKED ON QUALIFICATION RESPONSES |
 | A3-06 | First 2 observed meaningful sessions | PENDING |
 | A3-07 | Cohort expanded to 10 qualified prospects | PENDING |
 | A3-08 | At least 3 structured primary-ICP feedback records | PENDING |
@@ -107,4 +124,4 @@ Reachability alone is insufficient.
 
 ## Current state
 
-`ACTIVATE / BLOCK_03_OPEN / BATCH_B_QUALIFICATION_IN_PROGRESS / VALIDATOR_POOL_SEEDED / PRIMARY_5_PENDING_CONFIRMATION`
+`ACTIVATE / BLOCK_03_OPEN / BATCH_B_QUALIFICATION_DRAFTS_READY / SEND_APPROVAL_NEXT`
