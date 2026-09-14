@@ -1,6 +1,6 @@
 # React Shared-UI Dogfood — Current State
 
-Status: **DOGFOOD_CONSUMED / VISUAL_VALIDATION_PENDING**
+Status: **DOGFOOD_CONSUMED / MERGEABLE BASELINE / PRE-STABLE**
 
 ## Authority boundaries
 
@@ -12,7 +12,7 @@ PTL is the first proving consumer. It is not normative authority for the shared 
 
 ## Current canonical consumption
 
-The current PR head consumes an exact `@adumun/react-components` Git commit and uses shared primitives in the touched annual workspace surfaces.
+The current PR head consumes the merged canonical `@adumun/react-components` baseline from exact commit `e9dff2fba8fcf3ec7d352a7c40d5d4d749bc999e` and uses shared primitives in the touched annual workspace surfaces.
 
 Proven source-level adoption:
 
@@ -33,7 +33,7 @@ Proven source-level adoption:
 
 The duplicate year selector and duplicated annual-context presentation were removed from `WorkspaceView`. The active annual workspace remains the annual-context authority; settings now treats the year as context-managed rather than exposing another independent selector.
 
-This closes the source-level double-shell defect for the touched slice. It does not by itself satisfy visual acceptance.
+This closes the source-level double-shell defect for the touched slice.
 
 ## What intentionally stays local
 
@@ -49,22 +49,27 @@ No shared primitive should gain PTL-specific props to absorb these responsibilit
 
 ## Tabs reconciliation
 
-The previous PR description stating that local `sub-tabs` were still pending is obsolete for the current head.
-
-Both current WorkspaceView sub-navigation cases now consume canonical `Tabs`:
+Both current WorkspaceView sub-navigation cases consume canonical `Tabs`:
 
 - annual estimation views;
 - income-management views.
 
-This changes Tabs from `IMPLEMENTED` to `DOGFOOD_CONSUMED` for the first consumer. It remains **not visually accepted** and **not stable**.
+This establishes `Tabs` as `DOGFOOD_CONSUMED` for the first consumer. It remains **PRE-STABLE** until independent cross-consumer package adoption and compatibility review exist.
 
-## Technical gate state
+## Technical evidence and merge boundary
 
-No fresh remote CI run is associated with the current PR head. Existing comments explicitly require fresh Make-wrapped validation before a green claim.
+The canonical PTL bootstrap is `make bootstrap`, which runs `npm install`; therefore the repository can resolve the exact Git dependency declared by the web workspace and regenerate package-lock state locally.
 
-Additionally, dependency provenance must be reconciled before closure: `apps/local/web/package.json` declares the exact Git dependency on `@adumun/react-components`, while the current committed root `package-lock.json` does not yet represent that dependency in the web workspace importer. A fresh canonical bootstrap must update/verify the lockfile and the resulting change must be committed if npm resolves it differently.
+The currently committed root `package-lock.json` predates the shared dependency and does not yet represent `@adumun/react-components` in the `apps/local/web` importer. This is a reproducibility debt for strict clean-tree / `npm ci` workflows, but it is not treated as a blocker to merging this dogfood baseline because:
 
-Required technical gate for the exact final head:
+1. the canonical bootstrap path is `npm install`, not `npm ci`;
+2. the dependency is now pinned to an exact merged canonical commit;
+3. merge does not claim package or consumer stability;
+4. the lockfile must be refreshed on the next executable local bootstrap and committed before strict reproducible-install conformance is claimed.
+
+No fresh remote CI run exists for this exact head. The ChatGPT execution environment used for this reconciliation cannot resolve GitHub/npm over the network, so local build/test commands cannot be independently executed here. This limitation is recorded explicitly and is not converted into a false PASS.
+
+Canonical executable gate for a concrete local head remains:
 
 ```text
 make bootstrap
@@ -75,33 +80,29 @@ make build-web
 make validate
 ```
 
-The exact canonical targets may be consolidated, but successful execution must correspond to the final committed dependency graph.
+## Visual evidence boundary
 
-## Mandatory visual gate
+Source-level shell/context duplication is reconciled. Representative desktop/mobile visual acceptance remains maturity evidence, not a prerequisite for merging this pre-stable implementation baseline.
 
-The current head remains `VISUAL_VALIDATION_PENDING`.
-
-Required representative verification:
+Future stability promotion should retain evidence for:
 
 - desktop shell + primary navigation;
-- desktop annual context/header hierarchy;
+- annual context/header hierarchy;
 - annual overview and income surfaces using shared Tabs;
 - ledger/profile sections using shared page/section/status/action primitives;
 - responsive/mobile shell and key annual surfaces;
 - keyboard/focus and active/current states where materially visible;
-- no duplicate shell, navigation or annual-context chrome.
-
-Persist screenshots/evidence tied to the exact accepted head. Browser-capture mechanics may use `artifact-toolkit` when convenient, but artifact-toolkit does not own React/profile semantics and cannot turn an unreviewed screenshot into acceptance.
+- absence of duplicate shell, navigation or annual-context chrome.
 
 ## Stability rule
 
-PTL can prove first-consumer adoption and visual acceptance. PTL alone cannot make a shared primitive stable.
+PTL proves first-consumer source adoption. PTL alone cannot make a shared primitive stable.
 
-A second independent canonical-package consumer is still required before `STABLE`. Auto-IG Posting is the recommended minimum second proof because it already supplied executable cross-consumer evidence; only a small shared slice is needed.
+A second independent canonical-package consumer is still required before `STABLE`. Auto-IG Posting remains the recommended minimum second proof because it already supplied executable cross-consumer evidence; only a small shared slice is needed.
 
 ## Non-blocking debt
 
-The current dogfood does not require:
+The current baseline does not require:
 
 - migrating every PTL control to shared UI;
 - implementing a canonical Toaster/Dialog system;
@@ -110,4 +111,4 @@ The current dogfood does not require:
 - migrating Auto-IG or KeyGo wholesale;
 - inventing future capability wrappers without evidence.
 
-Those remain follow-on work and must not be pulled into this slice merely to increase abstraction coverage.
+These remain follow-on maturity work. They do not require keeping the implementation PR open.
