@@ -2,8 +2,16 @@
 
 **Initiative:** PTL Early Adoption & Go-To-Market — Cycle 01  
 **Block:** 02 — Conversión  
-**Status:** READY FOR PARTNER CENTER IMPLEMENTATION  
+**Status:** READY TO RESUME / DEFERRED BY PRIORITY  
 **Input authority:** `docs/product/gtm/gtm-foundation-v1.md`
+
+## Execution decision — 2026-09-13
+
+The Listing v2 package is complete, but the product owner explicitly decided not to open a new Microsoft Partner Center submission at this time because the current focus is elsewhere.
+
+This document remains the canonical ready-to-apply specification. Nothing below should be interpreted as already applied remotely in Partner Center.
+
+Resume condition: explicit re-prioritization of Microsoft Store listing optimization.
 
 ## Naming
 
