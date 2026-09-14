@@ -1,6 +1,6 @@
 # Block 02 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE`
+**Status:** `IMPLEMENTING / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 DONE`
 
 ## Spikes
 
@@ -93,16 +93,23 @@ Evidence: [`task-il-004-evidence.md`](task-il-004-evidence.md).
 **Role:** ENABLER  
 **Priority:** P1  
 **Size:** L  
-**Status:** READY
+**Status:** DONE
 
-Executable scope:
+Closed scope:
 
 - dedicated `foreign_service_income` aggregate for genuinely foreign-source honoraria;
 - append-only `foreign_service_fx_conversions` provenance;
-- BCCh-backed conversion provider contract;
-- `FOREIGN_SERVICE_INCOME` ledger projection only for the genuine foreign-source path;
-- BHE-linked foreign settlement remains attached to `fee_receipts` and does not create a second ledger row;
-- explicit `PENDING / NEEDS_REVIEW` when conversion cannot be safely resolved.
+- deterministic conversion-history append ordering;
+- BCCh exact-date conversion provider contract;
+- no implicit previous-business-day fallback;
+- explicit manual conversion fallback with mandatory provenance;
+- annual-context-safe foreign-service use cases;
+- `FOREIGN_SERVICE_INCOME` ledger entry kind and owner aggregate;
+- `PENDING` until perception date plus a resolved conversion snapshot exist;
+- CLP gross projection only for recognized rows;
+- Path A protection: CHILE-source services cannot enter `foreign_service_income` and therefore cannot duplicate an existing BHE fact.
+
+Evidence: [`task-il-005-evidence.md`](task-il-005-evidence.md). Canonical `make validate`: PASS.
 
 ---
 
@@ -129,8 +136,8 @@ flowchart LR
   U1 --> U3[US-IL-003\nDONE]
   U1 --> U6[US-IL-006\nDONE]
   T3 --> U5[US-IL-005\nDONE]
-  S2[SPIKE-IL-002\nDONE] --> T5[TASK-IL-005\nREADY]
-  T5 --> U4[US-IL-004]
+  S2[SPIKE-IL-002\nDONE] --> T5[TASK-IL-005\nDONE]
+  T5 --> U4[US-IL-004\nREADY]
   U1 --> T6[TASK-IL-006]
   U2 --> T6
   U3 --> T6
@@ -142,8 +149,7 @@ flowchart LR
 ## Current critical path
 
 ```text
-PTL-TASK-IL-005 foreign-service provider/value contract
-  -> PTL-US-IL-004 foreign payer / foreign-source flow
+PTL-US-IL-004 foreign payer / foreign-source product flow
   -> PTL-TASK-IL-006 terminal regression / DoD
   -> Block 02 CLOSED
 ```

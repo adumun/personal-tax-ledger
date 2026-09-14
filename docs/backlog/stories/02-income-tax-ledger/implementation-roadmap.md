@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DECISION_PROPOSED`  
+**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 DONE / US-IL-004 READY`  
 **Date:** 2026-09-14
 
 ## Baseline inherited from Block 01
@@ -27,42 +27,49 @@ Block 02 consumes these contracts rather than reintroducing a second year author
 - `PTL-US-IL-003` — DONE: domestic BHE owner flow.
 - `PTL-US-IL-005` — DONE: factual annual income position.
 - `PTL-US-IL-006` — DONE: authority/traceability/year isolation.
+- `PTL-SPIKE-IL-002` — DONE: foreign payer/source-jurisdiction split, perception recognition and frozen FX provenance accepted.
+- `PTL-TASK-IL-005` — DONE: foreign-service aggregate, append-only FX provenance, exact-date BCCh contract and ledger provider implemented; canonical `make validate` PASS.
 
-## Current discovery node
+## Current implementation node — PTL-US-IL-004
 
-### PTL-SPIKE-IL-002 — Foreign-service recognition and FX provenance
+The enabling foundation is closed:
 
-Current proposal closes the previously ambiguous model:
+```text
+foreign_service_income
+  + foreign_service_fx_conversions
+  + annual-context use cases
+  + exact-date BCCh provider contract
+  + manual provenance fallback
+  + FOREIGN_SERVICE_INCOME ledger provider
+```
+
+The remaining product flow must preserve the accepted split:
 
 ```text
 foreign payer
   -> source jurisdiction
      -> CHILE
-        -> fee_receipts/BHE canonical
-        -> FX settlement is linked provenance only
+        -> fee_receipts/BHE remains canonical
+        -> foreign settlement is provenance only
      -> FOREIGN
-        -> foreign_service_income canonical
+        -> foreign_service_income
         -> perception date controls year
         -> original value preserved
-        -> BCCh-backed frozen CLP conversion snapshot
+        -> frozen CLP conversion snapshot
 ```
 
-No implementation starts until this decision is accepted because otherwise `PTL-TASK-IL-005` would risk encoding a false equivalence between payer location and income source.
+Evidence for the closed enabler: [`task-il-005-evidence.md`](task-il-005-evidence.md).
 
-Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).
+## Remaining IL-C sequence
 
-## Next implementation slice — IL-C
-
-After spike acceptance:
-
-1. `PTL-TASK-IL-005 — Foreign-service provider/value contract implementation`;
-2. introduce `foreign_service_income` owner aggregate for genuine foreign-source honoraria;
-3. introduce append-only FX conversion provenance;
-4. add BCCh conversion-provider contract;
-5. add `FOREIGN_SERVICE_INCOME` ledger entry kind/provider;
-6. add BHE-linked foreign-currency settlement metadata without a second ledger row;
-7. implement `PTL-US-IL-004` UI flow and owner round-trip;
-8. visual + canonical validation.
+1. implement `PTL-US-IL-004` product flow:
+   - explicit source-jurisdiction classification;
+   - Path A BHE/settlement flow;
+   - Path B foreign-source owner flow;
+   - owner-aware round-trip from annual ledger;
+2. user visual validation for the new flow;
+3. canonical validation;
+4. run terminal `PTL-TASK-IL-006` regression/DoD gate.
 
 ## Terminal gate
 
@@ -89,9 +96,7 @@ Block 02 does not own evidence vault, SII reconciliation, readiness, annual tax 
 ## Current executable path
 
 ```text
-PTL-SPIKE-IL-002 acceptance
-  -> PTL-TASK-IL-005
-  -> PTL-US-IL-004
+PTL-US-IL-004
   -> PTL-TASK-IL-006
   -> Block 02 CLOSED
 ```

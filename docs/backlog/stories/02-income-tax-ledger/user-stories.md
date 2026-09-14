@@ -99,7 +99,7 @@ Como contribuyente que emite BHE, quiero administrar los hechos de honorarios de
 **Type:** Story  
 **Capability:** TAX-04  
 **Related:** `PTL-EXT-01`  
-**Status:** READY_AFTER_TASK_IL_005  
+**Status:** READY  
 **Priority:** P1  
 **Size:** L  
 **Canonical data impact:** CANONICAL_LEDGER  
@@ -157,11 +157,12 @@ serviceSourceJurisdiction = CHILE | FOREIGN
 ### Dependencies
 
 - `REQUIRES` -> `PTL-SPIKE-IL-002` — DONE
-- `REQUIRES` -> `PTL-TASK-IL-005` — READY
+- `REQUIRES` -> `PTL-TASK-IL-005` — DONE
 - `REQUIRES` -> `US-IL-001`
 - `UI_DEPENDS_ON` -> `DESIGN-IL-004`
 
-Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).
+Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).  
+Enabler evidence: [`task-il-005-evidence.md`](task-il-005-evidence.md).
 
 ---
 

@@ -79,4 +79,18 @@ export function createFeeReceiptTaxLedgerProvider(options: {
   feeReceiptUseCases: { listFeeReceipts(context: AnnualWorkspaceContext, filters?: Record<string, unknown>): Promise<unknown[]> };
   settingsUseCases: { getSettings(context: AnnualWorkspaceContext): Promise<Record<string, unknown>> };
 }): TaxLedgerProvider;
+export function createForeignServiceTaxLedgerProvider(options: {
+  foreignServiceUseCases: {
+    listForeignServiceIncome(context: AnnualWorkspaceContext): Promise<Record<string, unknown>[]>;
+    listForeignServiceConversions(context: AnnualWorkspaceContext, id: string): Promise<Record<string, unknown>[]>;
+  };
+}): TaxLedgerProvider;
 export function createAnnualTaxLedgerReadModel(options: { providers: TaxLedgerProvider[] }): TaxLedgerReadModel;
+export function createForeignServiceIncomeUseCases(options: {
+  repository: unknown;
+  fxProvider?: unknown;
+  resolveActiveContext?: ResolveActiveAnnualContext;
+}): Record<string, AsyncUseCase>;
+export function createBcchForeignExchangeProvider(options: {
+  lookupRate: (input: { currency: string; date: string; targetCurrency: 'CLP' }) => Promise<Record<string, unknown>>;
+}): { resolveRate(input: { currency: string; date: string; targetCurrency?: 'CLP' }): Promise<Record<string, unknown>> };

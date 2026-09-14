@@ -37,10 +37,27 @@ test('IL-001: TaxLedgerEntry conserva identidad anual y autoridad del agregado p
   assert.ok(Object.isFrozen(entry));
 });
 
-test('IL-001: el contrato inicial sólo admite tipos y owners soportados explícitamente', () => {
-  assert.deepEqual(Object.values(TAX_LEDGER_ENTRY_KIND).sort(), ['DEPENDENT_INCOME', 'DOMESTIC_FEE_INCOME', 'OTHER_INCOME_SOURCE'].sort());
-  assert.deepEqual(Object.values(TAX_LEDGER_OWNER_AGGREGATE).sort(), ['FEE_RECEIPT', 'INCOME_SOURCE']);
-  assert.throws(() => createTaxLedgerEntry({ ...base, entryKind: 'FOREIGN_SERVICE_INCOME' }), /unsupported entryKind/);
+test('IL-005: el contrato admite sólo tipos y owners canónicos, incluyendo foreign service cerrado por el spike', () => {
+  assert.deepEqual(Object.values(TAX_LEDGER_ENTRY_KIND).sort(), [
+    'DEPENDENT_INCOME',
+    'DOMESTIC_FEE_INCOME',
+    'FOREIGN_SERVICE_INCOME',
+    'OTHER_INCOME_SOURCE'
+  ].sort());
+  assert.deepEqual(Object.values(TAX_LEDGER_OWNER_AGGREGATE).sort(), [
+    'FEE_RECEIPT',
+    'FOREIGN_SERVICE_INCOME',
+    'INCOME_SOURCE'
+  ].sort());
+  const foreign = createTaxLedgerEntry({
+    ...base,
+    ledgerEntryId: 'foreign-service-income:fsi-1',
+    entryKind: TAX_LEDGER_ENTRY_KIND.FOREIGN_SERVICE_INCOME,
+    ownerAggregate: TAX_LEDGER_OWNER_AGGREGATE.FOREIGN_SERVICE_INCOME,
+    ownerRecordId: 'fsi-1'
+  });
+  assert.equal(foreign.entryKind, 'FOREIGN_SERVICE_INCOME');
+  assert.equal(foreign.ownerAggregate, 'FOREIGN_SERVICE_INCOME');
   assert.throws(() => createTaxLedgerEntry({ ...base, ownerAggregate: 'GENERIC_LEDGER_ROW' }), /unsupported ownerAggregate/);
 });
 
