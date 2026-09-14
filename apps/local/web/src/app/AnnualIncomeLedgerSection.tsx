@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PageHeader, SectionCard, StatusBadge } from '@adumun/react-components';
+import { Button, PageHeader, SectionCard, Select, StatusBadge } from '@adumun/react-components';
 import {
   taxLedgerClient,
   type AnnualTaxLedgerResult,
@@ -117,34 +117,28 @@ export default function AnnualIncomeLedgerSection({ commercialYear }: { commerci
     <SectionCard className="annual-income-ledger-card">
       <div className="annual-income-ledger-summary" aria-label="Resumen factual del ledger">
         <article><small>Entradas registradas</small><strong>{result?.factualSummary.entryCount ?? '—'}</strong></article>
-        <article><small>Bruto registrado</small><strong>{totalRegistered(result, 'gross')}</strong></article>
+        <article><small>Monto bruto disponible</small><strong>{totalRegistered(result, 'gross')}</strong></article>
         <article><small>Retenciones / PPM registrados</small><strong>{registeredWithholding}</strong></article>
       </div>
 
       <div className="annual-income-ledger-toolbar">
-        <label>
-          <span>Tipo</span>
-          <select value={filters.entryKind || ''} onChange={event => setFilters(current => ({ ...current, entryKind: event.target.value || undefined }))}>
-            <option value="">Todos</option>
-            <option value="DEPENDENT_INCOME">Renta dependiente</option>
-            <option value="DOMESTIC_FEE_INCOME">Honorarios / BHE</option>
-            <option value="OTHER_INCOME_SOURCE">Otros ingresos</option>
-          </select>
-        </label>
-        <label>
-          <span>Estado</span>
-          <select value={filters.recognitionState || ''} onChange={event => setFilters(current => ({ ...current, recognitionState: event.target.value || undefined }))}>
-            <option value="">Todos</option>
-            <option value="RECOGNIZED">Reconocido</option>
-            <option value="PENDING">Pendiente</option>
-            <option value="EXCLUDED">Excluido</option>
-          </select>
-        </label>
+        <Select label="Tipo" value={filters.entryKind || ''} onChange={event => setFilters(current => ({ ...current, entryKind: event.target.value || undefined }))}>
+          <option value="">Todos</option>
+          <option value="DEPENDENT_INCOME">Renta dependiente</option>
+          <option value="DOMESTIC_FEE_INCOME">Honorarios / BHE</option>
+          <option value="OTHER_INCOME_SOURCE">Otros ingresos</option>
+        </Select>
+        <Select label="Estado" value={filters.recognitionState || ''} onChange={event => setFilters(current => ({ ...current, recognitionState: event.target.value || undefined }))}>
+          <option value="">Todos</option>
+          <option value="RECOGNIZED">Reconocido</option>
+          <option value="PENDING">Pendiente</option>
+          <option value="EXCLUDED">Excluido</option>
+        </Select>
         {state === 'LOADING' ? <span className="annual-income-ledger-refreshing" role="status">Actualizando…</span> : null}
       </div>
 
       {state === 'LOADING' && !result && <div className="annual-income-ledger-state" role="status">Cargando ingresos del año…</div>}
-      {state === 'ERROR' && <div className="annual-income-ledger-state error" role="alert"><strong>No se pudieron cargar los ingresos del año.</strong><span>{error}</span><button onClick={() => void reload()}>Reintentar</button></div>}
+      {state === 'ERROR' && <div className="annual-income-ledger-state error" role="alert"><strong>No se pudieron cargar los ingresos del año.</strong><span>{error}</span><Button onClick={() => void reload()}>Reintentar</Button></div>}
       {state === 'STALE_SUPPRESSED' && <div className="annual-income-ledger-state" role="status">Se descartó una respuesta de un año anterior. Actualizando el período activo…</div>}
       {state === 'EMPTY' && <div className="annual-income-ledger-state empty"><strong>No hay ingresos registrados para este año.</strong><span>La ausencia de registros no se interpreta como $0 de ingresos.</span></div>}
 
