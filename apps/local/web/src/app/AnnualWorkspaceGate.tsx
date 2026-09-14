@@ -17,6 +17,7 @@ import WorkspaceView, { type WorkspaceTab } from './WorkspaceView';
 import AnnualWorkspaceOverviewSection from './AnnualWorkspaceOverviewSection';
 import AnnualIncomeLedgerSection from './AnnualIncomeLedgerSection';
 import ApplicabilityProfileSection from './ApplicabilityProfileSection';
+import type { TaxLedgerEntry } from './tax-ledger-client';
 import { priorYearInitializationClient, type PriorYearInitializationPreview } from './prior-year-initialization-client';
 import { api, ApiRequestError, type AnnualWorkspaceList, type AnnualWorkspaceOption } from '../api';
 import './annual-workspace.css';
@@ -139,6 +140,18 @@ export default function AnnualWorkspaceGate() {
     setCreateOpen(true);
   };
 
+  const openLedgerOwner = (entry: TaxLedgerEntry) => {
+    if (entry.ownerAggregate === 'INCOME_SOURCE') {
+      setSurface('incomes');
+      return;
+    }
+    if (entry.ownerAggregate === 'FEE_RECEIPT') {
+      setSurface('fees');
+      return;
+    }
+    setError(`No existe un editor propietario disponible para ${entry.ownerAggregate}.`);
+  };
+
   const runEmptyCreation = async (acceptWarnings = false) => {
     await api.createAnnualWorkspace(candidateYear, acceptWarnings);
   };
@@ -251,7 +264,12 @@ export default function AnnualWorkspaceGate() {
       {error && <div className="annual-workspace-error">{error}<button onClick={() => setError('')}>×</button></div>}
 
       {surface === 'annual-overview' && <AnnualWorkspaceOverviewSection commercialYear={catalog.activeCommercialYear} />}
-      {surface === 'annual-ledger' && <AnnualIncomeLedgerSection commercialYear={catalog.activeCommercialYear} />}
+      {surface === 'annual-ledger' && <AnnualIncomeLedgerSection
+        commercialYear={catalog.activeCommercialYear}
+        onAddIncome={() => setSurface('incomes')}
+        onAddFeeReceipt={() => setSurface('fees')}
+        onOpenOwner={openLedgerOwner}
+      />}
       {surface === 'tax-profile' && <ApplicabilityProfileSection commercialYear={catalog.activeCommercialYear} />}
       {isWorkspaceTab(surface) && <>
         <PageHeader
