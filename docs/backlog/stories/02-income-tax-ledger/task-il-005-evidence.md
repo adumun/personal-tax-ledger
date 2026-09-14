@@ -1,7 +1,7 @@
 # PTL-TASK-IL-005 — Foreign-service provider/value contract — Evidence
 
 **Task:** `PTL-TASK-IL-005`  
-**Status:** `IMPLEMENTED / AUTOMATED_VALIDATION_PENDING`  
+**Status:** `DONE`  
 **Priority:** P1  
 **Role:** ENABLER
 
@@ -44,6 +44,7 @@ ForeignServiceTaxLedgerProvider
 - `taxYear` is derived from `receivedAt` when perception is known;
 - original amount/currency are persisted independently of the CLP conversion;
 - FX correction appends a new row and sets `supersedesConversionId` instead of overwriting history;
+- conversion history preserves real append order even when SQLite timestamps share the same second;
 - changing the economic fact invalidates `currentConversionId` but does not delete prior conversion history;
 - foreign-tax facts are stored only as provenance inputs and do not calculate article 41 A credit.
 
@@ -114,30 +115,32 @@ Settlement metadata UX for that BHE path belongs to `PTL-US-IL-004`; it is not i
 1. original value preservation;
 2. perception-derived commercial year;
 3. append-only conversion correction history;
-4. exact-date BCCh safety/no implicit fallback;
-5. `PENDING -> RECOGNIZED` ledger transition only after resolved conversion;
-6. frozen BCCh provenance in the ledger;
-7. rejection of CHILE-source services from `foreign_service_income`;
-8. cross-year rejection through Block 01 annual context rules.
+4. deterministic append ordering when timestamps collide;
+5. exact-date BCCh safety/no implicit fallback;
+6. `PENDING -> RECOGNIZED` ledger transition only after resolved conversion;
+7. frozen BCCh provenance in the ledger;
+8. rejection of CHILE-source services from `foreign_service_income`;
+9. cross-year rejection through Block 01 annual context rules.
 
 `test/tax-ledger-entry.test.mjs` is reconciled so `FOREIGN_SERVICE_INCOME` is now an explicitly supported canonical entry kind/owner rather than an unsupported placeholder.
 
-## Validation state
+## Validation evidence
 
-No green result is claimed yet for this implementation head.
-
-Required gate:
+Executed on the implementation branch after the append-order correction:
 
 ```text
-make bootstrap
-make typecheck
-make test
+make bootstrap  -> PASS
+make typecheck  -> PASS
+make test       -> PASS
+make validate   -> PASS
 ```
 
-If green, the next closure gate is canonical:
+The first full `make test` execution exposed a real ordering defect in FX conversion history: SQLite `CURRENT_TIMESTAMP` can collide at second precision, while UUID ordering is not insertion ordering. Production code was corrected to preserve append order using `created_at ASC, rowid ASC`, after which `make test` passed.
 
-```text
-make validate
-```
+No separate visual gate was required because this task introduces no new end-user UI surface.
 
-This task has no new end-user UI surface, so it does not require a separate visual gate. `PTL-US-IL-004` remains responsible for the user-facing classification/edit flow.
+## Closure
+
+`PTL-TASK-IL-005` is `DONE`.
+
+The domain/storage/provider foundation is now available for `PTL-US-IL-004`, which owns the user-facing classification, Path A settlement and Path B foreign-source editing flows.
