@@ -94,12 +94,12 @@ Como contribuyente que emite BHE, quiero administrar los hechos de honorarios de
 
 ---
 
-## PTL-US-IL-004 — Registrar ingreso por servicios con pagador extranjero
+## PTL-US-IL-004 — Registrar servicios con pagador extranjero sin duplicar el hecho tributario
 
 **Type:** Story  
 **Capability:** TAX-04  
 **Related:** `PTL-EXT-01`  
-**Status:** BLOCKED  
+**Status:** BLOCKED_BY_SPIKE_DECISION_ACCEPTANCE  
 **Priority:** P1  
 **Size:** L  
 **Canonical data impact:** CANONICAL_LEDGER  
@@ -108,20 +108,60 @@ Como contribuyente que emite BHE, quiero administrar los hechos de honorarios de
 
 ### User outcome
 
-Como contractor o prestador de servicios a un pagador extranjero, quiero registrar el hecho económico en su moneda original y conservar una conversión/provenance explicable para integrarlo al año tributario sin perder el valor original.
+Como contractor o prestador de servicios con un pagador extranjero, quiero registrar el hecho económico distinguiendo dónde se prestó materialmente el servicio, conservar el valor original y su conversión explicable cuando corresponda, y evitar duplicar un mismo ingreso si ya existe una BHE canónica.
 
-### Blocking decision
+### Refined domain split
 
-`PTL-SPIKE-IL-002` debe cerrar:
+`foreign payer` no implica por sí solo `foreign-source income`.
 
-- fecha de reconocimiento relevante;
-- moneda original y monto original;
-- valor CLP canónico/proyectado;
-- fuente y fecha de tipo de cambio;
-- tratamiento cuando existe BHE en CLP pero pago en moneda extranjera;
-- corrección/revaluación sin sobrescribir provenance histórica.
+El flujo debe pedir explícitamente:
 
-No se implementará FX automático antes de ese contrato.
+```text
+payerCountry
+serviceSourceJurisdiction = CHILE | FOREIGN
+```
+
+#### Path A — servicio prestado materialmente en Chile
+
+- `fee_receipts` / BHE continúa siendo la autoridad del hecho tributario;
+- la BHE permanece expresada en CLP;
+- un pago recibido en USD u otra moneda se guarda como settlement/provenance vinculada a la BHE;
+- ese settlement no genera una segunda entrada de ingreso en el ledger;
+- Block 02 no interpreta automáticamente diferencias de cambio como un ingreso adicional de honorarios.
+
+#### Path B — honorario realmente de fuente extranjera
+
+- se crea un hecho propietario `foreign_service_income`;
+- reconocimiento por fecha de percepción (`receivedAt`);
+- se conservan `originalAmount` y `originalCurrency`;
+- la conversión CLP queda congelada con `fxRate`, `fxRateDate`, `fxSource`, `fxSourceReference` y `convertedAt`;
+- BCCh es la fuente oficial inicial de FX;
+- si la conversión no puede resolverse de forma segura, el hecho queda `PENDING / NEEDS_REVIEW` y no aporta monto CLP reconocido;
+- una corrección FX conserva el snapshot anterior en vez de sobrescribirlo destructivamente;
+- impuestos pagados/retenidos en el extranjero pueden conservarse como hechos/provenance, pero Block 02 no calcula el crédito del artículo 41 A.
+
+### Acceptance criteria
+
+- pagador extranjero y fuente del ingreso se modelan como dimensiones distintas;
+- el usuario no pierde moneda/monto original;
+- el año comercial del foreign-source honorarium se deriva de `receivedAt`;
+- sólo un foreign-source honorarium con conversión resuelta puede aportar monto CLP `RECOGNIZED` al ledger;
+- `FOREIGN_SERVICE_INCOME` se proyecta con owner identity estable y provenance de conversión;
+- una BHE CLP con pago en moneda extranjera conserva una sola entrada de ingreso;
+- no hay live revaluation de registros históricos;
+- no existe fallback FX silencioso para días sin tasa oficial resuelta;
+- manual FX requiere fuente/referencia/razón explícitas;
+- correcciones preservan conversion history;
+- no se presenta foreign-tax-credit entitlement, liability, refund, readiness ni conciliación SII como parte de esta story.
+
+### Dependencies
+
+- `REQUIRES` -> acceptance of `PTL-SPIKE-IL-002`
+- `REQUIRES` -> `PTL-TASK-IL-005`
+- `REQUIRES` -> `US-IL-001`
+- `UI_DEPENDS_ON` -> `DESIGN-IL-004`
+
+Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).
 
 ---
 
