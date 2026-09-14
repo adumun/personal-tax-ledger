@@ -34,7 +34,7 @@ Ingresos del año
 - Honorarios / BHE nacional;
 - other existing income-source kinds when the owner aggregate already supports them.
 
-Foreign-service income is not shown as a fake supported type until `SPIKE-IL-002` closes its value/provenance contract.
+`FOREIGN_SERVICE_INCOME` becomes executable only after `PTL-SPIKE-IL-002` is accepted and `PTL-TASK-IL-005` implements the owner/value contract.
 
 ### States
 
@@ -68,11 +68,103 @@ Reuse the existing BHE form and statuses. The ledger shell may summarize the rec
 
 A cancelled BHE must remain visibly distinguishable and must not be visually presented as an ordinary realized income row.
 
-## DESIGN-IL-004 — Foreign-service income
+## DESIGN-IL-004 — Foreign payer / foreign-source service classification
 
-Reserved. No executable UI until `PTL-SPIKE-IL-002` closes FX recognition and provenance.
+**Status:** `SPIKE_DECISION_PROPOSED`  
+**Fidelity:** L2
 
-Required eventual fields include original currency/amount and explicit conversion provenance; exact copy remains unresolved until the spike closes.
+The flow must not equate a foreign payer with foreign-source income.
+
+### Entry decision
+
+```text
+Servicio con pagador extranjero
+  País del pagador
+  ¿Dónde se prestó materialmente el servicio?
+    Chile
+    Extranjero
+```
+
+The two answers route to different canonical owners.
+
+### Path A — service materially performed in Chile
+
+Product language should explain that the tax fact remains the Chilean honorarium/BHE flow.
+
+```text
+Servicio prestado en Chile
+  -> usar / crear BHE en CLP
+  -> opcional: registrar cómo se recibió el pago en moneda extranjera
+```
+
+The payment/settlement surface may capture:
+
+- currency received;
+- amount received;
+- payment date;
+- payment-provider/bank reference;
+- notes.
+
+It must clearly state that this settlement does not create a second income row in the annual ledger.
+
+### Path B — genuinely foreign-source honorarium
+
+The foreign-source editor must capture:
+
+```text
+Pagador
+País del pagador
+Fecha de percepción
+Monto original
+Moneda original
+Origen del servicio = Extranjero
+Conversión a CLP
+  Estado
+  Tipo de cambio
+  Fecha del tipo de cambio
+  Fuente
+  Referencia
+```
+
+Optional factual fields may include foreign tax paid/withheld and documentary reference, but the UI must not imply that the app has calculated a foreign-tax credit entitlement.
+
+### Conversion states
+
+- `RESOLVED` — CLP conversion has auditable provenance;
+- `NEEDS_REVIEW` — no safe automatic conversion was resolved;
+- `SUPERSEDED` — historical conversion retained after correction.
+
+When conversion is `NEEDS_REVIEW`, the record may exist but must remain visibly pending and must not present a recognized CLP total as if final.
+
+### Manual conversion
+
+Manual FX is permitted only when the user explicitly records:
+
+- rate;
+- rate date;
+- source/reference;
+- reason.
+
+It must be visually distinguishable from BCCh-resolved conversion.
+
+### Correction behavior
+
+An FX correction creates a new conversion snapshot and preserves the prior one. The UI must not overwrite conversion history invisibly.
+
+Changing original amount/currency/perception date is an economic-fact correction, not merely an FX correction.
+
+### Hard boundary
+
+The foreign-service flow does not own:
+
+- automatic legal determination of source jurisdiction;
+- article 41 A credit calculation;
+- accounting FX gains/losses;
+- optimization advice;
+- SII reconciliation;
+- documentary evidence vault.
+
+Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).
 
 ## DESIGN-IL-005 — Factual annual income position
 
@@ -95,8 +187,6 @@ NOT readiness percentage
 NOT SII reconciliation result
 NOT optimization advice
 ```
-
-Visual validation for the implemented L2 section is approved; canonical closure remains governed by the story evidence and `make validate`.
 
 ## Responsive/accessibility
 
