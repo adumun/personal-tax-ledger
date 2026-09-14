@@ -129,7 +129,7 @@ No se implementará FX automático antes de ese contrato.
 
 **Type:** Story  
 **Capability:** TAX-04  
-**Status:** REFINING  
+**Status:** IN_PROGRESS  
 **Priority:** P1  
 **Size:** M  
 **Canonical data impact:** DERIVED_PROJECTION  
@@ -147,6 +147,15 @@ Como contribuyente, quiero ver cuánto ingreso factual está registrado por cate
 - distingue bruto/factual de retenciones/PPM cuando el proveedor dispone del dato;
 - no presenta refund/payment, liability, optimización ni readiness;
 - cada total es trazable a entradas del ledger.
+
+### Implementation interpretation
+
+- la posición anual se calcula sobre el ledger completo del `AnnualTaxWorkspace` activo, independientemente de los filtros aplicados a la tabla;
+- sólo entradas `RECOGNIZED` aportan montos;
+- `PENDING` y `EXCLUDED` permanecen visibles como conteos factuales, pero no inflan montos reconocidos;
+- el desglose canónico se expresa por `entryKind` y moneda;
+- `Ver entradas` aplica el filtro de categoría sobre el mismo ledger para materializar la trazabilidad;
+- no se crea persistencia, endpoint de mutación ni cálculo tributario final adicional.
 
 ### Dependencies
 
