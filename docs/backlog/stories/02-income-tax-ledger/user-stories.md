@@ -129,7 +129,7 @@ No se implementará FX automático antes de ese contrato.
 
 **Type:** Story  
 **Capability:** TAX-04  
-**Status:** IN_PROGRESS  
+**Status:** USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING  
 **Priority:** P1  
 **Size:** M  
 **Canonical data impact:** DERIVED_PROJECTION  
