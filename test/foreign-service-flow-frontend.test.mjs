@@ -1,0 +1,47 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+
+const ledgerPath = 'apps/local/web/src/app/AnnualIncomeLedgerSection.tsx';
+const flowPath = 'apps/local/web/src/app/ForeignServiceFlow.tsx';
+const clientPath = 'apps/local/web/src/app/foreign-service-client.ts';
+
+test('US-IL-004: ledger exposes one explicit foreign-payer entry point and owner-aware foreign edit', async () => {
+  const source = await readFile(ledgerPath, 'utf8');
+  assert.match(source, /\+ Servicio con pagador extranjero/);
+  assert.match(source, /FOREIGN_SERVICE_INCOME: 'Honorario de fuente extranjera'/);
+  assert.match(source, /entry\.ownerAggregate === 'FOREIGN_SERVICE_INCOME'/);
+  assert.match(source, /mode: 'EDIT', ownerRecordId: entry\.ownerRecordId/);
+  assert.match(source, /Una BHE en CLP con settlement extranjero sigue siendo una sola entrada de ingreso/);
+});
+
+test('US-IL-004: classification keeps payer country separate from source jurisdiction', async () => {
+  const source = await readFile(flowPath, 'utf8');
+  assert.match(source, /País del pagador/);
+  assert.match(source, /¿Dónde se prestó materialmente el servicio\?/);
+  assert.match(source, /chooseJurisdiction\('CHILE'\)/);
+  assert.match(source, /chooseJurisdiction\('FOREIGN'\)/);
+  assert.match(source, /PTL no determina automáticamente/);
+});
+
+test('US-IL-004 Path A: settlement writes provenance on BHE surface without foreign income create', async () => {
+  const source = await readFile(flowPath, 'utf8');
+  const client = await readFile(clientPath, 'utf8');
+  assert.match(source, /saveSettlement\(selectedReceiptId/);
+  assert.match(source, /No se creó una segunda entrada de ingreso/);
+  assert.match(client, /\/api\/fee-receipts\/\$\{feeReceiptId\}\/foreign-settlement/);
+  assert.doesNotMatch(client, /foreign-settlement.*\/api\/foreign-service-income/s);
+});
+
+test('US-IL-004 Path B: foreign fact and conversion history remain separate operations', async () => {
+  const source = await readFile(flowPath, 'utf8');
+  const client = await readFile(clientPath, 'utf8');
+  assert.match(source, /Guardar hecho/);
+  assert.match(source, /Intentar resolver con fuente oficial/);
+  assert.match(source, /Conversión manual documentada/);
+  assert.match(source, /Historial de conversiones/);
+  assert.match(source, /PTL no calcula en esta story el crédito del artículo 41 A/);
+  assert.match(client, /conversions\/official/);
+  assert.match(client, /conversions\/manual/);
+  assert.match(client, /listConversions/);
+});
