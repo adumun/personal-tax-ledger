@@ -1,6 +1,6 @@
 # Block 02 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DECISION_PROPOSED`
+**Status:** `IMPLEMENTING / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE`
 
 ## Spikes
 
@@ -16,10 +16,10 @@ Evidence: [`spike-il-001-ledger-authority.md`](spike-il-001-ledger-authority.md)
 
 ### PTL-SPIKE-IL-002 — Foreign-service recognition and FX provenance
 
-**Status:** DECISION_PROPOSED  
+**Status:** DONE  
 **Priority:** P1
 
-The spike now closes the previously open dimensions with an explicit two-path model:
+Accepted decision:
 
 ```text
 foreign payer
@@ -33,24 +33,22 @@ foreign payer
         -> frozen CLP conversion snapshot with BCCh provenance
 ```
 
-Key proposed decisions:
+Closed invariants:
 
 - `foreign payer != foreign-source income`;
-- source jurisdiction and payer country are separate fields;
+- source jurisdiction and payer country are separate dimensions;
 - genuine foreign-source honoraria are recognized on perception;
-- original amount/currency are immutable factual identity;
-- CLP conversion uses an auditable conversion snapshot rather than live revaluation;
+- original amount/currency are preserved;
+- CLP conversion is an auditable frozen snapshot, not live revaluation;
 - BCCh is the initial official FX authority;
 - no silent weekend/holiday previous-business-day assumption;
 - unresolved conversion remains `PENDING / NEEDS_REVIEW`;
-- manual FX is allowed only with explicit source/reference/reason;
+- manual FX requires explicit source/reference/reason;
 - corrections preserve append-only conversion provenance;
-- a CLP BHE plus foreign-currency payment never produces two ledger income facts;
-- foreign tax paid/withheld may be captured factually, but article 41 A credit calculation is outside Block 02.
+- a CLP BHE plus foreign-currency settlement never produces two ledger income facts;
+- foreign tax may be captured factually, but article 41 A credit calculation is outside Block 02.
 
 Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).
-
-The spike becomes `DONE` when these decisions are accepted and the dependent story/design/task contracts are reconciled.
 
 ## Enabling Tasks
 
@@ -95,9 +93,9 @@ Evidence: [`task-il-004-evidence.md`](task-il-004-evidence.md).
 **Role:** ENABLER  
 **Priority:** P1  
 **Size:** L  
-**Status:** BLOCKED_BY_SPIKE_DECISION_ACCEPTANCE
+**Status:** READY
 
-Target implementation after spike acceptance:
+Executable scope:
 
 - dedicated `foreign_service_income` aggregate for genuinely foreign-source honoraria;
 - append-only `foreign_service_fx_conversions` provenance;
@@ -131,7 +129,7 @@ flowchart LR
   U1 --> U3[US-IL-003\nDONE]
   U1 --> U6[US-IL-006\nDONE]
   T3 --> U5[US-IL-005\nDONE]
-  S2[SPIKE-IL-002\nDECISION_PROPOSED] --> T5[TASK-IL-005]
+  S2[SPIKE-IL-002\nDONE] --> T5[TASK-IL-005\nREADY]
   T5 --> U4[US-IL-004]
   U1 --> T6[TASK-IL-006]
   U2 --> T6
@@ -144,8 +142,7 @@ flowchart LR
 ## Current critical path
 
 ```text
-PTL-SPIKE-IL-002 decision acceptance
-  -> PTL-TASK-IL-005 foreign-service provider/value contract
+PTL-TASK-IL-005 foreign-service provider/value contract
   -> PTL-US-IL-004 foreign payer / foreign-source flow
   -> PTL-TASK-IL-006 terminal regression / DoD
   -> Block 02 CLOSED
