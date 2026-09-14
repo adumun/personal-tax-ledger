@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
-export type LedgerOwnerAggregate = 'INCOME_SOURCE' | 'FEE_RECEIPT';
+export type LedgerOwnerAggregate = 'INCOME_SOURCE' | 'FEE_RECEIPT' | 'FOREIGN_SERVICE_INCOME';
 export type LedgerOwnerFlowMode = 'CREATE' | 'EDIT';
 
 export type LedgerOwnerFlowIntent = {
