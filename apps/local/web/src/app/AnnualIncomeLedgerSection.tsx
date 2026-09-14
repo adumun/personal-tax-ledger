@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PageHeader } from '@adumun/react-components';
+import { PageHeader, SectionCard, StatusBadge } from '@adumun/react-components';
 import {
   taxLedgerClient,
   type AnnualTaxLedgerResult,
@@ -32,6 +32,12 @@ const OWNER_LABELS: Record<string, string> = {
   INCOME_SOURCE: 'Ingreso laboral',
   FEE_RECEIPT: 'Boleta de honorarios'
 };
+
+function statusTone(state: string) {
+  if (state === 'RECOGNIZED') return 'success' as const;
+  if (state === 'PENDING') return 'warning' as const;
+  return 'neutral' as const;
+}
 
 function formatAmount(value: number | null | undefined, currency = 'CLP') {
   if (value == null) return 'No registrado';
@@ -105,61 +111,63 @@ export default function AnnualIncomeLedgerSection({ commercialYear }: { commerci
       title="Ingresos del año"
       titleId="annual-income-ledger-title"
       description={`Año comercial ${commercialYear} · Operación Renta AT${commercialYear + 1}. Hechos registrados y consolidados en una sola vista.`}
-      actions={<span className="annual-income-ledger-readonly">Solo lectura</span>}
+      actions={<StatusBadge tone="info">Solo lectura</StatusBadge>}
     />
 
-    <div className="annual-income-ledger-summary" aria-label="Resumen factual del ledger">
-      <article><small>Entradas registradas</small><strong>{result?.factualSummary.entryCount ?? '—'}</strong></article>
-      <article><small>Bruto registrado</small><strong>{totalRegistered(result, 'gross')}</strong></article>
-      <article><small>Retenciones / PPM registrados</small><strong>{registeredWithholding}</strong></article>
-    </div>
+    <SectionCard className="annual-income-ledger-card">
+      <div className="annual-income-ledger-summary" aria-label="Resumen factual del ledger">
+        <article><small>Entradas registradas</small><strong>{result?.factualSummary.entryCount ?? '—'}</strong></article>
+        <article><small>Bruto registrado</small><strong>{totalRegistered(result, 'gross')}</strong></article>
+        <article><small>Retenciones / PPM registrados</small><strong>{registeredWithholding}</strong></article>
+      </div>
 
-    <div className="annual-income-ledger-toolbar">
-      <label>
-        <span>Tipo</span>
-        <select value={filters.entryKind || ''} onChange={event => setFilters(current => ({ ...current, entryKind: event.target.value || undefined }))}>
-          <option value="">Todos</option>
-          <option value="DEPENDENT_INCOME">Renta dependiente</option>
-          <option value="DOMESTIC_FEE_INCOME">Honorarios / BHE</option>
-          <option value="OTHER_INCOME_SOURCE">Otros ingresos</option>
-        </select>
-      </label>
-      <label>
-        <span>Estado</span>
-        <select value={filters.recognitionState || ''} onChange={event => setFilters(current => ({ ...current, recognitionState: event.target.value || undefined }))}>
-          <option value="">Todos</option>
-          <option value="RECOGNIZED">Reconocido</option>
-          <option value="PENDING">Pendiente</option>
-          <option value="EXCLUDED">Excluido</option>
-        </select>
-      </label>
-      <button type="button" onClick={() => void reload()} disabled={state === 'LOADING'}>Actualizar</button>
-    </div>
+      <div className="annual-income-ledger-toolbar">
+        <label>
+          <span>Tipo</span>
+          <select value={filters.entryKind || ''} onChange={event => setFilters(current => ({ ...current, entryKind: event.target.value || undefined }))}>
+            <option value="">Todos</option>
+            <option value="DEPENDENT_INCOME">Renta dependiente</option>
+            <option value="DOMESTIC_FEE_INCOME">Honorarios / BHE</option>
+            <option value="OTHER_INCOME_SOURCE">Otros ingresos</option>
+          </select>
+        </label>
+        <label>
+          <span>Estado</span>
+          <select value={filters.recognitionState || ''} onChange={event => setFilters(current => ({ ...current, recognitionState: event.target.value || undefined }))}>
+            <option value="">Todos</option>
+            <option value="RECOGNIZED">Reconocido</option>
+            <option value="PENDING">Pendiente</option>
+            <option value="EXCLUDED">Excluido</option>
+          </select>
+        </label>
+        {state === 'LOADING' ? <span className="annual-income-ledger-refreshing" role="status">Actualizando…</span> : null}
+      </div>
 
-    {state === 'LOADING' && <div className="annual-income-ledger-state" role="status">Cargando ingresos del año…</div>}
-    {state === 'ERROR' && <div className="annual-income-ledger-state error" role="alert"><strong>No se pudieron cargar los ingresos del año.</strong><span>{error}</span><button onClick={() => void reload()}>Reintentar</button></div>}
-    {state === 'STALE_SUPPRESSED' && <div className="annual-income-ledger-state" role="status">Se descartó una respuesta de un año anterior. Actualizando el período activo…</div>}
-    {state === 'EMPTY' && <div className="annual-income-ledger-state empty"><strong>No hay ingresos registrados para este año.</strong><span>La ausencia de registros no se interpreta como $0 de ingresos.</span></div>}
+      {state === 'LOADING' && !result && <div className="annual-income-ledger-state" role="status">Cargando ingresos del año…</div>}
+      {state === 'ERROR' && <div className="annual-income-ledger-state error" role="alert"><strong>No se pudieron cargar los ingresos del año.</strong><span>{error}</span><button onClick={() => void reload()}>Reintentar</button></div>}
+      {state === 'STALE_SUPPRESSED' && <div className="annual-income-ledger-state" role="status">Se descartó una respuesta de un año anterior. Actualizando el período activo…</div>}
+      {state === 'EMPTY' && <div className="annual-income-ledger-state empty"><strong>No hay ingresos registrados para este año.</strong><span>La ausencia de registros no se interpreta como $0 de ingresos.</span></div>}
 
-    {state === 'READY' && result && <div className="annual-income-ledger-table-wrap">
-      <table className="annual-income-ledger-table">
-        <thead><tr><th>Fecha / período</th><th>Tipo</th><th>Pagador / empleador</th><th>Monto registrado</th><th>Retención / PPM</th><th>Estado</th><th>Origen</th></tr></thead>
-        <tbody>{result.entries.map(entry => <tr key={entry.ledgerEntryId} className={entry.recognitionState === 'EXCLUDED' ? 'excluded' : ''}>
-          <td data-label="Fecha / período">{period(entry)}</td>
-          <td data-label="Tipo"><strong>{ENTRY_KIND_LABELS[entry.entryKind] || entry.entryKind}</strong></td>
-          <td data-label="Pagador / empleador">{counterparty(entry)}</td>
-          <td data-label="Monto registrado">{formatAmount(entry.amounts.gross ?? entry.amounts.net, entry.amounts.currency)}</td>
-          <td data-label="Retención / PPM">{entry.amounts.withholding != null
-            ? formatAmount(entry.amounts.withholding, entry.amounts.currency)
-            : entry.amounts.ppm != null
-              ? `PPM ${formatAmount(entry.amounts.ppm, entry.amounts.currency)}`
-              : 'No registrado'}</td>
-          <td data-label="Estado"><span className={`ledger-state ${entry.recognitionState.toLowerCase()}`}>{STATE_LABELS[entry.recognitionState] || entry.recognitionState}</span></td>
-          <td data-label="Origen"><span>{OWNER_LABELS[entry.ownerAggregate] || entry.ownerAggregate}</span><small>{entry.ownerRecordId}</small></td>
-        </tr>)}</tbody>
-      </table>
-    </div>}
+      {state === 'READY' && result && <div className="annual-income-ledger-table-wrap">
+        <table className="annual-income-ledger-table">
+          <thead><tr><th>Fecha / período</th><th>Tipo</th><th>Pagador / empleador</th><th>Monto registrado</th><th>Retención / PPM</th><th>Estado</th><th>Origen</th></tr></thead>
+          <tbody>{result.entries.map(entry => <tr key={entry.ledgerEntryId} className={entry.recognitionState === 'EXCLUDED' ? 'excluded' : ''}>
+            <td data-label="Fecha / período">{period(entry)}</td>
+            <td data-label="Tipo"><strong>{ENTRY_KIND_LABELS[entry.entryKind] || entry.entryKind}</strong></td>
+            <td data-label="Pagador / empleador">{counterparty(entry)}</td>
+            <td data-label="Monto registrado">{formatAmount(entry.amounts.gross ?? entry.amounts.net, entry.amounts.currency)}</td>
+            <td data-label="Retención / PPM">{entry.amounts.withholding != null
+              ? formatAmount(entry.amounts.withholding, entry.amounts.currency)
+              : entry.amounts.ppm != null
+                ? `PPM ${formatAmount(entry.amounts.ppm, entry.amounts.currency)}`
+                : 'No registrado'}</td>
+            <td data-label="Estado"><StatusBadge tone={statusTone(entry.recognitionState)}>{STATE_LABELS[entry.recognitionState] || entry.recognitionState}</StatusBadge></td>
+            <td data-label="Origen">{OWNER_LABELS[entry.ownerAggregate] || entry.ownerAggregate}</td>
+          </tr>)}</tbody>
+        </table>
+      </div>}
 
-    <p className="annual-income-ledger-boundary">Esta vista muestra hechos registrados y su origen. No representa el impuesto final, una devolución estimada, el estado de preparación tributaria ni una conciliación con el SII.</p>
+      <p className="annual-income-ledger-boundary">Esta vista muestra hechos registrados y su origen. No representa el impuesto final, una devolución estimada, el estado de preparación tributaria ni una conciliación con el SII.</p>
+    </SectionCard>
   </section>;
 }
