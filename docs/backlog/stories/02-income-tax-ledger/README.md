@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger
 
-**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 CLOSED / SPIKE-IL-002 CLOSED / TASK-IL-005 CLOSED / US-IL-004 IMPLEMENTED / VISUAL_VALIDATION_PENDING`  
+**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 CLOSED / SPIKE-IL-002 CLOSED / TASK-IL-005 CLOSED / US-IL-004 IMPLEMENTED / PRE_VISUAL_GATE_RERUN_PENDING`  
 **Primary capability:** `TAX-04 — Tax Ledger`  
 **Related capabilities:** `TAX-01`, `TAX-02`, `TAX-06`, `TAX-07`, `TAX-08`, `TAX-09`  
 **Related extension:** `PTL-EXT-01 — International Contractor Income Planning`
@@ -67,7 +67,7 @@ Implementation evidence: [`task-il-005-evidence.md`](task-il-005-evidence.md).
 
 ## Current slice — PTL-US-IL-004
 
-Implementation is assembled and statically reconciled across contracts, application, SQLite, HTTP, frontend owner flow, tests and evidence. It is now `IMPLEMENTED / VISUAL_VALIDATION_PENDING`; local pre-visual Make execution and user visual approval are still required before DONE.
+Implementation is assembled and statically reconciled across contracts, application, SQLite, HTTP, frontend owner flow, tests and evidence. The first local pre-visual gate attempt passed bootstrap/typecheck and produced 236/237 tests green; the single failure was an obsolete frontend assertion that prohibited internal `ownerRecordId` routing. That test has been corrected without weakening production behavior. The exact corrected head now requires a focused gate rerun before advancing to visual validation.
 
 Path A:
 
@@ -91,7 +91,7 @@ foreign payer + service performed FOREIGN
   -> FOREIGN_SERVICE_INCOME projection
 ```
 
-The annual ledger exposes one explicit `Servicio con pagador extranjero` action and foreign-source owner rows open their dedicated editor through the shared ledger owner-flow context. No legal source-jurisdiction inference is performed by PTL, and product UI does not expose raw technical conversion-state/source enums.
+The annual ledger exposes one explicit `Servicio con pagador extranjero` action and foreign-source owner rows open their dedicated editor through the shared ledger owner-flow context. Stable `ownerRecordId` is used internally to route to the exact canonical aggregate but is not rendered as ledger data. No legal source-jurisdiction inference is performed by PTL, and product UI does not expose raw technical conversion-state/source enums.
 
 ## Stories
 
@@ -100,7 +100,7 @@ The annual ledger exposes one explicit `Servicio con pagador extranjero` action 
 | `PTL-US-IL-001` | Ver el ledger anual unificado de ingresos | `NEW_SECTION`, `FLOW_CHANGE` | L2 | DONE |
 | `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
 | `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
-| `PTL-US-IL-004` | Registrar servicios con pagador extranjero sin duplicar el hecho tributario | `NEW_FLOW`, `FIELD_ADDITION` | L2 | IMPLEMENTED / VISUAL_VALIDATION_PENDING |
+| `PTL-US-IL-004` | Registrar servicios con pagador extranjero sin duplicar el hecho tributario | `NEW_FLOW`, `FIELD_ADDITION` | L2 | IMPLEMENTED / PRE_VISUAL_GATE_RERUN_PENDING |
 | `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | DONE |
 | `PTL-US-IL-006` | Conservar trazabilidad, autoridad y aislamiento anual del ledger | `STATE_CHANGE` | L1 | DONE |
 
@@ -132,8 +132,8 @@ Detailed contracts: [`user-stories.md`](user-stories.md).
 
 ## Remaining execution order
 
-1. run `make bootstrap`, `make typecheck`, `make test` on the exact IL-004 branch head;
-2. if green, run `make up` and perform user visual validation for Path A and Path B;
+1. rerun `make typecheck` and `make test` on the corrected IL-004 head;
+2. if green, advance to `IMPLEMENTED / VISUAL_VALIDATION_PENDING`, run `make up` and perform user visual validation for Path A and Path B;
 3. after approval, run canonical `make validate` and close `PTL-US-IL-004`;
 4. finalize evidence, mark the Draft PR ready and merge exact-head;
 5. run `PTL-TASK-IL-006` terminal regression/DoD;
