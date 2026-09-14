@@ -8,12 +8,19 @@ UAT_OUT := $(DIST_ROOT)/uat
 WIN_REPO := $(shell wslpath -w "$(CURDIR)" 2>/dev/null || true)
 WIN_STORE_OUT := $(shell wslpath -w "$(CURDIR)/$(STORE_OUT)" 2>/dev/null || true)
 
-.PHONY: bootstrap deps up down test test-ledger-ui typecheck doctor validate build build-web build-store build-uat run-web clean clean-distribution help
+.PHONY: bootstrap deps prepare-shared-ui up down test test-ledger-ui typecheck doctor validate build build-web build-store build-uat run-web clean clean-distribution help
 
 # Canonical ADÜMÜN developer façade (STD-ENG-DEV-001).
 bootstrap:
 	@echo "==> Bootstrapping PTL dependencies"
 	@npm install
+	@$(MAKE) --no-print-directory prepare-shared-ui
+
+# The local web app consumes @personal-tax-ledger/shared-ui through its compiled dist/ export.
+# Rebuild it before development so source and effective runtime artifact cannot drift.
+prepare-shared-ui:
+	@echo "==> Building shared UI runtime artifact"
+	@npm run build --workspace @personal-tax-ledger/shared-ui
 
 deps:
 	@echo "==> Checking PTL development toolchain"
@@ -25,7 +32,7 @@ deps:
 	@$(MAKE) --version | head -n 1
 
 # Foreground development runtime. Stop it with Ctrl+C in the owning terminal.
-up: deps
+up: deps prepare-shared-ui
 	@npm run dev
 
 # PTL does not daemonize the development runtime; this target documents that fact
@@ -68,7 +75,7 @@ else
 endif
 
 # Build only the React/web application, without producing a distribution artifact.
-build-web:
+build-web: prepare-shared-ui
 	@npm run build
 
 # Public distribution lane. Microsoft Store accepts the MSIX candidate, not Setup.exe.
@@ -113,16 +120,17 @@ help:
 	@echo "Personal Tax Ledger canonical repository commands"
 	@echo
 	@echo "Development (STD-ENG-DEV-001):"
-	@echo "  make bootstrap         Install/refresh repository dependencies"
+	@echo "  make bootstrap         Install/refresh dependencies and rebuild shared UI runtime"
 	@echo "  make deps              Verify required local toolchain"
-	@echo "  make up                Start API + Vite development runtime"
+	@echo "  make prepare-shared-ui Rebuild @personal-tax-ledger/shared-ui dist export"
+	@echo "  make up                Build shared UI and start API + Vite development runtime"
 	@echo "  make down              Explain foreground-runtime shutdown semantics"
 	@echo "  make test              Run canonical automated test suite"
 	@echo "  make test-ledger-ui    Run focused ledger/shared-shell regression tests"
 	@echo "  make typecheck         Run workspace TypeScript checks"
 	@echo "  make doctor            Fast, side-effect-safe repository health check"
 	@echo "  make validate          Run canonical PTL validation gate"
-	@echo "  make build-web         Build only the React/web application"
+	@echo "  make build-web         Build shared UI and React/web application"
 	@echo
 	@echo "Distribution:"
 	@echo "  make build             Build Microsoft Store MSIX candidate (default)"
