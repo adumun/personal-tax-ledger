@@ -33,16 +33,18 @@ test('US-IL-004: classification keeps payer country separate from source jurisdi
   assert.match(source, /PTL no determina automáticamente/);
 });
 
-test('US-IL-004 Path A: settlement writes provenance on BHE surface without foreign income create', async () => {
+test('US-IL-004 Path A: settlement writes provenance on BHE surface and save returns through owner flow', async () => {
   const source = await readFile(flowPath, 'utf8');
   const client = await readFile(clientPath, 'utf8');
   assert.match(source, /saveSettlement\(selectedReceiptId/);
-  assert.match(source, /No se creó una segunda entrada de ingreso/);
+  assert.match(source, /La BHE continúa siendo el único hecho de ingreso del ledger/);
+  assert.match(source, /Guardar settlement y volver al ledger/);
+  assert.match(source, /await foreignServiceClient\.saveSettlement[\s\S]*onComplete\(\)/);
   assert.match(client, /\/api\/fee-receipts\/\$\{feeReceiptId\}\/foreign-settlement/);
   assert.doesNotMatch(client, /foreign-settlement.*\/api\/foreign-service-income/s);
 });
 
-test('US-IL-004 Path B: foreign fact and conversion history remain separate operations', async () => {
+test('US-IL-004 Path B: foreign fact and conversion history remain separate operations without raw UI enums', async () => {
   const source = await readFile(flowPath, 'utf8');
   const client = await readFile(clientPath, 'utf8');
   assert.match(source, /Guardar hecho/);
@@ -50,6 +52,10 @@ test('US-IL-004 Path B: foreign fact and conversion history remain separate oper
   assert.match(source, /Conversión manual documentada/);
   assert.match(source, /Historial de conversiones/);
   assert.match(source, /PTL no calcula en esta story el crédito del artículo 41 A/);
+  assert.match(source, /Requiere revisión/);
+  assert.match(source, /Banco Central de Chile/);
+  assert.doesNotMatch(source, />NEEDS_REVIEW</);
+  assert.doesNotMatch(source, />BCCH</);
   assert.match(client, /conversions\/official/);
   assert.match(client, /conversions\/manual/);
   assert.match(client, /listConversions/);
