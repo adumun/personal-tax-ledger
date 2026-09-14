@@ -242,7 +242,7 @@ export function appendForeignServiceConversion(incomeId, input) {
 
 export function listForeignServiceConversions(incomeId) {
   ensureDb();
-  return db.prepare('SELECT * FROM foreign_service_fx_conversions WHERE foreign_service_income_id = ? ORDER BY created_at ASC, id ASC')
+  return db.prepare('SELECT * FROM foreign_service_fx_conversions WHERE foreign_service_income_id = ? ORDER BY created_at ASC, rowid ASC')
     .all(incomeId)
     .map(rowToConversion);
 }
