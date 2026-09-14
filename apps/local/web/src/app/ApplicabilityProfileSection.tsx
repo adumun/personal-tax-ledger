@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Button, FormActions, PageHeader, RadioGroup, SectionCard, StatusBadge } from '@adumun/react-components';
 import {
   applicabilityProfileClient,
   type ApplicabilityAnswer,
@@ -55,55 +56,53 @@ export default function ApplicabilityProfileSection({ commercialYear }: { commer
   };
 
   return <section className="annual-applicability-profile" aria-labelledby="annual-applicability-title">
-    <div className="annual-applicability-heading">
-      <div>
-        <h2 id="annual-applicability-title">Perfil del año</h2>
-        <p>Define qué situaciones esperas tener este año. Esto no registra montos ni confirma que hayan ocurrido; sirve para preparar PTL y detectar información pendiente.</p>
-      </div>
-      {review && <div className="annual-applicability-summary" aria-live="polite">
-        <span>{review.pendingCount} pendiente{review.pendingCount === 1 ? '' : 's'}</span>
-        <span>{review.needsReviewCount} por revisar</span>
-      </div>}
-    </div>
+    <PageHeader
+      eyebrow="Período"
+      title="Perfil del año"
+      titleId="annual-applicability-title"
+      description="Define qué situaciones esperas tener este año. Esto no registra montos ni confirma que hayan ocurrido; sirve para preparar PTL y detectar información pendiente."
+      actions={review ? <div className="annual-applicability-summary" aria-live="polite">
+        <StatusBadge tone={review.pendingCount > 0 ? 'warning' : 'success'}>{review.pendingCount} pendiente{review.pendingCount === 1 ? '' : 's'}</StatusBadge>
+        <StatusBadge tone={review.needsReviewCount > 0 ? 'critical' : 'neutral'}>{review.needsReviewCount} por revisar</StatusBadge>
+      </div> : undefined}
+    />
 
     {error && <div className="annual-applicability-error">{error}</div>}
-    {!review ? <p>Cargando perfil del año…</p> : <div className="annual-applicability-list">
-      {dimensions.map(item => {
-        const meta = LABELS[item.dimension] || { label: item.dimension };
-        const current = answers[item.dimension] || 'UNKNOWN';
-        return <div key={item.dimension} className={`annual-applicability-row ${item.state === 'NEEDS_REVIEW' ? 'needs-review' : ''}`}>
-          <div className="annual-applicability-situation">
-            <strong>{meta.label}</strong>
-            {item.state === 'NEEDS_REVIEW' && <div className="annual-applicability-conflict" role="status">
-              <strong>NEEDS_REVIEW</strong>
-              <span>Declaraste “No”, pero PTL ya tiene hechos canónicos de esta categoría. El perfil no se modifica automáticamente y los datos existentes no se eliminan.</span>
-              {meta.reviewTarget && <small>Revisa los datos en: {meta.reviewTarget}.</small>}
-            </div>}
-            {item.factPresence === 'UNAVAILABLE' && <small>PTL aún no dispone de una fuente canónica para contrastar esta categoría.</small>}
-          </div>
-          <div className="annual-applicability-options" role="radiogroup" aria-label={meta.label}>
-            {OPTIONS.map(option => <label key={option.value}>
-              <input
-                type="radio"
-                name={`applicability-${item.dimension}`}
-                value={option.value}
-                checked={current === option.value}
-                disabled={busy}
-                onChange={() => {
-                  setSaved(false);
-                  setAnswers(previous => ({ ...previous, [item.dimension]: option.value }));
-                }}
-              />
-              {option.label}
-            </label>)}
-          </div>
-        </div>;
-      })}
-    </div>}
+    {!review ? <p>Cargando perfil del año…</p> : <SectionCard className="annual-applicability-card">
+      <div className="annual-applicability-list">
+        {dimensions.map(item => {
+          const meta = LABELS[item.dimension] || { label: item.dimension };
+          const current = answers[item.dimension] || 'UNKNOWN';
+          return <div key={item.dimension} className={`annual-applicability-row ${item.state === 'NEEDS_REVIEW' ? 'needs-review' : ''}`}>
+            <div className="annual-applicability-situation">
+              <strong>{meta.label}</strong>
+              {item.state === 'NEEDS_REVIEW' && <div className="annual-applicability-conflict" role="status">
+                <StatusBadge tone="critical">Requiere revisión</StatusBadge>
+                <span>Declaraste “No”, pero PTL ya tiene datos registrados de esta categoría. El perfil no se modifica automáticamente y los datos existentes no se eliminan.</span>
+                {meta.reviewTarget && <small>Revisa los datos en: {meta.reviewTarget}.</small>}
+              </div>}
+              {item.factPresence === 'UNAVAILABLE' && <small>PTL aún no dispone de una fuente canónica para contrastar esta categoría.</small>}
+            </div>
+            <RadioGroup
+              label={meta.label}
+              value={current}
+              options={OPTIONS}
+              disabled={busy}
+              inline
+              name={`applicability-${item.dimension}`}
+              onChange={value => {
+                setSaved(false);
+                setAnswers(previous => ({ ...previous, [item.dimension]: value }));
+              }}
+            />
+          </div>;
+        })}
+      </div>
 
-    <div className="annual-applicability-actions">
-      {saved && <span role="status">Perfil guardado.</span>}
-      <button className="primary" disabled={busy || !review} onClick={save}>{busy ? 'Guardando…' : 'Guardar perfil'}</button>
-    </div>
+      <FormActions
+        status={saved ? <StatusBadge tone="success" role="status">Perfil guardado</StatusBadge> : undefined}
+        primary={<Button variant="primary" loading={busy} disabled={!review} onClick={save}>Guardar perfil</Button>}
+      />
+    </SectionCard>}
   </section>;
 }

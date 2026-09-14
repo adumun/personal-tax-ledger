@@ -1,0 +1,194 @@
+.annual-income-ledger {
+  display: grid;
+  gap: 20px;
+}
+
+.annual-income-ledger-card [data-adumun-section-card-region="content"] {
+  padding: 18px 20px 14px;
+}
+
+.annual-income-ledger-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.annual-income-ledger-summary article {
+  min-height: 82px;
+  padding: 14px 16px;
+  border: 1px solid #dde5e8;
+  border-radius: 11px;
+  background: #f8fafb;
+}
+
+.annual-income-ledger-summary small,
+.annual-income-ledger-summary strong {
+  display: block;
+}
+
+.annual-income-ledger-summary small {
+  margin-bottom: 7px;
+  color: #667782;
+}
+
+.annual-income-ledger-summary strong {
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.annual-income-ledger-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background: #f6f8f8;
+}
+
+.annual-income-ledger-toolbar label {
+  display: grid;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.annual-income-ledger-toolbar label span {
+  color: #667782;
+  font-size: .76rem;
+  font-weight: 700;
+}
+
+.annual-income-ledger-toolbar select {
+  min-height: 38px;
+  padding: 7px 34px 7px 10px;
+  border: 1px solid #cbd7db;
+  border-radius: 8px;
+  background: #fff;
+  color: #17242b;
+  font: inherit;
+}
+
+.annual-income-ledger-refreshing {
+  margin-left: auto;
+  align-self: center;
+  color: #667782;
+  font-size: .8rem;
+}
+
+.annual-income-ledger-state {
+  display: grid;
+  gap: 6px;
+  place-items: center;
+  min-height: 118px;
+  padding: 20px;
+  border: 1px dashed #cbd5d9;
+  border-radius: 10px;
+  color: #667782;
+  text-align: center;
+}
+
+.annual-income-ledger-state strong {
+  color: #122028;
+}
+
+.annual-income-ledger-state.error {
+  border-style: solid;
+  border-color: #fecaca;
+  background: #fff7f7;
+  color: #b91c1c;
+}
+
+.annual-income-ledger-table-wrap {
+  overflow-x: auto;
+}
+
+.annual-income-ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.annual-income-ledger-table th,
+.annual-income-ledger-table td {
+  padding: 12px 9px;
+  border-bottom: 1px solid #e4eaec;
+  text-align: left;
+  vertical-align: top;
+}
+
+.annual-income-ledger-table th {
+  color: #62737d;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .045em;
+}
+
+.annual-income-ledger-table tr.excluded {
+  opacity: .68;
+}
+
+.annual-income-ledger-boundary {
+  margin: 13px 0 0;
+  color: #687984;
+  font-size: .8rem;
+}
+
+@media (max-width: 900px) {
+  .annual-income-ledger-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .annual-income-ledger-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .annual-income-ledger-toolbar label {
+    min-width: 0;
+  }
+
+  .annual-income-ledger-refreshing {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .annual-income-ledger-table thead {
+    display: none;
+  }
+
+  .annual-income-ledger-table,
+  .annual-income-ledger-table tbody,
+  .annual-income-ledger-table tr,
+  .annual-income-ledger-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .annual-income-ledger-table tr {
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border: 1px solid #e2e8ea;
+    border-radius: 10px;
+  }
+
+  .annual-income-ledger-table td {
+    display: grid;
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eef2f3;
+  }
+
+  .annual-income-ledger-table td:last-child {
+    border-bottom: 0;
+  }
+
+  .annual-income-ledger-table td::before {
+    content: attr(data-label);
+    color: #687984;
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+}

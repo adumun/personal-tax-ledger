@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const gateSource = await readFile('apps/local/web/src/app/AnnualWorkspaceGate.tsx', 'utf8');
+const workspaceSource = await readFile('apps/local/web/src/app/WorkspaceView.tsx', 'utf8');
 const cssSource = await readFile('apps/local/web/src/app/annual-workspace.css', 'utf8');
 const apiSource = await readFile('apps/local/web/src/api.ts', 'utf8');
 
@@ -15,17 +16,18 @@ test('AW-001: header visible usa workspaces persistidos y muestra AT derivado no
 });
 
 test('AW-001: AnnualWorkspace queda como única autoridad visible para cambiar año', () => {
-  assert.match(cssSource, /\.year-picker\s*\{[\s\S]*display:\s*none\s*!important/);
-  assert.match(cssSource, /Configuración tributaria no longer exposes a second year switcher/);
-  assert.match(cssSource, /h2 \+ \.form-grid > label:first-child[\s\S]*display:\s*none\s*!important/);
   assert.match(gateSource, /catalog\.workspaces\.map/);
+  assert.match(gateSource, /Select[\s\S]*Año comercial activo/);
+  assert.doesNotMatch(workspaceSource, /className="year-picker"/);
+  assert.doesNotMatch(workspaceSource, /const changeYear\s*=/);
+  assert.match(cssSource, /\.year-picker\s*\{\s*display:\s*none\s*!important/);
 });
 
 test('AW-001\/AW-006: selección usa transición generacional protegida y remount por año activo', () => {
   assert.match(apiSource, /selectAnnualWorkspace:[\s\S]*annualWorkspaceTransition/);
   assert.match(apiSource, /beginWorkspaceTransition/);
   assert.match(gateSource, /WorkspaceView key=\{catalog\.activeCommercialYear\}/);
-  assert.match(gateSource, /Cambiando contexto/);
+  assert.match(gateSource, /Cambiando período/);
 });
 
 test('AW-002: creación mantiene Empezar vacío como modo explícito y no copia hechos', () => {

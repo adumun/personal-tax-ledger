@@ -21,6 +21,13 @@ export type IncomesSectionProps<T extends IncomesSectionSource = IncomesSectionS
   onCopyFromPrevious: () => void;
 };
 
+const INCOME_KIND_LABELS: Record<string, string> = {
+  SALARY: 'Renta dependiente',
+  HONORARIA: 'Honorarios',
+  BONUS: 'Premio / bono',
+  OTHER: 'Otro ingreso'
+};
+
 export function IncomesSection<T extends IncomesSectionSource>({
   sources,
   taxYear,
@@ -54,7 +61,7 @@ export function IncomesSection<T extends IncomesSectionSource>({
           </div>
         : sources.map(source => <article className="source-card" key={source.id}>
             <div>
-              <span className="kind">{source.kind}</span>
+              <span className="kind">{INCOME_KIND_LABELS[source.kind] || 'Ingreso'}</span>
               <h3>{source.name}</h3>
               <p>{formatAmount(source.amount)} · {source.frequency === 'MONTHLY' ? `${source.months} meses` : formatFrequencyLabel(source.frequency)}</p>
               <span className="metric-hint">{sourceHint(source)}</span>

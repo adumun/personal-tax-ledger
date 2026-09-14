@@ -6,11 +6,13 @@ const source = await readFile('apps/local/web/src/app/ApplicabilityProfileSectio
 const gate = await readFile('apps/local/web/src/app/AnnualWorkspaceGate.tsx', 'utf8');
 const client = await readFile('apps/local/web/src/app/applicability-profile-client.ts', 'utf8');
 
-test('AW-004: editor expone exactamente Sí / No / Aún no sé', () => {
+test('AW-004: editor expone exactamente Sí / No / Aún no sé mediante RadioGroup compartido', () => {
   assert.match(source, /label: 'Sí'/);
   assert.match(source, /label: 'No'/);
   assert.match(source, /label: 'Aún no sé'/);
-  assert.match(source, /role="radiogroup"/);
+  assert.match(source, /import \{[^}]*RadioGroup[^}]*\} from '@adumun\/react-components'/s);
+  assert.match(source, /<RadioGroup/);
+  assert.match(source, /options=\{OPTIONS\}/);
 });
 
 test('AW-004: copy distingue perfil de hechos y no introduce montos', () => {
