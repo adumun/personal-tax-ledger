@@ -8,12 +8,13 @@ const workspacePath = new URL('../apps/local/web/src/app/WorkspaceView.tsx', imp
 const overviewPath = new URL('../apps/local/web/src/app/AnnualWorkspaceOverviewSection.tsx', import.meta.url);
 const profilePath = new URL('../apps/local/web/src/app/ApplicabilityProfileSection.tsx', import.meta.url);
 const clientPath = new URL('../apps/local/web/src/app/tax-ledger-client.ts', import.meta.url);
+const sharedUiPath = new URL('../packages/shared-ui/src/index.tsx', import.meta.url);
 
 test('US-IL-001: ledger anual visible conserva estructura factual y filtros exactos', async () => {
   const source = await readFile(componentPath, 'utf8');
   assert.match(source, /Ingresos del año/);
   assert.match(source, /Año comercial \$\{commercialYear\}/);
-  assert.match(source, /Bruto registrado/);
+  assert.match(source, /Monto bruto disponible/);
   assert.match(source, /Retenciones \/ PPM registrados/);
   assert.match(source, /entryKind/);
   assert.match(source, /recognitionState/);
@@ -65,6 +66,24 @@ test('React profile dogfood: surfaces anuales consumen PageHeader, SectionCard y
   assert.doesNotMatch(profile, />NEEDS_REVIEW</);
 });
 
+test('React profile dogfood: annual context, ledger y perfil usan action-form primitives compartidos', async () => {
+  const [gate, ledger, profile] = await Promise.all([
+    readFile(gatePath, 'utf8'),
+    readFile(componentPath, 'utf8'),
+    readFile(profilePath, 'utf8')
+  ]);
+  assert.match(gate, /\bButton\b/);
+  assert.match(gate, /\bSelect\b/);
+  assert.match(gate, /\bRadioGroup\b/);
+  assert.match(gate, /\bFormActions\b/);
+  assert.match(ledger, /\bSelect\b/);
+  assert.match(ledger, /\bButton\b/);
+  assert.match(profile, /\bRadioGroup\b/);
+  assert.match(profile, /\bFormActions\b/);
+  assert.match(profile, /\bButton\b/);
+  assert.doesNotMatch(profile, /role="radiogroup"/);
+});
+
 test('React profile dogfood: navegación elimina contexto anual duplicado y usa lenguaje de producto', async () => {
   const gate = await readFile(gatePath, 'utf8');
   assert.match(gate, /PrimaryNavGroup label="Período"/);
@@ -101,6 +120,13 @@ test('React profile dogfood: WorkspaceView adopta Tabs compartido para resumen e
   assert.match(workspace, /<Tabs<IncomesTab>/);
   assert.match(workspace, /label="Vistas de ingresos laborales"/);
   assert.doesNotMatch(workspace, /className="sub-tabs"/);
+});
+
+test('Domain language: ingresos laborales no expone enums internos como SALARY', async () => {
+  const sharedUi = await readFile(sharedUiPath, 'utf8');
+  assert.match(sharedUi, /SALARY: 'Renta dependiente'/);
+  assert.match(sharedUi, /INCOME_KIND_LABELS\[source\.kind\]/);
+  assert.doesNotMatch(sharedUi, /<span className="kind">\{source\.kind\}<\/span>/);
 });
 
 test('US-IL-006: el cliente del ledger continúa siendo estrictamente read-only', async () => {
