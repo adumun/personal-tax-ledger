@@ -77,6 +77,15 @@ Because this slice changes navigation and owner-edit flows, completion requires 
 3. ledger -> create BHE -> cancel/save -> ledger;
 4. ledger row -> exact BHE edit -> cancel/save -> ledger.
 
+For every path, verify:
+
+- the expected existing owner editor opens, not a generic ledger editor;
+- edit opens the exact selected canonical record;
+- cancel returns to `Ingresos del año` without persisting a change;
+- save returns to `Ingresos del año` and the visible ledger reflects the saved canonical fact;
+- the active commercial year does not change;
+- owner/type identity cannot be rebound by the ledger.
+
 The ledger must visibly refresh after successful save and must never become a mutation authority itself.
 
 ## Closure gate
