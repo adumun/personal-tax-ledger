@@ -37,7 +37,7 @@ Como contribuyente, quiero ver en un solo ledger los ingresos del año activo pa
 
 **Type:** Story  
 **Capability:** TAX-04  
-**Status:** USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING  
+**Status:** DONE  
 **Priority:** P0  
 **Size:** M  
 **Canonical data impact:** CANONICAL_LEDGER  
@@ -68,7 +68,7 @@ Como contribuyente con uno o más empleadores, quiero registrar y corregir mis h
 
 **Type:** Story  
 **Capability:** TAX-04  
-**Status:** USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING  
+**Status:** DONE  
 **Priority:** P0  
 **Size:** M  
 **Canonical data impact:** CANONICAL_LEDGER  
