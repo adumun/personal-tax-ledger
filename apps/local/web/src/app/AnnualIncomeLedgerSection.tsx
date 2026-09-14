@@ -7,6 +7,7 @@ import {
   type TaxLedgerEntry,
   type TaxLedgerFilters
 } from './tax-ledger-client';
+import ForeignServiceFlow from './ForeignServiceFlow';
 import './annual-income-ledger.css';
 
 type LoadState = 'LOADING' | 'EMPTY' | 'READY' | 'ERROR' | 'STALE_SUPPRESSED';
@@ -18,6 +19,8 @@ type Props = {
   onOpenOwner?: (entry: TaxLedgerEntry) => void;
 };
 
+type ForeignFlowState = { mode: 'CREATE' | 'EDIT'; ownerRecordId?: string } | null;
+
 const money = new Intl.NumberFormat('es-CL', {
   style: 'currency',
   currency: 'CLP',
@@ -27,6 +30,7 @@ const money = new Intl.NumberFormat('es-CL', {
 const ENTRY_KIND_LABELS: Record<string, string> = {
   DEPENDENT_INCOME: 'Renta dependiente',
   DOMESTIC_FEE_INCOME: 'Honorarios / BHE',
+  FOREIGN_SERVICE_INCOME: 'Honorario de fuente extranjera',
   OTHER_INCOME_SOURCE: 'Otros ingresos'
 };
 
@@ -38,7 +42,8 @@ const STATE_LABELS: Record<string, string> = {
 
 const OWNER_LABELS: Record<string, string> = {
   INCOME_SOURCE: 'Ingreso laboral',
-  FEE_RECEIPT: 'Boleta de honorarios'
+  FEE_RECEIPT: 'Boleta de honorarios',
+  FOREIGN_SERVICE_INCOME: 'Servicio de fuente extranjera'
 };
 
 function statusTone(state: string) {
@@ -104,6 +109,7 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
   const [positionResult, setPositionResult] = useState<AnnualTaxLedgerResult | null>(null);
   const [state, setState] = useState<LoadState>('LOADING');
   const [error, setError] = useState('');
+  const [foreignFlow, setForeignFlow] = useState<ForeignFlowState>(null);
   const requestSerial = useRef(0);
 
   const reload = async () => {
@@ -150,6 +156,24 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
     [positionResult]
   );
 
+  const openEntry = (entry: TaxLedgerEntry) => {
+    if (entry.ownerAggregate === 'FOREIGN_SERVICE_INCOME') {
+      setForeignFlow({ mode: 'EDIT', ownerRecordId: entry.ownerRecordId });
+      return;
+    }
+    onOpenOwner?.(entry);
+  };
+
+  const completeForeignFlow = () => {
+    setForeignFlow(null);
+    void reload();
+  };
+
+  const createBheFromForeignFlow = () => {
+    setForeignFlow(null);
+    onAddFeeReceipt?.();
+  };
+
   return <section className="annual-income-ledger" aria-labelledby="annual-income-ledger-title">
     <PageHeader
       eyebrow="Ingresos"
@@ -159,6 +183,7 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
       actions={<div className="annual-income-ledger-owner-actions">
         <Button onClick={onAddIncome}>+ Renta / ingreso</Button>
         <Button onClick={onAddFeeReceipt}>+ BHE</Button>
+        <Button onClick={() => setForeignFlow({ mode: 'CREATE' })}>+ Servicio con pagador extranjero</Button>
       </div>}
     />
 
@@ -193,6 +218,7 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
           <option value="">Todos</option>
           <option value="DEPENDENT_INCOME">Renta dependiente</option>
           <option value="DOMESTIC_FEE_INCOME">Honorarios / BHE</option>
+          <option value="FOREIGN_SERVICE_INCOME">Honorario de fuente extranjera</option>
           <option value="OTHER_INCOME_SOURCE">Otros ingresos</option>
         </Select>
         <Select label="Estado" value={filters.recognitionState || ''} onChange={event => setFilters(current => ({ ...current, recognitionState: event.target.value || undefined }))}>
@@ -224,12 +250,21 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
                 : 'No registrado'}</td>
             <td data-label="Estado"><StatusBadge tone={statusTone(entry.recognitionState)}>{STATE_LABELS[entry.recognitionState] || entry.recognitionState}</StatusBadge></td>
             <td data-label="Origen">{OWNER_LABELS[entry.ownerAggregate] || entry.ownerAggregate}</td>
-            <td data-label="Acción"><Button variant="ghost" onClick={() => onOpenOwner?.(entry)}>Ver / editar</Button></td>
+            <td data-label="Acción"><Button variant="ghost" onClick={() => openEntry(entry)}>Ver / editar</Button></td>
           </tr>)}</tbody>
         </table>
       </div>}
 
-      <p className="annual-income-ledger-boundary">Las acciones abren el editor del agregado propietario. El ledger continúa siendo una proyección de solo lectura y no crea una segunda escritura. Esta vista no representa el impuesto final, una devolución estimada, el estado de preparación tributaria ni una conciliación con el SII.</p>
+      <p className="annual-income-ledger-boundary">Las acciones abren el editor del agregado propietario. El ledger continúa siendo una proyección de solo lectura y no crea una segunda escritura. Una BHE en CLP con settlement extranjero sigue siendo una sola entrada de ingreso. Esta vista no representa el impuesto final, una devolución estimada, el estado de preparación tributaria ni una conciliación con el SII.</p>
     </SectionCard>
+
+    {foreignFlow && <ForeignServiceFlow
+      commercialYear={commercialYear}
+      mode={foreignFlow.mode}
+      ownerRecordId={foreignFlow.ownerRecordId}
+      onClose={() => setForeignFlow(null)}
+      onComplete={completeForeignFlow}
+      onCreateFeeReceipt={createBheFromForeignFlow}
+    />}
   </section>;
 }
