@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 DONE / US-IL-004 READY`  
+**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 DONE / US-IL-004 AUTOMATED_VALIDATION_PENDING`  
 **Date:** 2026-09-14
 
 ## Baseline inherited from Block 01
@@ -32,44 +32,38 @@ Block 02 consumes these contracts rather than reintroducing a second year author
 
 ## Current implementation node — PTL-US-IL-004
 
-The enabling foundation is closed:
+Implementation is complete enough for automated validation.
 
 ```text
-foreign_service_income
-  + foreign_service_fx_conversions
-  + annual-context use cases
-  + exact-date BCCh provider contract
-  + manual provenance fallback
-  + FOREIGN_SERVICE_INCOME ledger provider
-```
-
-The remaining product flow must preserve the accepted split:
-
-```text
-foreign payer
-  -> source jurisdiction
+Servicio con pagador extranjero
+  -> explicit payer country
+  -> explicit material service location
      -> CHILE
         -> fee_receipts/BHE remains canonical
-        -> foreign settlement is provenance only
+        -> fee_receipt_foreign_settlements provenance
+        -> no second TaxLedgerEntry
      -> FOREIGN
         -> foreign_service_income
         -> perception date controls year
         -> original value preserved
-        -> frozen CLP conversion snapshot
+        -> exact-date official FX attempt
+        -> documented manual FX fallback when required
+        -> append-only conversion history
+        -> FOREIGN_SERVICE_INCOME ledger projection
 ```
 
-Evidence for the closed enabler: [`task-il-005-evidence.md`](task-il-005-evidence.md).
+Additional correction semantics now distinguish an FX-driving economic-fact edit from metadata-only edits: perception date, original amount or original currency invalidate the current conversion pointer; payer metadata, notes and factual foreign-tax metadata do not invalidate an otherwise valid conversion.
+
+Evidence: [`il-004-foreign-service-flow-evidence.md`](il-004-foreign-service-flow-evidence.md).
 
 ## Remaining IL-C sequence
 
-1. implement `PTL-US-IL-004` product flow:
-   - explicit source-jurisdiction classification;
-   - Path A BHE/settlement flow;
-   - Path B foreign-source owner flow;
-   - owner-aware round-trip from annual ledger;
-2. user visual validation for the new flow;
-3. canonical validation;
-4. run terminal `PTL-TASK-IL-006` regression/DoD gate.
+1. run `make bootstrap`, `make typecheck`, `make test` on the current IL-004 head;
+2. if green, mark `VISUAL_VALIDATION_PENDING`;
+3. visually validate both classification paths and foreign owner edit round-trip;
+4. after explicit user visual approval, run canonical `make validate`;
+5. close `PTL-US-IL-004`;
+6. run terminal `PTL-TASK-IL-006` regression/DoD gate.
 
 ## Terminal gate
 
@@ -91,12 +85,14 @@ It must prove:
 
 ## Hard boundaries
 
-Block 02 does not own evidence vault, SII reconciliation, readiness, annual tax liability/refund, optimization/provisioning advice, article 41 A credit calculation, or automatic legal determination of source jurisdiction.
+Block 02 does not own evidence vault, SII reconciliation, readiness, annual tax liability/refund, optimization/provisioning advice, article 41 A credit calculation, automatic legal determination of source jurisdiction, or accounting treatment of FX gains/losses.
 
 ## Current executable path
 
 ```text
-PTL-US-IL-004
+PTL-US-IL-004 automated gate
+  -> visual validation
+  -> canonical validation / closure
   -> PTL-TASK-IL-006
   -> Block 02 CLOSED
 ```
