@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger
 
-**Status:** `REFINED / READY FOR ENABLER IMPLEMENTATION`  
+**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B READY`  
 **Primary capability:** `TAX-04 — Tax Ledger`  
 **Related capabilities:** `TAX-01`, `TAX-02`, `TAX-06`, `TAX-07`, `TAX-08`, `TAX-09`  
 **Related extension:** `PTL-EXT-01 — International Contractor Income Planning`
@@ -19,9 +19,9 @@ PTL already has:
 - `fee_receipts` for domestic BHE/honorarios facts;
 - separate salary and fee domain calculators;
 - trusted `AnnualWorkspaceContext` and strict year isolation from Block 01;
-- Annual Workspace overview counts/presence consuming those aggregates.
-
-The missing capability is a normalized TAX-04 ledger contract that can present those facts together without duplicating them.
+- Annual Workspace overview counts/presence consuming those aggregates;
+- unified annual ledger UI over the closed IL-001..IL-004 projection/read contracts;
+- first React-profile dogfood through `adumun/react-components`.
 
 ## Closed architectural decision
 
@@ -47,14 +47,32 @@ Decision evidence: [`spike-il-001-ledger-authority.md`](spike-il-001-ledger-auth
 
 | ID | Story | UI impact | Fidelity | Status |
 |---|---|---|---|---|
-| `PTL-US-IL-001` | Ver el ledger anual unificado de ingresos | `NEW_SECTION`, `FLOW_CHANGE` | L2 | READY_AFTER_TASK_IL_001_003 |
-| `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | REFINING |
-| `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | REFINING |
+| `PTL-US-IL-001` | Ver el ledger anual unificado de ingresos | `NEW_SECTION`, `FLOW_CHANGE` | L2 | DONE |
+| `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | READY |
+| `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | READY |
 | `PTL-US-IL-004` | Registrar ingresos por servicios con pagador extranjero | `NEW_FLOW`, `FIELD_ADDITION` | L2 | BLOCKED_BY_SPIKE_IL_002 |
 | `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | REFINING |
-| `PTL-US-IL-006` | Conservar trazabilidad, autoridad y aislamiento anual del ledger | `STATE_CHANGE` | L1 | READY_AFTER_TASK_IL_001_003 |
+| `PTL-US-IL-006` | Conservar trazabilidad, autoridad y aislamiento anual del ledger | `STATE_CHANGE` | L1 | DONE |
 
 Detailed contracts: [`user-stories.md`](user-stories.md).
+
+## Current executable slice — IL-B
+
+- `PTL-US-IL-002 — Dependent income owner flow`
+- `PTL-US-IL-003 — Domestic BHE owner flow`
+
+Required interaction:
+
+```text
+Annual ledger
+  -> owner-aware action
+  -> canonical owner editor
+  -> save/cancel in owner flow
+  -> return to annual ledger
+  -> reload projection
+```
+
+No generic ledger editor or dual-write is authorized.
 
 ## Scope boundary
 
@@ -79,13 +97,14 @@ Detailed contracts: [`user-stories.md`](user-stories.md).
 
 ## Execution order
 
-1. `PTL-TASK-IL-001 — TaxLedgerEntry projection contract`;
-2. `PTL-TASK-IL-002 — Aggregate projection providers`;
-3. `PTL-TASK-IL-003 — Annual ledger query/read model`;
-4. `PTL-US-IL-001 + PTL-US-IL-006` — unified ledger + safety/traceability;
-5. reconcile existing salary/BHE editing into the ledger shell (`US-IL-002`, `US-IL-003`);
-6. close FX/foreign-service spike before `US-IL-004`;
-7. `US-IL-005` factual annual position;
-8. terminal Block 02 regression/DoD gate.
+1. `PTL-TASK-IL-001 — TaxLedgerEntry projection contract` — DONE;
+2. `PTL-TASK-IL-002 — Aggregate projection providers` — DONE;
+3. `PTL-TASK-IL-003 — Annual ledger query/read model` — DONE;
+4. `PTL-TASK-IL-004 — Ledger HTTP/client surface` — DONE;
+5. `PTL-US-IL-001 + PTL-US-IL-006` — DONE;
+6. `PTL-US-IL-002 + PTL-US-IL-003` — **CURRENT**;
+7. close FX/foreign-service spike before `PTL-US-IL-004`;
+8. `PTL-US-IL-005` factual annual position;
+9. terminal `PTL-TASK-IL-006` regression/DoD gate.
 
-See [`implementation-roadmap.md`](implementation-roadmap.md) and [`enablers-and-dependencies.md`](enablers-and-dependencies.md).
+See [`implementation-roadmap.md`](implementation-roadmap.md), [`enablers-and-dependencies.md`](enablers-and-dependencies.md) and [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md).
