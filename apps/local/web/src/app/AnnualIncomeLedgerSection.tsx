@@ -10,6 +10,13 @@ import './annual-income-ledger.css';
 
 type LoadState = 'LOADING' | 'EMPTY' | 'READY' | 'ERROR' | 'STALE_SUPPRESSED';
 
+type Props = {
+  commercialYear: number;
+  onAddIncome?: () => void;
+  onAddFeeReceipt?: () => void;
+  onOpenOwner?: (entry: TaxLedgerEntry) => void;
+};
+
 const money = new Intl.NumberFormat('es-CL', {
   style: 'currency',
   currency: 'CLP',
@@ -65,7 +72,7 @@ function totalRegistered(result: AnnualTaxLedgerResult | null, key: 'gross' | 'w
   return money.format(total.amount);
 }
 
-export default function AnnualIncomeLedgerSection({ commercialYear }: { commercialYear: number }) {
+export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome, onAddFeeReceipt, onOpenOwner }: Props) {
   const [filters, setFilters] = useState<TaxLedgerFilters>({});
   const [result, setResult] = useState<AnnualTaxLedgerResult | null>(null);
   const [state, setState] = useState<LoadState>('LOADING');
@@ -111,7 +118,10 @@ export default function AnnualIncomeLedgerSection({ commercialYear }: { commerci
       title="Ingresos del año"
       titleId="annual-income-ledger-title"
       description={`Año comercial ${commercialYear} · Operación Renta AT${commercialYear + 1}. Hechos registrados y consolidados en una sola vista.`}
-      actions={<StatusBadge tone="info">Solo lectura</StatusBadge>}
+      actions={<div className="annual-income-ledger-owner-actions">
+        <Button onClick={onAddIncome}>+ Renta / ingreso</Button>
+        <Button onClick={onAddFeeReceipt}>+ BHE</Button>
+      </div>}
     />
 
     <SectionCard className="annual-income-ledger-card">
@@ -144,7 +154,7 @@ export default function AnnualIncomeLedgerSection({ commercialYear }: { commerci
 
       {state === 'READY' && result && <div className="annual-income-ledger-table-wrap">
         <table className="annual-income-ledger-table">
-          <thead><tr><th>Fecha / período</th><th>Tipo</th><th>Pagador / empleador</th><th>Monto registrado</th><th>Retención / PPM</th><th>Estado</th><th>Origen</th></tr></thead>
+          <thead><tr><th>Fecha / período</th><th>Tipo</th><th>Pagador / empleador</th><th>Monto registrado</th><th>Retención / PPM</th><th>Estado</th><th>Origen</th><th>Acción</th></tr></thead>
           <tbody>{result.entries.map(entry => <tr key={entry.ledgerEntryId} className={entry.recognitionState === 'EXCLUDED' ? 'excluded' : ''}>
             <td data-label="Fecha / período">{period(entry)}</td>
             <td data-label="Tipo"><strong>{ENTRY_KIND_LABELS[entry.entryKind] || entry.entryKind}</strong></td>
@@ -157,11 +167,12 @@ export default function AnnualIncomeLedgerSection({ commercialYear }: { commerci
                 : 'No registrado'}</td>
             <td data-label="Estado"><StatusBadge tone={statusTone(entry.recognitionState)}>{STATE_LABELS[entry.recognitionState] || entry.recognitionState}</StatusBadge></td>
             <td data-label="Origen">{OWNER_LABELS[entry.ownerAggregate] || entry.ownerAggregate}</td>
+            <td data-label="Acción"><Button variant="ghost" onClick={() => onOpenOwner?.(entry)}>Ver / editar</Button></td>
           </tr>)}</tbody>
         </table>
       </div>}
 
-      <p className="annual-income-ledger-boundary">Esta vista muestra hechos registrados y su origen. No representa el impuesto final, una devolución estimada, el estado de preparación tributaria ni una conciliación con el SII.</p>
+      <p className="annual-income-ledger-boundary">Las acciones abren el editor del agregado propietario. El ledger continúa siendo una proyección de solo lectura y no crea una segunda escritura. Esta vista no representa el impuesto final, una devolución estimada, el estado de preparación tributaria ni una conciliación con el SII.</p>
     </SectionCard>
   </section>;
 }

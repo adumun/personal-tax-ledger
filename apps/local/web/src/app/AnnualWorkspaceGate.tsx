@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AppShell,
   Button,
@@ -17,6 +17,12 @@ import WorkspaceView, { type WorkspaceTab } from './WorkspaceView';
 import AnnualWorkspaceOverviewSection from './AnnualWorkspaceOverviewSection';
 import AnnualIncomeLedgerSection from './AnnualIncomeLedgerSection';
 import ApplicabilityProfileSection from './ApplicabilityProfileSection';
+import type { TaxLedgerEntry } from './tax-ledger-client';
+import {
+  LedgerOwnerFlowProvider,
+  type LedgerOwnerAggregate,
+  type LedgerOwnerFlowIntent
+} from './ledger-owner-flow-context';
 import { priorYearInitializationClient, type PriorYearInitializationPreview } from './prior-year-initialization-client';
 import { api, ApiRequestError, type AnnualWorkspaceList, type AnnualWorkspaceOption } from '../api';
 import './annual-workspace.css';
@@ -59,9 +65,15 @@ function isWorkspaceTab(surface: PtlSurface): surface is WorkspaceTab {
   return !['annual-overview', 'annual-ledger', 'tax-profile'].includes(surface);
 }
 
+function ownerSurface(ownerAggregate: LedgerOwnerAggregate): WorkspaceTab {
+  return ownerAggregate === 'INCOME_SOURCE' ? 'incomes' : 'fees';
+}
+
 export default function AnnualWorkspaceGate() {
   const [catalog, setCatalog] = useState<AnnualWorkspaceList | null>(null);
   const [surface, setSurface] = useState<PtlSurface>('annual-overview');
+  const [ownerFlowIntent, setOwnerFlowIntent] = useState<LedgerOwnerFlowIntent | null>(null);
+  const [ledgerRevision, setLedgerRevision] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
@@ -118,6 +130,7 @@ export default function AnnualWorkspaceGate() {
 
     setBusy(true);
     setError('');
+    setOwnerFlowIntent(null);
     try {
       await api.selectAnnualWorkspace(option.workspace.commercialYear, acceptWarnings);
       await reloadCatalog();
@@ -138,6 +151,35 @@ export default function AnnualWorkspaceGate() {
     setError('');
     setCreateOpen(true);
   };
+
+  const navigate = (next: PtlSurface) => {
+    setOwnerFlowIntent(null);
+    setSurface(next);
+  };
+
+  const beginOwnerFlow = (intent: LedgerOwnerFlowIntent) => {
+    setError('');
+    setOwnerFlowIntent(intent);
+    setSurface(ownerSurface(intent.ownerAggregate));
+  };
+
+  const openLedgerOwner = (entry: TaxLedgerEntry) => {
+    if (entry.ownerAggregate !== 'INCOME_SOURCE' && entry.ownerAggregate !== 'FEE_RECEIPT') {
+      setError(`No existe un editor propietario disponible para ${entry.ownerAggregate}.`);
+      return;
+    }
+    beginOwnerFlow({
+      ownerAggregate: entry.ownerAggregate,
+      mode: 'EDIT',
+      ownerRecordId: entry.ownerRecordId
+    });
+  };
+
+  const completeOwnerFlow = useCallback(() => {
+    setOwnerFlowIntent(null);
+    setLedgerRevision(revision => revision + 1);
+    setSurface('annual-ledger');
+  }, []);
 
   const runEmptyCreation = async (acceptWarnings = false) => {
     await api.createAnnualWorkspace(candidateYear, acceptWarnings);
@@ -208,15 +250,15 @@ export default function AnnualWorkspaceGate() {
     brand={<div className="ptl-brand"><span>PTL</span><div><strong>Personal Tax Ledger</strong><small>Impuestos personales · Chile</small></div></div>}
   >
     <PrimaryNavGroup label="Período">
-      <PrimaryNavItem current={surface === 'annual-overview'} onSelect={() => setSurface('annual-overview')}>Resumen del año</PrimaryNavItem>
-      <PrimaryNavItem current={surface === 'annual-ledger'} onSelect={() => setSurface('annual-ledger')}>Ingresos del año</PrimaryNavItem>
-      <PrimaryNavItem current={surface === 'tax-profile'} onSelect={() => setSurface('tax-profile')}>Perfil del año</PrimaryNavItem>
+      <PrimaryNavItem current={surface === 'annual-overview'} onSelect={() => navigate('annual-overview')}>Resumen del año</PrimaryNavItem>
+      <PrimaryNavItem current={surface === 'annual-ledger'} onSelect={() => navigate('annual-ledger')}>Ingresos del año</PrimaryNavItem>
+      <PrimaryNavItem current={surface === 'tax-profile'} onSelect={() => navigate('tax-profile')}>Perfil del año</PrimaryNavItem>
     </PrimaryNavGroup>
     <PrimaryNavGroup label="Trabajo">
-      {workspaceSurfaces.map(([key, label]) => <PrimaryNavItem key={key} current={surface === key} onSelect={() => setSurface(key)}>{label}</PrimaryNavItem>)}
+      {workspaceSurfaces.map(([key, label]) => <PrimaryNavItem key={key} current={surface === key} onSelect={() => navigate(key)}>{label}</PrimaryNavItem>)}
     </PrimaryNavGroup>
     <PrimaryNavGroup label="Sistema">
-      {systemSurfaces.map(([key, label]) => <PrimaryNavItem key={key} current={surface === key} onSelect={() => setSurface(key)}>{label}</PrimaryNavItem>)}
+      {systemSurfaces.map(([key, label]) => <PrimaryNavItem key={key} current={surface === key} onSelect={() => navigate(key)}>{label}</PrimaryNavItem>)}
     </PrimaryNavGroup>
   </PrimaryNav>;
 
@@ -247,22 +289,30 @@ export default function AnnualWorkspaceGate() {
   </ContextHeader>;
 
   return <div className="ptl-application">
-    <AppShell navigation={navigation} header={contextHeader} mainLabel="Área de trabajo de Personal Tax Ledger">
-      {error && <div className="annual-workspace-error">{error}<button onClick={() => setError('')}>×</button></div>}
+    <LedgerOwnerFlowProvider intent={ownerFlowIntent} onComplete={completeOwnerFlow}>
+      <AppShell navigation={navigation} header={contextHeader} mainLabel="Área de trabajo de Personal Tax Ledger">
+        {error && <div className="annual-workspace-error">{error}<button onClick={() => setError('')}>×</button></div>}
 
-      {surface === 'annual-overview' && <AnnualWorkspaceOverviewSection commercialYear={catalog.activeCommercialYear} />}
-      {surface === 'annual-ledger' && <AnnualIncomeLedgerSection commercialYear={catalog.activeCommercialYear} />}
-      {surface === 'tax-profile' && <ApplicabilityProfileSection commercialYear={catalog.activeCommercialYear} />}
-      {isWorkspaceTab(surface) && <>
-        <PageHeader
-          eyebrow={workspacePageMeta[surface].eyebrow}
-          title={workspacePageMeta[surface].title}
-          description={workspacePageMeta[surface].description}
-          actions={surface === 'dashboard' ? <StatusBadge tone="warning">No vinculante</StatusBadge> : undefined}
-        />
-        <div className="legacy-workspace-page"><WorkspaceView key={catalog.activeCommercialYear} tab={surface} /></div>
-      </>}
-    </AppShell>
+        {surface === 'annual-overview' && <AnnualWorkspaceOverviewSection commercialYear={catalog.activeCommercialYear} />}
+        {surface === 'annual-ledger' && <AnnualIncomeLedgerSection
+          key={`${catalog.activeCommercialYear}:${ledgerRevision}`}
+          commercialYear={catalog.activeCommercialYear}
+          onAddIncome={() => beginOwnerFlow({ ownerAggregate: 'INCOME_SOURCE', mode: 'CREATE' })}
+          onAddFeeReceipt={() => beginOwnerFlow({ ownerAggregate: 'FEE_RECEIPT', mode: 'CREATE' })}
+          onOpenOwner={openLedgerOwner}
+        />}
+        {surface === 'tax-profile' && <ApplicabilityProfileSection commercialYear={catalog.activeCommercialYear} />}
+        {isWorkspaceTab(surface) && <>
+          <PageHeader
+            eyebrow={workspacePageMeta[surface].eyebrow}
+            title={workspacePageMeta[surface].title}
+            description={workspacePageMeta[surface].description}
+            actions={surface === 'dashboard' ? <StatusBadge tone="warning">No vinculante</StatusBadge> : undefined}
+          />
+          <div className="legacy-workspace-page"><WorkspaceView key={catalog.activeCommercialYear} tab={surface} /></div>
+        </>}
+      </AppShell>
+    </LedgerOwnerFlowProvider>
 
     {createOpen && <div className="annual-workspace-modal-backdrop" role="presentation">
       <section className="annual-workspace-modal" role="dialog" aria-modal="true" aria-labelledby="create-annual-workspace-title">

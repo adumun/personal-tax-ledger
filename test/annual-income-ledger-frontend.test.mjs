@@ -20,7 +20,7 @@ test('US-IL-001: ledger anual visible conserva estructura factual y filtros exac
   assert.match(source, /recognitionState/);
   assert.match(source, /No hay ingresos registrados para este año/);
   assert.match(source, /No registrado/);
-  assert.match(source, /No representa el impuesto final, una devolución estimada, el estado de preparación tributaria ni una conciliación con el SII/);
+  assert.match(source, /Esta vista no representa el impuesto final, una devolución estimada, el estado de preparación tributaria ni una conciliación con el SII/);
   assert.doesNotMatch(source, /TAX-04/);
   assert.doesNotMatch(source, /\breadiness\b/i);
   assert.doesNotMatch(source, /<small>[^<]*(?:Devolución estimada|Saldo por pagar|Readiness)/i);
@@ -33,7 +33,8 @@ test('US-IL-001: renta dependiente, BHE y otros owners se distinguen sin dual-wr
   assert.match(source, /DOMESTIC_FEE_INCOME/);
   assert.match(source, /OTHER_INCOME_SOURCE/);
   assert.match(source, /ownerAggregate/);
-  assert.match(source, /Solo lectura/);
+  assert.match(source, /proyección de solo lectura/);
+  assert.match(source, /no crea una segunda escritura/);
   assert.doesNotMatch(source, /method:\s*['"](?:POST|PUT|PATCH|DELETE)['"]/);
 });
 
@@ -100,7 +101,10 @@ test('US-IL-001: ledger vive como surface del único AppShell bajo el AnnualWork
   assert.match(gate, /PrimaryNav/);
   assert.match(gate, /ContextHeader/);
   assert.match(gate, /surface === 'annual-ledger'/);
-  assert.match(gate, /<AnnualIncomeLedgerSection commercialYear=\{catalog\.activeCommercialYear\}/);
+  assert.match(gate, /<AnnualIncomeLedgerSection[\s\S]*commercialYear=\{catalog\.activeCommercialYear\}/);
+  assert.match(gate, /onAddIncome=/);
+  assert.match(gate, /onAddFeeReceipt=/);
+  assert.match(gate, /onOpenOwner=/);
 });
 
 test('React profile dogfood: WorkspaceView deja de poseer sidebar y segundo selector anual', async () => {

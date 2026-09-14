@@ -4,7 +4,7 @@
 
 **Type:** Story  
 **Capability:** TAX-04  
-**Status:** REFINING  
+**Status:** DONE  
 **Priority:** P0  
 **Size:** M  
 **Canonical data impact:** DERIVED_PROJECTION  
@@ -37,7 +37,7 @@ Como contribuyente, quiero ver en un solo ledger los ingresos del año activo pa
 
 **Type:** Story  
 **Capability:** TAX-04  
-**Status:** REFINING  
+**Status:** DONE  
 **Priority:** P0  
 **Size:** M  
 **Canonical data impact:** CANONICAL_LEDGER  
@@ -68,7 +68,7 @@ Como contribuyente con uno o más empleadores, quiero registrar y corregir mis h
 
 **Type:** Story  
 **Capability:** TAX-04  
-**Status:** REFINING  
+**Status:** DONE  
 **Priority:** P0  
 **Size:** M  
 **Canonical data impact:** CANONICAL_LEDGER  
@@ -160,7 +160,7 @@ Como contribuyente, quiero ver cuánto ingreso factual está registrado por cate
 
 **Type:** Story  
 **Capability:** TAX-04  
-**Status:** REFINING  
+**Status:** DONE  
 **Priority:** P0  
 **Size:** S  
 **Canonical data impact:** NONE  
