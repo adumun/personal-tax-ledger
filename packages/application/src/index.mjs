@@ -31,6 +31,9 @@ export {
 } from './features/annual-workspace/prior-year-initialization-use-cases.mjs';
 export {
   createIncomeSourceTaxLedgerProvider,
-  createFeeReceiptTaxLedgerProvider
+  createFeeReceiptTaxLedgerProvider,
+  createForeignServiceTaxLedgerProvider
 } from './features/ledger/tax-ledger-providers.mjs';
 export { createAnnualTaxLedgerReadModel } from './features/ledger/annual-tax-ledger-read-model.mjs';
+export { createForeignServiceIncomeUseCases } from './features/foreign-service/foreign-service-use-cases.mjs';
+export { createBcchForeignExchangeProvider } from './features/foreign-service/bcch-foreign-exchange-provider.mjs';
