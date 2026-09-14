@@ -12,6 +12,7 @@ export type LedgerOwnerFlowIntent = {
 type LedgerOwnerFlowContextValue = {
   intent: LedgerOwnerFlowIntent | null;
   opened: boolean;
+  begin: (intent: LedgerOwnerFlowIntent) => void;
   markOpened: () => void;
   complete: () => void;
 };
@@ -19,6 +20,7 @@ type LedgerOwnerFlowContextValue = {
 const LedgerOwnerFlowContext = createContext<LedgerOwnerFlowContextValue>({
   intent: null,
   opened: false,
+  begin: () => undefined,
   markOpened: () => undefined,
   complete: () => undefined
 });
@@ -32,18 +34,28 @@ export function LedgerOwnerFlowProvider({
   onComplete: () => void;
   children: ReactNode;
 }) {
+  const [activeIntent, setActiveIntent] = useState<LedgerOwnerFlowIntent | null>(intent);
   const [opened, setOpened] = useState(false);
 
   useEffect(() => {
+    setActiveIntent(intent);
     setOpened(false);
   }, [intent?.ownerAggregate, intent?.mode, intent?.ownerRecordId]);
 
   const value = useMemo<LedgerOwnerFlowContextValue>(() => ({
-    intent,
+    intent: activeIntent,
     opened,
+    begin: nextIntent => {
+      setActiveIntent(nextIntent);
+      setOpened(false);
+    },
     markOpened: () => setOpened(true),
-    complete: onComplete
-  }), [intent, opened, onComplete]);
+    complete: () => {
+      setActiveIntent(null);
+      setOpened(false);
+      onComplete();
+    }
+  }), [activeIntent, opened, onComplete]);
 
   return <LedgerOwnerFlowContext.Provider value={value}>{children}</LedgerOwnerFlowContext.Provider>;
 }
