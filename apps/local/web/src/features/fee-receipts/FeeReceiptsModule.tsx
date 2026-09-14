@@ -86,11 +86,8 @@ export default function FeeReceiptsModule({ settings, taxYear, onSettingsChange,
     ownerFlow.markOpened();
   }, [receipts, taxYear, ownerFlow.intent, ownerFlow.opened]);
 
-  // Recompute canonical values locally using settings in real-time.
   const preview = useMemo(() => computeFeeReceiptPreview(editing, settings), [editing.amountInputType, editing.netAmount, editing.grossAmount, editing.withholdingMode, editing.withholdingRate, settings.honorariosRetentionRate]);
-
   const summary = useMemo(() => computeFeeSummary(receipts, settings), [receipts, settings.feeRecognitionMode]);
-
   const filtered = useMemo(() => filterFeeReceipts(receipts, filters, sortBy), [receipts, filters, sortBy]);
 
   const cancelOwnerEdit = () => {
@@ -154,7 +151,7 @@ export default function FeeReceiptsModule({ settings, taxYear, onSettingsChange,
     const started = performance.now();
     try {
       await feeReceiptService.duplicate(id); await refresh(); onSimulationStale();
-      log({ kind: 'ASYNC', operation: LOG.DUPLICATE_FEE_STATUS, status: 'OK', message: id, auditMessage: `sourceId=${id}`, durationMs: Math.round(performance.now() - started) });
+      log({ kind: 'ASYNC', operation: LOG.DUPLICATE_FEE_RECEIPT, status: 'OK', message: id, auditMessage: `sourceId=${id}`, durationMs: Math.round(performance.now() - started) });
       notify('Boleta duplicada');
     } catch (e) {
       const msg = errMsg(e);
@@ -196,7 +193,6 @@ export default function FeeReceiptsModule({ settings, taxYear, onSettingsChange,
     }
   };
 
-  // Detectamos desviaciones entre settings y configuración anual guardada (back-compat).
   useEffect(() => {
     if (!expenseSettings) return;
     if (expenseSettings.expenseMode !== settings.honorariosExpenseMethod || expenseSettings.actualAnnualExpenses !== Number(settings.honorariosActualAnnualExpenses || 0)) {
@@ -366,7 +362,6 @@ export default function FeeReceiptsModule({ settings, taxYear, onSettingsChange,
   );
 }
 
-// Shared small components to stay consistent with App.tsx
 function Card({ title, children, hint }: { title: string; children: any; hint?: string }) { return <section className="card"><h2>{title}</h2>{children}{hint && <p className="card-hint">{hint}</p>}</section>; }
 function Field({ label, children, wide }: { label: string; children: any; wide?: boolean }) { return <label className={wide ? 'wide' : ''}><span>{label}</span>{children}</label>; }
 function Rows({ rows }: { rows: [string, number][] }) { return <div className="rows">{rows.map(([label, value]) => <div key={label}><span>{label}</span><strong>{money.format(value)}</strong></div>)}</div>; }
