@@ -1,7 +1,7 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / IL-004 CLOSED / IL-001+IL-006 READY`  
-**Date:** 2026-09-13
+**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DECISION_PROPOSED`  
+**Date:** 2026-09-14
 
 ## Baseline inherited from Block 01
 
@@ -18,51 +18,80 @@ Block 02 consumes these contracts rather than reintroducing a second year author
 ## Closed decisions and contracts
 
 - `PTL-SPIKE-IL-001` — DONE: ledger is projection-only over aggregate-owned facts.
-- `PTL-TASK-IL-001` — DONE: `TaxLedgerEntry` + read-only provider port; canonical gate **190/190**.
-- `PTL-TASK-IL-002` — DONE: aggregate projection providers; canonical gate **195/195**.
-- `PTL-TASK-IL-003` — DONE: deterministic annual ledger read model with exact filters, annual-context enforcement and traceable factual totals; canonical gate **200/200**, desktop/architecture PASS.
-- `PTL-TASK-IL-004` — DONE: canonical read-only HTTP/client surface over `listAnnualLedger`, exact filters, active annual context, no generic mutation authority; canonical gate **204/204**, desktop/architecture PASS.
+- `PTL-TASK-IL-001` — DONE: `TaxLedgerEntry` + read-only provider port.
+- `PTL-TASK-IL-002` — DONE: aggregate projection providers.
+- `PTL-TASK-IL-003` — DONE: deterministic annual ledger read model.
+- `PTL-TASK-IL-004` — DONE: canonical read-only HTTP/client surface.
+- `PTL-US-IL-001` — DONE: unified annual ledger.
+- `PTL-US-IL-002` — DONE: dependent-income owner flow.
+- `PTL-US-IL-003` — DONE: domestic BHE owner flow.
+- `PTL-US-IL-005` — DONE: factual annual income position.
+- `PTL-US-IL-006` — DONE: authority/traceability/year isolation.
 
-## Immediate implementation slice
+## Current discovery node
 
-### Slice IL-A — Domestic annual ledger foundation
+### PTL-SPIKE-IL-002 — Foreign-service recognition and FX provenance
 
-1. `PTL-TASK-IL-001 — TaxLedgerEntry projection contract` — **DONE**;
-2. `PTL-TASK-IL-002 — Aggregate projection providers` — **DONE**;
-3. `PTL-TASK-IL-003 — Annual ledger query/read model` — **DONE**;
-4. `PTL-TASK-IL-004 — Ledger HTTP/client surface` — **DONE**;
-5. `PTL-US-IL-001 — Unified annual income ledger` — **READY**;
-6. `PTL-US-IL-006 — Traceability/authority/year isolation` — **READY**.
+Current proposal closes the previously ambiguous model:
 
-This slice remains P0 and does not wait for foreign-currency work.
+```text
+foreign payer
+  -> source jurisdiction
+     -> CHILE
+        -> fee_receipts/BHE canonical
+        -> FX settlement is linked provenance only
+     -> FOREIGN
+        -> foreign_service_income canonical
+        -> perception date controls year
+        -> original value preserved
+        -> BCCh-backed frozen CLP conversion snapshot
+```
 
-### Slice IL-B — Existing owner flows inside ledger shell
+No implementation starts until this decision is accepted because otherwise `PTL-TASK-IL-005` would risk encoding a false equivalence between payer location and income source.
 
-- `PTL-US-IL-002 — Dependent income`
-- `PTL-US-IL-003 — Domestic BHE`
+Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).
 
-### Slice IL-C — Foreign service / contractor
+## Next implementation slice — IL-C
 
-Close `PTL-SPIKE-IL-002`; then implement `PTL-TASK-IL-005 + PTL-US-IL-004`. No FX rate source/provider or recognition convention is implied before the spike closes.
+After spike acceptance:
 
-### Slice IL-D — Factual annual position
+1. `PTL-TASK-IL-005 — Foreign-service provider/value contract implementation`;
+2. introduce `foreign_service_income` owner aggregate for genuine foreign-source honoraria;
+3. introduce append-only FX conversion provenance;
+4. add BCCh conversion-provider contract;
+5. add `FOREIGN_SERVICE_INCOME` ledger entry kind/provider;
+6. add BHE-linked foreign-currency settlement metadata without a second ledger row;
+7. implement `PTL-US-IL-004` UI flow and owner round-trip;
+8. visual + canonical validation.
 
-`PTL-US-IL-005` consumes the stable read model and HTTP/client surface. These enablers expose factual data only and do not introduce tax-result semantics.
+## Terminal gate
 
-### Terminal gate
+`PTL-TASK-IL-006` closes Block 02 regression/DoD after IL-C is closed.
 
-`PTL-TASK-IL-006` closes Block 02 regression/DoD.
+It must prove:
+
+- projection-only ledger semantics;
+- stable owner identity;
+- annual isolation/stale protection;
+- non-duplicated salary/APV semantics;
+- preserved BHE recognition semantics;
+- traceable factual totals;
+- foreign payer/source-jurisdiction separation;
+- no BHE + FX-payment double counting;
+- foreign-source perception recognition;
+- frozen conversion provenance;
+- unresolved FX cannot silently become recognized CLP income.
 
 ## Hard boundaries
 
-Block 02 does not own evidence vault, SII reconciliation, readiness, annual tax liability/refund, optimization/provisioning advice or year closure.
+Block 02 does not own evidence vault, SII reconciliation, readiness, annual tax liability/refund, optimization/provisioning advice, article 41 A credit calculation, or automatic legal determination of source jurisdiction.
 
-## Current executable node
+## Current executable path
 
 ```text
-PTL-US-IL-001 — Unified annual income ledger
-+
-PTL-US-IL-006 — Traceability / authority / year isolation
+PTL-SPIKE-IL-002 acceptance
+  -> PTL-TASK-IL-005
+  -> PTL-US-IL-004
+  -> PTL-TASK-IL-006
+  -> Block 02 CLOSED
 ```
-
-No unresolved P0 product decision blocks this slice. The implementation must consume the closed IL-003/IL-004 read contracts without introducing generic ledger writes or a second year authority.

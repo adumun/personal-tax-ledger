@@ -1,6 +1,6 @@
 # Block 02 — Enablers, Spikes & Dependencies
 
-**Status:** `IMPLEMENTING / IL-004 DONE / IL-001+IL-006 READY`
+**Status:** `IMPLEMENTING / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE`
 
 ## Spikes
 
@@ -16,40 +16,60 @@ Evidence: [`spike-il-001-ledger-authority.md`](spike-il-001-ledger-authority.md)
 
 ### PTL-SPIKE-IL-002 — Foreign-service recognition and FX provenance
 
-**Status:** NOT_STARTED  
+**Status:** DONE  
 **Priority:** P1
 
-Must close before foreign-service income can become canonical:
+Accepted decision:
 
-- recognition date/period;
-- original amount/currency;
-- CLP value semantics;
-- exchange-rate source/date;
-- BHE-in-CLP + payment-in-FX relationship;
-- correction/revaluation provenance.
+```text
+foreign payer
+  -> service source jurisdiction
+     -> CHILE
+        -> canonical BHE / fee_receipts fact
+        -> FX payment is settlement provenance only
+     -> FOREIGN
+        -> foreign_service_income
+        -> perception-based recognition
+        -> frozen CLP conversion snapshot with BCCh provenance
+```
 
-No automatic FX provider is authorized by Block 02 until this spike closes.
+Closed invariants:
+
+- `foreign payer != foreign-source income`;
+- source jurisdiction and payer country are separate dimensions;
+- genuine foreign-source honoraria are recognized on perception;
+- original amount/currency are preserved;
+- CLP conversion is an auditable frozen snapshot, not live revaluation;
+- BCCh is the initial official FX authority;
+- no silent weekend/holiday previous-business-day assumption;
+- unresolved conversion remains `PENDING / NEEDS_REVIEW`;
+- manual FX requires explicit source/reference/reason;
+- corrections preserve append-only conversion provenance;
+- a CLP BHE plus foreign-currency settlement never produces two ledger income facts;
+- foreign tax may be captured factually, but article 41 A credit calculation is outside Block 02.
+
+Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).
 
 ## Enabling Tasks
 
 ### PTL-TASK-IL-001 — TaxLedgerEntry projection contract
 
 **Status:** DONE  
-Evidence: [`task-il-001-evidence.md`](task-il-001-evidence.md). Canonical `make validate`: **190/190**, desktop/architecture PASS.
+Evidence: [`task-il-001-evidence.md`](task-il-001-evidence.md).
 
 ---
 
 ### PTL-TASK-IL-002 — Aggregate projection providers
 
 **Status:** DONE  
-Evidence: [`task-il-002-evidence.md`](task-il-002-evidence.md). Canonical `make validate`: **195/195**, desktop/architecture PASS.
+Evidence: [`task-il-002-evidence.md`](task-il-002-evidence.md).
 
 ---
 
 ### PTL-TASK-IL-003 — Annual ledger query/read model
 
 **Status:** DONE  
-Evidence: [`task-il-003-evidence.md`](task-il-003-evidence.md). Canonical `make validate`: **200/200**, desktop/architecture PASS.
+Evidence: [`task-il-003-evidence.md`](task-il-003-evidence.md).
 
 ---
 
@@ -61,20 +81,9 @@ Evidence: [`task-il-003-evidence.md`](task-il-003-evidence.md). Canonical `make 
 **Size:** S  
 **Status:** DONE
 
-Closed implementation:
+Closed implementation preserves a read-only annual ledger surface and no generic mutation authority.
 
-- explicit `GET /api/tax-ledger` read endpoint;
-- exact `entryKind`, `ownerAggregate`, `recognitionState` filters;
-- active annual context resolved server-side;
-- canonical `readModel.listAnnualLedger(context, filters)` delegation;
-- non-GET methods rejected with 405 before read-model execution;
-- local composition assembles providers + read model + router;
-- frontend client exposes only `list(filters)` and GET;
-- canonical response shape preserves `factualSummary`;
-- no generic ledger mutation service or storage is introduced;
-- HTTP/lifecycle harnesses fail fast on early child termination and cannot hang indefinitely.
-
-Evidence: [`task-il-004-evidence.md`](task-il-004-evidence.md). Canonical `make validate`: **204/204**, desktop/architecture PASS.
+Evidence: [`task-il-004-evidence.md`](task-il-004-evidence.md).
 
 ---
 
@@ -84,9 +93,16 @@ Evidence: [`task-il-004-evidence.md`](task-il-004-evidence.md). Canonical `make 
 **Role:** ENABLER  
 **Priority:** P1  
 **Size:** L  
-**Status:** BLOCKED_BY_SPIKE_IL_002
+**Status:** READY
 
-Implements the domain/storage projection decided by the foreign-service/FX spike. Must preserve original-value and conversion provenance.
+Executable scope:
+
+- dedicated `foreign_service_income` aggregate for genuinely foreign-source honoraria;
+- append-only `foreign_service_fx_conversions` provenance;
+- BCCh-backed conversion provider contract;
+- `FOREIGN_SERVICE_INCOME` ledger projection only for the genuine foreign-source path;
+- BHE-linked foreign settlement remains attached to `fee_receipts` and does not create a second ledger row;
+- explicit `PENDING / NEEDS_REVIEW` when conversion cannot be safely resolved.
 
 ---
 
@@ -98,7 +114,7 @@ Implements the domain/storage projection decided by the foreign-service/FX spike
 **Size:** M  
 **Status:** NOT_READY_FOR_CLOSURE
 
-Terminal Block 02 regression gate. It must prove projection-only ledger semantics, stable owner identity, annual isolation/stale protection, non-duplicated salary/APV semantics, preserved BHE recognition semantics, traceable totals, and foreign-service behavior only after IL-002/IL-005 are closed.
+Terminal Block 02 regression gate. It must prove projection-only ledger semantics, stable owner identity, annual isolation/stale protection, non-duplicated salary/APV semantics, preserved BHE recognition semantics, traceable totals, and the accepted foreign-service behavior.
 
 ## Dependency graph
 
@@ -108,13 +124,12 @@ flowchart LR
   T1 --> T2[TASK-IL-002\nDONE]
   T2 --> T3[TASK-IL-003\nDONE]
   T3 --> T4[TASK-IL-004\nDONE]
-  T3 --> U1[US-IL-001\nREADY]
-  T4 --> U1
-  U1 --> U2[US-IL-002]
-  U1 --> U3[US-IL-003]
-  U1 --> U6[US-IL-006\nREADY]
-  T3 --> U5[US-IL-005]
-  S2[SPIKE-IL-002] --> T5[TASK-IL-005]
+  T4 --> U1[US-IL-001\nDONE]
+  U1 --> U2[US-IL-002\nDONE]
+  U1 --> U3[US-IL-003\nDONE]
+  U1 --> U6[US-IL-006\nDONE]
+  T3 --> U5[US-IL-005\nDONE]
+  S2[SPIKE-IL-002\nDONE] --> T5[TASK-IL-005\nREADY]
   T5 --> U4[US-IL-004]
   U1 --> T6[TASK-IL-006]
   U2 --> T6
@@ -124,15 +139,11 @@ flowchart LR
   U6 --> T6
 ```
 
-## Critical path
+## Current critical path
 
 ```text
-SPIKE-IL-001 [DONE]
- -> TASK-IL-001 [DONE]
- -> TASK-IL-002 [DONE]
- -> TASK-IL-003 [DONE]
- -> TASK-IL-004 [DONE]
- -> US-IL-001 + US-IL-006 [READY]
+PTL-TASK-IL-005 foreign-service provider/value contract
+  -> PTL-US-IL-004 foreign payer / foreign-source flow
+  -> PTL-TASK-IL-006 terminal regression / DoD
+  -> Block 02 CLOSED
 ```
-
-`SPIKE-IL-002` remains a parallel P1 discovery path and does not block the domestic ledger slice.
