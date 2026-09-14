@@ -4,7 +4,7 @@
 **Capability:** TAX-04  
 **Priority:** P0  
 **Status:** `VISUAL_VALIDATION_PENDING`  
-**Date:** 2026-09-13  
+**Date:** 2026-09-14  
 **Branch:** `feat/block-02-unified-income-ledger-ui`
 
 ## Scope
@@ -18,25 +18,38 @@ It combines:
 
 ## Shared React dogfood
 
-The surrounding application consumes canonical primitives from `adumun/react-components`:
+The surrounding application now dogfoods canonical primitives from `adumun/react-components`:
 
 - `AppShell`;
 - `PrimaryNav`;
 - `ContextHeader`;
 - `PageHeader`;
 - `SectionCard`;
-- `StatusBadge`.
+- `StatusBadge`;
+- `Tabs`;
+- `Button`;
+- `Select`;
+- `RadioGroup`;
+- `FormActions`.
 
 PTL remains responsible for product information architecture, copy, annual-workspace authority, feature composition and visual theme.
 
-`Tabs` has been cross-repo reconciled and implemented in `adumun/react-components`, but this evidence does **not** claim its PTL dogfood complete while `WorkspaceView` still contains local `sub-tabs`.
+Shared components are themed through their stable `data-adumun-*` hooks rather than by copying implementation source into PTL.
+
+## Page-layer reconciliation
+
+Annual surfaces use the canonical `PageHeader` directly.
+
+Legacy `WorkspaceView` surfaces are now composed by `AnnualWorkspaceGate` through the shared `PageHeader`; the legacy internal header remains temporarily present in the component source but is hidden inside the explicit `.legacy-workspace-page` compatibility boundary. This prevents a second visible page-header authority while allowing incremental extraction instead of a monolithic rewrite.
+
+`No vinculante` is now attached by the page compositor only to `dashboard / Estimación anual`; it is no longer intended as a global status for unrelated work surfaces such as `Ingresos laborales`.
 
 ## Visible behavior
 
 `AnnualIncomeLedgerSection` renders as an explicit surface under the active annual workspace and shows:
 
 - factual summary cards;
-- exact filters by entry type and recognition state;
+- exact filters by entry type and recognition state through shared `Select` controls;
 - normalized rows for dependent income, domestic BHE and other existing income-source kinds;
 - factual amount / withholding / PPM when registered;
 - explicit `No registrado` for absent values;
@@ -45,7 +58,9 @@ PTL remains responsible for product information architecture, copy, annual-works
 - responsive table/card behavior for narrow viewports;
 - factual-boundary copy that explicitly excludes tax liability, refund and SII reconciliation semantics.
 
-The annual navigation now uses product language:
+The summary label was refined from `Bruto registrado` to `Monto bruto disponible` so absence of the canonical gross field is not visually confused with a row that can still present another factual amount such as net.
+
+The annual navigation uses product language:
 
 ```text
 Período
@@ -54,11 +69,15 @@ Período
   Perfil del año
 ```
 
-The duplicate active-period footer formerly rendered in the sidebar was removed. The global header is now the visible annual-context authority.
+The duplicate active-period footer formerly rendered in the sidebar was removed. The global header is the visible annual-context authority.
+
+`Perfil del año` now uses shared `RadioGroup` plus `FormActions`/`Button` rather than locally rebuilding radio semantics and action layout.
+
+`Ingresos laborales` no longer exposes persisted enum values such as `SALARY` as user-facing copy; the presentation boundary maps them to product language such as `Renta dependiente`.
 
 ## Authority and isolation
 
-The UI remains read-only.
+The ledger UI remains read-only.
 
 It does not create a generic ledger mutation path and does not replace aggregate-owned editors.
 
@@ -79,7 +98,9 @@ No placeholder mutation or fake ledger editor is authorized.
 
 ## Automated evidence
 
-An earlier head of this branch was executed through the canonical Make façade on 2026-09-13:
+Earlier heads produced green focused evidence, including an 11/11 run. Those results are historical only because the branch has advanced through shared `Tabs`, action/form primitives, page-layer composition and product-language reconciliation.
+
+The current head requires fresh execution through the canonical Make façade:
 
 ```text
 make bootstrap
@@ -87,26 +108,9 @@ make typecheck
 make test-ledger-ui
 ```
 
-Observed result for that earlier head:
+A fresh canonical `make validate` remains intentionally deferred until user visual approval.
 
-```text
-tests 11
-pass 11
-fail 0
-cancelled 0
-skipped 0
-todo 0
-```
-
-`make typecheck` completed without TypeScript errors.
-
-### Current-head status
-
-The branch advanced after the above green evidence to introduce shared `SectionCard` / `StatusBadge`, product-language navigation changes, ledger origin presentation changes and new focused assertions.
-
-Therefore the 11/11 run is retained as historical evidence only. A **fresh** Make-wrapped focused run is required before claiming the current head technically green.
-
-`make bootstrap` also emitted an npm `allowScripts` warning for install scripts in `electron-winstaller` and the Git-consumed `@adumun/react-components` package. It did not block the earlier bootstrap, typecheck or focused tests. This is a bootstrap determinism observation to reconcile separately; it is not treated as visual acceptance evidence.
+The known npm `allowScripts` warning for install scripts in `electron-winstaller` and the Git-consumed `@adumun/react-components` package remains a bootstrap-determinism observation to reconcile separately; it is not treated as visual acceptance evidence.
 
 ## Visual acceptance gate
 
