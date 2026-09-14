@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
+import { Tabs } from '@adumun/react-components';
 import { api, incomeService, ApiRequestError } from '../api';
 import type { IncomeSource, Reference, Settings, Simulation, FeeReceipt, MortgageLoan, MortgageAnnualRecord, TaxParameter } from '../types';
 import FeeReceiptsModule from '../features/fee-receipts/FeeReceiptsModule';
@@ -21,10 +22,11 @@ const emptySource: IncomeSource = {
 export type WorkspaceTab = 'dashboard' | 'incomes' | 'fees' | 'mortgages' | 'apv' | 'scenarios' | 'settings' | 'sources' | 'logs';
 
 type SummaryTab = 'overview' | 'reconciliation' | 'provision' | 'employers';
+type IncomesTab = 'list' | 'form';
 
 export default function WorkspaceView({ tab }: { tab: WorkspaceTab }) {
   const [summaryTab, setSummaryTab] = useState<SummaryTab>('overview');
-  const [incomesTab, setIncomesTab] = useState<'list' | 'form'>('list');
+  const [incomesTab, setIncomesTab] = useState<IncomesTab>('list');
   const [sources, setSources] = useState<IncomeSource[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [references, setReferences] = useState<Reference[]>([]);
@@ -200,7 +202,7 @@ export default function WorkspaceView({ tab }: { tab: WorkspaceTab }) {
     } catch (e) {
       const msg = errMsg(e);
       setError(msg);
-      log({ kind: 'ASYNC', operation: LOG.COMPARE_APV, status: 'ERROR', message: msg, auditMessage: `annualContribution=${apvMonthly * apvMonths} error: ${msg}`, durationMs: Math.round(performance.now() - started) });
+      log({ kind: 'ASYNC', operation: LOG.COMPARE_APV, status: 'ERROR', message: msg, auditMessage: `annualContribution=${apvMonthly * apvMonths} error=${msg}`, durationMs: Math.round(performance.now() - started) });
       notify('No se pudo comparar el APV', { tone: 'error', message: msg });
     }
   };
@@ -257,15 +259,18 @@ export default function WorkspaceView({ tab }: { tab: WorkspaceTab }) {
     {error && <div className="alert error">{error}<button onClick={() => setError('')}>×</button></div>}
 
     {tab === 'dashboard' && <>
-      <nav className="sub-tabs">
-        {([
-          ['overview', 'Indicadores'],
-          ['reconciliation', 'Reconciliación anual'],
-          ['provision', 'Previsión y APV'],
-          ['employers', 'Detalle por trabajo']
-        ] as const).map(([key, label]) =>
-          <button key={key} className={summaryTab === key ? 'active' : ''} onClick={() => setSummaryTab(key)}>{label}</button>)}
-      </nav>
+      <Tabs<SummaryTab>
+        label="Vistas de estimación anual"
+        value={summaryTab}
+        onChange={setSummaryTab}
+        variant="segmented"
+        items={[
+          { id: 'overview', label: 'Indicadores' },
+          { id: 'reconciliation', label: 'Reconciliación anual' },
+          { id: 'provision', label: 'Previsión y APV' },
+          { id: 'employers', label: 'Detalle por trabajo' }
+        ]}
+      />
 
       {summaryTab === 'overview' && <>
         <SummaryMetrics metrics={metricsData.map(metric => ({ ...metric, value: money.format(metric.value) }))} onExplain={setExplanationFocusKey} />
@@ -316,13 +321,16 @@ export default function WorkspaceView({ tab }: { tab: WorkspaceTab }) {
     </>}
 
     {tab === 'incomes' && <>
-      <nav className="sub-tabs">
-        {([
-          ['list', 'Ingresos guardados'],
-          ['form', editing.id ? 'Editar ingreso' : 'Nuevo ingreso']
-        ] as const).map(([key, label]) =>
-          <button key={key} className={incomesTab === key ? 'active' : ''} onClick={() => setIncomesTab(key)}>{label}</button>)}
-      </nav>
+      <Tabs<IncomesTab>
+        label="Vistas de ingresos laborales"
+        value={incomesTab}
+        onChange={setIncomesTab}
+        variant="segmented"
+        items={[
+          { id: 'list', label: 'Ingresos guardados' },
+          { id: 'form', label: editing.id ? 'Editar ingreso' : 'Nuevo ingreso' }
+        ]}
+      />
 
       {incomesTab === 'list' && <IncomesSection
         sources={sources}
