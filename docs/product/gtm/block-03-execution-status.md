@@ -2,7 +2,7 @@
 
 **Block:** 03 — Early Activation  
 **Macrostate:** ACTIVATE  
-**Status:** OPEN / EXECUTION READY  
+**Status:** OPEN / BATCH A CLOSED / FIRST COHORT PENDING  
 **Date:** 2026-09-14
 
 ## Block entry condition
@@ -29,9 +29,9 @@ Obtain the first qualified external usage signals and determine whether current 
 
 These are learning thresholds, not growth KPIs.
 
-## Current execution state
+## Batch A — Instrument the learning loop: CLOSED
 
-### Specification complete
+Completed:
 
 - activation funnel defined;
 - meaningful-first-use definition established;
@@ -43,31 +43,38 @@ These are learning thresholds, not growth KPIs.
 - structured feedback protocol defined;
 - learning taxonomy defined;
 - execution batches A–D defined;
-- Block 03 closure rules defined.
+- Block 03 closure rules defined;
+- native Drive strategy document created: `10 - Early Activation v1 - Personal Tax Ledger`;
+- native Drive activation tracker created: `11 - Early Activation Log - Personal Tax Ledger`;
+- activation tracker contains `Activation Log`, `Summary` and `Lists` tabs;
+- summary formulas initialize the five Block 03 evidence thresholds at zero and update from the activation log;
+- GitHub execution issue created: `PTL-3 — Early Activation Cohort` (#27).
 
-### Pending execution
+## Pending execution — Batch B
 
-1. create/populate the first activation evidence records;
-2. select the first five ICP-relevant prospects;
-3. execute first contact batch using at least two message variants;
-4. capture first install attempts and meaningful sessions;
-5. synthesize evidence before expanding beyond ten qualified contacts.
+1. select the first five ICP-relevant prospects;
+2. assign at least two message variants across the cohort;
+3. execute first contact attempts;
+4. record reactions before install assistance;
+5. capture first install attempts;
+6. observe at least two meaningful sessions if possible;
+7. review evidence before expanding to ten qualified contacts.
 
 ## P0 status
 
 | ID | Item | State |
 |---|---|---|
-| A3-01 | Canonical early-activation strategy | DONE SPEC |
-| A3-02 | Activation evidence schema | DONE SPEC |
-| A3-03 | Message variants M1–M5 | DONE SPEC |
-| A3-04 | First 5 qualified prospects selected | PENDING EXECUTION |
-| A3-05 | First 5 contact attempts completed | PENDING EXECUTION |
-| A3-06 | First 2 observed meaningful sessions | PENDING EXECUTION |
-| A3-07 | Cohort expanded to 10 qualified prospects | PENDING EXECUTION |
-| A3-08 | At least 3 structured primary-ICP feedback records | PENDING EXECUTION |
-| A3-09 | Continued-intent evidence for at least 2 users | PENDING EXECUTION |
-| A3-10 | Activation learning synthesis | PENDING EXECUTION |
+| A3-01 | Canonical early-activation strategy | DONE |
+| A3-02 | Activation evidence schema + tracker | DONE / IMPLEMENTED |
+| A3-03 | Message variants M1–M5 | DONE |
+| A3-04 | First 5 qualified prospects selected | NEXT |
+| A3-05 | First 5 contact attempts completed | PENDING |
+| A3-06 | First 2 observed meaningful sessions | PENDING |
+| A3-07 | Cohort expanded to 10 qualified prospects | PENDING |
+| A3-08 | At least 3 structured primary-ICP feedback records | PENDING |
+| A3-09 | Continued-intent evidence for at least 2 users | PENDING |
+| A3-10 | Activation learning synthesis | PENDING |
 
 ## Current state
 
-`ACTIVATE / BLOCK_03_OPEN / STRATEGY_READY / FIRST_COHORT_PENDING`
+`ACTIVATE / BLOCK_03_OPEN / BATCH_A_CLOSED / FIRST_5_PROSPECTS_NEXT`
