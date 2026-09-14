@@ -2,14 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-// Estos tests son una red estática complementaria (detectan rápido si
-// App.tsx deja de usar el servicio/componente compartido). La cobertura
-// real del comportamiento de income-service vive en
-// test/income-service.test.mjs.
-test('App.tsx usa el income-service en vez de llamar la API de ingresos directamente', async () => {
+// Red estática complementaria: protege que WorkspaceView no vuelva a llamar
+// directamente endpoints CRUD de ingresos. La lectura inicial puede llegar por
+// bootstrap; las mutaciones siguen delegadas al income-service. La cobertura
+// real del comportamiento de income-service vive en test/income-service.test.mjs.
+test('WorkspaceView delega mutaciones de ingresos al income-service y no llama CRUD HTTP directo', async () => {
   const source = await readFile('apps/local/web/src/app/WorkspaceView.tsx', 'utf8');
   assert.match(source, /import\s*\{[^}]*incomeService[^}]*\}\s*from\s*'\.\.\/api'/);
-  assert.match(source, /incomeService\.list\(/);
+  assert.match(source, /api\.bootstrap\(/);
   assert.match(source, /incomeService\.create\(/);
   assert.match(source, /incomeService\.update\(/);
   assert.match(source, /incomeService\.remove\(/);
