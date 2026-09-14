@@ -99,7 +99,7 @@ Como contribuyente que emite BHE, quiero administrar los hechos de honorarios de
 **Type:** Story  
 **Capability:** TAX-04  
 **Related:** `PTL-EXT-01`  
-**Status:** BLOCKED_BY_SPIKE_DECISION_ACCEPTANCE  
+**Status:** READY_AFTER_TASK_IL_005  
 **Priority:** P1  
 **Size:** L  
 **Canonical data impact:** CANONICAL_LEDGER  
@@ -156,8 +156,8 @@ serviceSourceJurisdiction = CHILE | FOREIGN
 
 ### Dependencies
 
-- `REQUIRES` -> acceptance of `PTL-SPIKE-IL-002`
-- `REQUIRES` -> `PTL-TASK-IL-005`
+- `REQUIRES` -> `PTL-SPIKE-IL-002` — DONE
+- `REQUIRES` -> `PTL-TASK-IL-005` — READY
 - `REQUIRES` -> `US-IL-001`
 - `UI_DEPENDS_ON` -> `DESIGN-IL-004`
 
