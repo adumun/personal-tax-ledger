@@ -3,6 +3,7 @@ import { Button, PageHeader, SectionCard, Select, StatusBadge } from '@adumun/re
 import {
   taxLedgerClient,
   type AnnualTaxLedgerResult,
+  type TaxLedgerCategorySummary,
   type TaxLedgerEntry,
   type TaxLedgerFilters
 } from './tax-ledger-client';
@@ -26,7 +27,7 @@ const money = new Intl.NumberFormat('es-CL', {
 const ENTRY_KIND_LABELS: Record<string, string> = {
   DEPENDENT_INCOME: 'Renta dependiente',
   DOMESTIC_FEE_INCOME: 'Honorarios / BHE',
-  OTHER_INCOME_SOURCE: 'Otro ingreso'
+  OTHER_INCOME_SOURCE: 'Otros ingresos'
 };
 
 const STATE_LABELS: Record<string, string> = {
@@ -72,9 +73,35 @@ function totalRegistered(result: AnnualTaxLedgerResult | null, key: 'gross' | 'w
   return money.format(total.amount);
 }
 
+function categoryAmount(summary: TaxLedgerCategorySummary, key: 'gross' | 'withholding' | 'ppm') {
+  const total = summary.totalsByCurrency.CLP?.[key];
+  if (!total || total.presentCount === 0) return 'No registrado';
+  return money.format(total.amount);
+}
+
+function FactualCategoryCard({ entryKind, summary, onTrace }: { entryKind: string; summary: TaxLedgerCategorySummary; onTrace: () => void }) {
+  const recognized = summary.recognitionCounts.RECOGNIZED || 0;
+  const pending = summary.recognitionCounts.PENDING || 0;
+  const excluded = summary.recognitionCounts.EXCLUDED || 0;
+  return <article className="annual-income-position-card">
+    <div className="annual-income-position-card-heading">
+      <div><small>Categoría</small><strong>{ENTRY_KIND_LABELS[entryKind] || entryKind}</strong></div>
+      <StatusBadge tone={pending > 0 ? 'warning' : 'neutral'}>{summary.entryCount} entradas</StatusBadge>
+    </div>
+    <dl>
+      <div><dt>Bruto factual reconocido</dt><dd>{categoryAmount(summary, 'gross')}</dd></div>
+      <div><dt>Retención registrada</dt><dd>{categoryAmount(summary, 'withholding')}</dd></div>
+      <div><dt>PPM registrado</dt><dd>{categoryAmount(summary, 'ppm')}</dd></div>
+    </dl>
+    <p>{recognized} reconocidas · {pending} pendientes · {excluded} excluidas</p>
+    <Button variant="ghost" onClick={onTrace}>Ver entradas</Button>
+  </article>;
+}
+
 export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome, onAddFeeReceipt, onOpenOwner }: Props) {
   const [filters, setFilters] = useState<TaxLedgerFilters>({});
   const [result, setResult] = useState<AnnualTaxLedgerResult | null>(null);
+  const [positionResult, setPositionResult] = useState<AnnualTaxLedgerResult | null>(null);
   const [state, setState] = useState<LoadState>('LOADING');
   const [error, setError] = useState('');
   const requestSerial = useRef(0);
@@ -84,14 +111,20 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
     setState('LOADING');
     setError('');
     try {
-      const next = await taxLedgerClient.list(filters);
+      const hasFilters = Boolean(filters.entryKind || filters.ownerAggregate || filters.recognitionState);
+      const [next, annualPosition] = await Promise.all([
+        taxLedgerClient.list(filters),
+        hasFilters ? taxLedgerClient.list({}) : taxLedgerClient.list(filters)
+      ]);
       if (serial !== requestSerial.current) return;
-      if (next.commercialYear !== commercialYear) {
+      if (next.commercialYear !== commercialYear || annualPosition.commercialYear !== commercialYear) {
         setResult(null);
+        setPositionResult(null);
         setState('STALE_SUPPRESSED');
         return;
       }
       setResult(next);
+      setPositionResult(annualPosition);
       setState(next.entries.length === 0 ? 'EMPTY' : 'READY');
     } catch (cause) {
       if (serial !== requestSerial.current) return;
@@ -106,11 +139,16 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
   }, [commercialYear, filters.entryKind, filters.recognitionState]);
 
   const registeredWithholding = useMemo(() => {
-    const withholding = totalRegistered(result, 'withholding');
-    const ppm = totalRegistered(result, 'ppm');
+    const withholding = totalRegistered(positionResult, 'withholding');
+    const ppm = totalRegistered(positionResult, 'ppm');
     if (withholding === 'No registrado' && ppm === 'No registrado') return 'No registrado';
     return `${withholding} · PPM ${ppm}`;
-  }, [result]);
+  }, [positionResult]);
+
+  const factualCategories = useMemo(
+    () => Object.entries(positionResult?.factualSummary.totalsByEntryKind || {}),
+    [positionResult]
+  );
 
   return <section className="annual-income-ledger" aria-labelledby="annual-income-ledger-title">
     <PageHeader
@@ -125,11 +163,30 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
     />
 
     <SectionCard className="annual-income-ledger-card">
-      <div className="annual-income-ledger-summary" aria-label="Resumen factual del ledger">
-        <article><small>Entradas registradas</small><strong>{result?.factualSummary.entryCount ?? '—'}</strong></article>
-        <article><small>Monto bruto disponible</small><strong>{totalRegistered(result, 'gross')}</strong></article>
-        <article><small>Retenciones / PPM registrados</small><strong>{registeredWithholding}</strong></article>
-      </div>
+      <section className="annual-income-position" aria-labelledby="annual-income-position-title">
+        <div className="annual-income-position-heading">
+          <div>
+            <small>Posición factual anual</small>
+            <h2 id="annual-income-position-title">Lo registrado para {commercialYear}</h2>
+            <p>Resume hechos del ledger reconocidos por categoría. No calcula tu impuesto anual ni anticipa devolución o pago.</p>
+          </div>
+        </div>
+
+        <div className="annual-income-ledger-summary" aria-label="Resumen factual anual del ledger">
+          <article><small>Entradas registradas</small><strong>{positionResult?.factualSummary.entryCount ?? '—'}</strong></article>
+          <article><small>Monto bruto disponible</small><strong>{totalRegistered(positionResult, 'gross')}</strong></article>
+          <article><small>Retenciones / PPM registrados</small><strong>{registeredWithholding}</strong></article>
+        </div>
+
+        {factualCategories.length > 0 && <div className="annual-income-position-categories">
+          {factualCategories.map(([entryKind, summary]) => <FactualCategoryCard
+            key={entryKind}
+            entryKind={entryKind}
+            summary={summary}
+            onTrace={() => setFilters(current => ({ ...current, entryKind }))}
+          />)}
+        </div>}
+      </section>
 
       <div className="annual-income-ledger-toolbar">
         <Select label="Tipo" value={filters.entryKind || ''} onChange={event => setFilters(current => ({ ...current, entryKind: event.target.value || undefined }))}>
@@ -150,7 +207,7 @@ export default function AnnualIncomeLedgerSection({ commercialYear, onAddIncome,
       {state === 'LOADING' && !result && <div className="annual-income-ledger-state" role="status">Cargando ingresos del año…</div>}
       {state === 'ERROR' && <div className="annual-income-ledger-state error" role="alert"><strong>No se pudieron cargar los ingresos del año.</strong><span>{error}</span><Button onClick={() => void reload()}>Reintentar</Button></div>}
       {state === 'STALE_SUPPRESSED' && <div className="annual-income-ledger-state" role="status">Se descartó una respuesta de un año anterior. Actualizando el período activo…</div>}
-      {state === 'EMPTY' && <div className="annual-income-ledger-state empty"><strong>No hay ingresos registrados para este año.</strong><span>La ausencia de registros no se interpreta como $0 de ingresos.</span></div>}
+      {state === 'EMPTY' && <div className="annual-income-ledger-state empty"><strong>No hay ingresos registrados para este filtro.</strong><span>La ausencia de registros no se interpreta como $0 de ingresos. La posición factual anual permanece visible arriba.</span></div>}
 
       {state === 'READY' && result && <div className="annual-income-ledger-table-wrap">
         <table className="annual-income-ledger-table">
