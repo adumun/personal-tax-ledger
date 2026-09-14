@@ -1,7 +1,7 @@
 # PTL-US-IL-005 — Factual annual income position — Evidence
 
 **Story:** `PTL-US-IL-005`  
-**Status:** `VISUAL_VALIDATION_PENDING`  
+**Status:** `USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING`  
 **Priority:** P1  
 **UI impact:** `NEW_SECTION`
 
@@ -118,24 +118,36 @@ make test
 
 Result: **PASS**.
 
-No canonical `make validate` has been executed for this final head yet because the `NEW_SECTION` visual gate is mandatory first.
-
 ## Visual validation
 
-Current state: `VISUAL_VALIDATION_PENDING`.
+User visual validation completed successfully.
 
-Local visual review must verify:
+Confirmed:
 
-- `Posición factual anual` is clearly factual and visually subordinate to the annual context;
-- overall annual totals do not change when the ledger table is filtered;
-- category cards distinguish Renta dependiente / Honorarios-BHE / other categories without raw internal enums;
-- `No registrado` is used when a monetary fact is absent rather than inferring zero;
-- recognized / pending / excluded counts remain understandable;
-- `Ver entradas` filters the supporting ledger rows for that category;
+- `Posición factual anual` reads as factual context, not a tax outcome;
+- overall annual totals remain stable while the ledger table is filtered;
+- category cards use product language rather than internal enums;
+- absent monetary facts remain `No registrado` rather than inferred zero;
+- recognized / pending / excluded counts are understandable;
+- `Ver entradas` traces each category to its supporting ledger rows;
 - no copy or hierarchy suggests tax liability, refund forecast, readiness, SII reconciliation or optimization.
 
-After visual approval, the remaining closure gate is:
+Result: **USER_VISUAL_APPROVED**.
+
+## Closure gate
+
+The only remaining closure gate is:
 
 ```text
 make validate
+```
+
+After a green canonical gate:
+
+```text
+USER_VISUAL_APPROVED
+  -> CANONICAL_VALIDATION_PASS
+  -> story/evidence reconciliation
+  -> PR ready
+  -> merge
 ```
