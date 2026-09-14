@@ -7,10 +7,14 @@ const gate = readFileSync(new URL('../apps/local/web/src/app/AnnualWorkspaceGate
 const client = readFileSync(new URL('../apps/local/web/src/app/annual-workspace-overview-client.ts', import.meta.url), 'utf8');
 
 test('AW-005: overview visible declara contexto estructural y no resultado tributario', () => {
-  assert.match(section, /Año tributario/);
-  assert.match(section, /Contexto estructural del período/);
-  assert.match(section, /resultado tributario se muestra en Resumen anual/);
-  assert.doesNotMatch(section, /te devolverán|debes pagar|Tax Health|readiness percentage/i);
+  assert.match(section, /PageHeader/);
+  assert.match(section, /title="Resumen del año"/);
+  assert.match(section, /Estado del período activo y de la información que ya tienes registrada/);
+  assert.match(section, /Año comercial/);
+  assert.match(section, /Operación Renta/);
+  assert.match(section, /Información disponible/);
+  assert.match(section, /Reglas del período/);
+  assert.doesNotMatch(section, /te devolverán|debes pagar|Tax Health|readiness percentage|Devolución estimada|Saldo por pagar/i);
 });
 
 test('AW-005: ausencia se muestra como No registrado y evidencia no disponible, nunca como $0', () => {
