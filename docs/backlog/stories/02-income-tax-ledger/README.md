@@ -110,10 +110,10 @@ See [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md).
 4. `PTL-TASK-IL-004 — Ledger HTTP/client surface` — DONE;
 5. `PTL-US-IL-001 + PTL-US-IL-006` — DONE;
 6. `PTL-US-IL-002 + PTL-US-IL-003` — DONE;
-7. close FX/foreign-service spike before `PTL-US-IL-004`;
-8. `PTL-US-IL-005` factual annual position;
+7. `PTL-US-IL-005` factual annual position is the next executable story;
+8. close FX/foreign-service spike before `PTL-US-IL-004`;
 9. terminal `PTL-TASK-IL-006` regression/DoD gate.
 
-The next executable decision point is `PTL-SPIKE-IL-002` versus `PTL-US-IL-005`, subject to dependency review.
+`PTL-US-IL-005` is dependency-ready from the closed annual ledger read model and can proceed without waiting for the foreign-service spike. `PTL-US-IL-004` remains blocked until `PTL-SPIKE-IL-002` closes FX/recognition/provenance semantics.
 
 See [`implementation-roadmap.md`](implementation-roadmap.md), [`enablers-and-dependencies.md`](enablers-and-dependencies.md) and [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md).
