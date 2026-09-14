@@ -129,7 +129,7 @@ No se implementará FX automático antes de ese contrato.
 
 **Type:** Story  
 **Capability:** TAX-04  
-**Status:** USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING  
+**Status:** DONE  
 **Priority:** P1  
 **Size:** M  
 **Canonical data impact:** DERIVED_PROJECTION  
@@ -156,6 +156,13 @@ Como contribuyente, quiero ver cuánto ingreso factual está registrado por cate
 - el desglose canónico se expresa por `entryKind` y moneda;
 - `Ver entradas` aplica el filtro de categoría sobre el mismo ledger para materializar la trazabilidad;
 - no se crea persistencia, endpoint de mutación ni cálculo tributario final adicional.
+
+### Closure evidence
+
+- pre-visual Make gates — PASS;
+- user visual validation — PASS;
+- canonical `make validate` — PASS;
+- evidence: `il-005-factual-position-evidence.md`.
 
 ### Dependencies
 
