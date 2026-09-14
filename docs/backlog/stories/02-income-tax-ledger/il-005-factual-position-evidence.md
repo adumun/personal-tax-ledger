@@ -1,7 +1,7 @@
 # PTL-US-IL-005 — Factual annual income position — Evidence
 
 **Story:** `PTL-US-IL-005`  
-**Status:** `USER_VISUAL_APPROVED / CANONICAL_VALIDATION_PENDING`  
+**Status:** `DONE`  
 **Priority:** P1  
 **UI impact:** `NEW_SECTION`
 
@@ -106,9 +106,9 @@ No generic ledger mutation, persistence table, acquisition logic or foreign-exch
   - explicit non-tax boundary;
   - typed `totalsByEntryKind` client contract.
 
-## Automated validation
+## Validation evidence
 
-Fresh validation of the current head completed successfully through the canonical Make façade:
+Pre-visual validation completed successfully through the canonical Make façade:
 
 ```text
 make bootstrap
@@ -117,8 +117,6 @@ make test
 ```
 
 Result: **PASS**.
-
-## Visual validation
 
 User visual validation completed successfully.
 
@@ -134,20 +132,21 @@ Confirmed:
 
 Result: **USER_VISUAL_APPROVED**.
 
-## Closure gate
-
-The only remaining closure gate is:
+Canonical closure validation was then executed on the same final head:
 
 ```text
 make validate
 ```
 
-After a green canonical gate:
+Result: **PASS**.
 
-```text
-USER_VISUAL_APPROVED
-  -> CANONICAL_VALIDATION_PASS
-  -> story/evidence reconciliation
-  -> PR ready
-  -> merge
-```
+## Closure
+
+`PTL-US-IL-005` is `DONE`.
+
+Closure preserves the architectural boundary:
+
+- factual position remains a read-only derived projection;
+- `income_sources` / `fee_receipts` remain mutation authorities;
+- no generic ledger mutation or duplicate persistence was introduced;
+- no liability, refund, readiness, reconciliation or optimization semantics were introduced.
