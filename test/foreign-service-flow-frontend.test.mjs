@@ -5,13 +5,22 @@ import { readFile } from 'node:fs/promises';
 const ledgerPath = 'apps/local/web/src/app/AnnualIncomeLedgerSection.tsx';
 const flowPath = 'apps/local/web/src/app/ForeignServiceFlow.tsx';
 const clientPath = 'apps/local/web/src/app/foreign-service-client.ts';
+const contextPath = 'apps/local/web/src/app/ledger-owner-flow-context.tsx';
 
 test('US-IL-004: ledger exposes one explicit foreign-payer entry point and owner-aware foreign edit', async () => {
-  const source = await readFile(ledgerPath, 'utf8');
+  const [source, context] = await Promise.all([
+    readFile(ledgerPath, 'utf8'),
+    readFile(contextPath, 'utf8')
+  ]);
   assert.match(source, /\+ Servicio con pagador extranjero/);
   assert.match(source, /FOREIGN_SERVICE_INCOME: 'Honorario de fuente extranjera'/);
   assert.match(source, /entry\.ownerAggregate === 'FOREIGN_SERVICE_INCOME'/);
-  assert.match(source, /mode: 'EDIT', ownerRecordId: entry\.ownerRecordId/);
+  assert.match(source, /ownerFlow\.begin\(\{ ownerAggregate: 'FOREIGN_SERVICE_INCOME', mode: 'EDIT', ownerRecordId: entry\.ownerRecordId \}\)/);
+  assert.match(source, /ownerFlow\.begin\(\{ ownerAggregate: 'FOREIGN_SERVICE_INCOME', mode: 'CREATE' \}\)/);
+  assert.match(source, /onClose=\{ownerFlow\.complete\}/);
+  assert.match(source, /onComplete=\{ownerFlow\.complete\}/);
+  assert.match(context, /'INCOME_SOURCE' \| 'FEE_RECEIPT' \| 'FOREIGN_SERVICE_INCOME'/);
+  assert.match(context, /begin:\s*\(intent:\s*LedgerOwnerFlowIntent\)/);
   assert.match(source, /Una BHE en CLP con settlement extranjero sigue siendo una sola entrada de ingreso/);
 });
 
