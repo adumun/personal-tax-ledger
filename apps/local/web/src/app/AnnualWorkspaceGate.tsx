@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   AppShell,
+  Button,
   ContextHeader,
   ContextHeaderItem,
+  FormActions,
   PrimaryNav,
   PrimaryNavGroup,
   PrimaryNavItem,
+  RadioGroup,
+  Select,
   StatusBadge
 } from '@adumun/react-components';
 import WorkspaceView, { type WorkspaceTab } from './WorkspaceView';
@@ -206,10 +210,11 @@ export default function AnnualWorkspaceGate() {
   const contextHeader = <ContextHeader
     title="Período activo"
     subtitle="Este período aplica a toda la aplicación."
-    actions={<button className="annual-workspace-create" disabled={busy} onClick={openCreate}>+ Crear año</button>}
+    actions={<Button variant="ghost" disabled={busy} onClick={openCreate}>+ Crear año</Button>}
   >
     <ContextHeaderItem label="Año comercial">
-      <select
+      <Select
+        label="Año comercial activo"
         value={catalog.activeCommercialYear}
         disabled={busy}
         aria-label="Año comercial activo"
@@ -221,7 +226,7 @@ export default function AnnualWorkspaceGate() {
         {catalog.workspaces.map(({ workspace, support }) => <option key={workspace.id} value={workspace.commercialYear}>
           {workspace.commercialYear}{support.state === 'UNSUPPORTED' ? ' · sin reglas compatibles' : support.state === 'SUPPORTED_WITH_WARNINGS' ? ' · revisar reglas' : ''}
         </option>)}
-      </select>
+      </Select>
     </ContextHeaderItem>
     <ContextHeaderItem label="Operación Renta"><strong>{activeOption.workspace.derivedTaxYearLabel}</strong></ContextHeaderItem>
     <ContextHeaderItem label="Estado"><StatusBadge tone="warning" dot>En preparación</StatusBadge></ContextHeaderItem>
@@ -250,21 +255,22 @@ export default function AnnualWorkspaceGate() {
           <strong>{Number.isSafeInteger(candidateYear) && candidateYear > 0 ? derivedTaxYearLabel(candidateYear) : '—'}</strong>
           <small>Derivado automáticamente; no es editable.</small>
         </div>
-        <fieldset>
-          <legend>¿Cómo quieres comenzar?</legend>
-          <label><input type="radio" checked={creationMode === 'EMPTY'} onChange={() => setCreationMode('EMPTY')} /> Empezar vacío</label>
-          <label><input type="radio" checked={creationMode === 'PRIOR'} onChange={() => setCreationMode('PRIOR')} /> Inicializar desde un año anterior</label>
-        </fieldset>
+        <RadioGroup
+          label="¿Cómo quieres comenzar?"
+          value={creationMode}
+          onChange={setCreationMode}
+          options={[
+            { value: 'EMPTY', label: 'Empezar vacío' },
+            { value: 'PRIOR', label: 'Inicializar desde un año anterior' }
+          ]}
+        />
 
         {creationMode === 'EMPTY' && <p className="annual-workspace-copy-note">Empezar vacío crea únicamente el contexto anual. No copia ingresos, boletas, hipotecas, APV, evidencia ni conciliaciones.</p>}
 
         {creationMode === 'PRIOR' && <div className="prior-year-initialization-preview">
-          <label>
-            <span>Año fuente</span>
-            <select value={sourceYear ?? ''} onChange={e => setSourceYear(Number(e.target.value))}>
-              {sourceOptions.map(item => <option key={item.workspace.id} value={item.workspace.commercialYear}>{item.workspace.commercialYear}</option>)}
-            </select>
-          </label>
+          <Select label="Año fuente" value={sourceYear ?? ''} onChange={e => setSourceYear(Number(e.target.value))}>
+            {sourceOptions.map(item => <option key={item.workspace.id} value={item.workspace.commercialYear}>{item.workspace.commercialYear}</option>)}
+          </Select>
           <h3>Reutilizar</h3>
           {!initializationPreview && <p>Cargando categorías reutilizables…</p>}
           {initializationPreview?.categories.map(category => <label key={category.key} className={!category.available ? 'disabled' : ''}>
@@ -289,10 +295,10 @@ export default function AnnualWorkspaceGate() {
           <small>Lo reutilizado conserva la procedencia del año fuente y queda sujeto a revisión.</small>
         </div>}
 
-        <div className="annual-workspace-modal-actions">
-          <button disabled={busy} onClick={() => setCreateOpen(false)}>Cancelar</button>
-          <button className="primary" disabled={busy || (creationMode === 'PRIOR' && !initializationPreview)} onClick={createWorkspace}>{busy ? 'Creando…' : creationMode === 'PRIOR' ? 'Crear e inicializar' : 'Crear y abrir'}</button>
-        </div>
+        <FormActions
+          secondary={<Button disabled={busy} onClick={() => setCreateOpen(false)}>Cancelar</Button>}
+          primary={<Button variant="primary" loading={busy} disabled={creationMode === 'PRIOR' && !initializationPreview} onClick={createWorkspace}>{creationMode === 'PRIOR' ? 'Crear e inicializar' : 'Crear y abrir'}</Button>}
+        />
       </section>
     </div>}
   </div>;
