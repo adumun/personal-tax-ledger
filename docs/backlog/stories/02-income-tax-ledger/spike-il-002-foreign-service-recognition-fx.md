@@ -2,9 +2,13 @@
 
 **Type:** Spike  
 **Capability:** TAX-04  
-**Status:** DECISION_PROPOSED  
+**Status:** DONE  
 **Priority:** P1  
-**Blocks:** `PTL-TASK-IL-005`, `PTL-US-IL-004`
+**Unblocks:** `PTL-TASK-IL-005`, `PTL-US-IL-004`
+
+## Closure
+
+Decision accepted by product on 2026-09-14. This spike is now the canonical contract for foreign-service recognition and FX provenance in Block 02.
 
 ## Objective
 
@@ -19,119 +23,57 @@ Close the domain and provenance contract required to represent services with a f
 - foreign tax paid/withheld;
 - exchange-rate provenance.
 
-The spike must prevent a foreign-currency settlement from creating a duplicate taxable income fact when a canonical BHE already exists.
+The spike prevents a foreign-currency settlement from creating a duplicate taxable income fact when a canonical BHE already exists.
 
-## External authority reviewed
+## Accepted decisions
 
-### SII — BHE currency
-
-SII states that boletas de honorarios and other tax documents cannot be issued in foreign currency; they must be issued in CLP. Foreign-currency equivalents may be mentioned only as detail.
-
-Source:
-- https://www.sii.cl/preguntas_frecuentes/declaracion_renta/001_140_0649.htm
-
-### SII — honoraria received from abroad
-
-SII states that honoraria received abroad for professional advisory services must be included in taxable income. The current annual return form explicitly contains `Honorarios líquidos percibidos de fuente extranjera`.
-
-Sources:
-- https://www.sii.cl/preguntas_frecuentes/declaracion_renta/001_140_2557.htm
-- https://www.sii.cl/servicios_online/renta/2026/rentaform.html
-
-### SII — source versus payer location
-
-SII administrative guidance distinguishes the location of the payer from the source of the income. For a Second Category / article 42 N°2 taxpayer, services materially performed in Chile for a foreign company remain Chile-source income and are recognized in the year of perception.
-
-Source:
-- https://www.sii.cl/pagina/jurisprudencia/adminis/2004/renta/ja766.htm
-
-This is a critical modeling constraint: `foreign payer != foreign-source income`.
-
-### SII — FX conversion for foreign-source honoraria
-
-SII instructions state that foreign-source article 42 N°2 income is converted to CLP using the observed exchange rate in force at the date of perception.
-
-Source:
-- https://www.sii.cl/documentos/circulares/1999/circu05_2.htm
-
-### Banco Central de Chile — exchange-rate authority
-
-BCCh publishes daily exchange rates/parities for generally accepted foreign currencies. The Dólar Observado is CLP per USD; other nominal CLP exchange rates are derived from the published foreign-currency parity and the observed dollar. Values are published for banking business days and are not subject to later statistical revision.
-
-Sources:
-- https://www.bcentral.cl/es/areas/estadisticas/tipos-de-cambios-y-paridades
-- https://www.bcentral.cl/es/areas/estadisticas/preguntas-frecuentes-estadisticas
-- https://www.bcentral.cl/documents/33528/2546026/Paridades%2BFicha%2Bmetodologica.pdf
-
-## Decision 1 — payer country and income source are separate dimensions
-
-The canonical model MUST carry these concepts independently:
+### 1. Payer country and income source are separate dimensions
 
 ```text
 payerCountry
 serviceSourceJurisdiction = CHILE | FOREIGN
 ```
 
-The UI MUST NOT infer `FOREIGN` source merely because `payerCountry != CL`.
+The system MUST NOT infer `FOREIGN` source merely because `payerCountry != CL`. For the initial executable scope, the user explicitly classifies where the service was materially performed.
 
-For the initial executable scope, the user explicitly classifies where the service was materially performed. Automatic tax-source inference is out of scope.
+### 2. Two canonical paths
 
-## Decision 2 — two canonical paths, not one generic foreign-service row
-
-### Path A — foreign payer, Chile-source professional service
+#### Path A — foreign payer, Chile-source professional service
 
 ```text
 payerCountry != CL
 serviceSourceJurisdiction = CHILE
 ```
 
-Canonical tax fact:
+Canonical fact remains `fee_receipts / BHE`.
 
-```text
-fee_receipts / BHE
-```
+- BHE amount remains CLP;
+- foreign-currency payment is settlement/provenance, not another income fact;
+- the ledger MUST NOT create both a BHE row and a second foreign-service row for the same economic service;
+- settlement currency/reference may be linked as metadata;
+- exchange differences are not automatically interpreted as additional taxable professional-fee income in Block 02.
 
-Rules:
-
-- the BHE amount remains CLP because the tax document itself is CLP;
-- a foreign-currency payment is settlement/provenance, not another income fact;
-- the ledger MUST NOT create both a `DOMESTIC_FEE_INCOME`/BHE row and a second foreign-service income row for the same economic service;
-- payment currency, received amount and payment-provider/bank reference may be linked as settlement metadata;
-- any exchange difference between the foreign-currency payment and the CLP BHE amount is not automatically interpreted as an additional taxable professional-fee amount in Block 02.
-
-### Path B — actual foreign-source honorarium
+#### Path B — genuine foreign-source honorarium
 
 ```text
 serviceSourceJurisdiction = FOREIGN
 ```
 
-Canonical tax fact:
+Canonical fact is `foreign_service_income`, independent from `fee_receipts`.
 
-```text
-foreign_service_income
-```
+### 3. Recognition date
 
-This fact is independent from `fee_receipts` because a Chilean BHE is not the canonical document/value authority for a genuinely foreign-source honorarium.
-
-## Decision 3 — recognition date
-
-For `foreign_service_income`, recognition is perception-based.
-
-Canonical field:
+Foreign-source honoraria are perception-based.
 
 ```text
 receivedAt
 ```
 
-Rules:
+- commercial year derives from `receivedAt`;
+- invoice/contract/service-completion dates remain provenance only;
+- unknown perception date => `PENDING` and no recognized monetary total.
 
-- the commercial year is derived from the perception date;
-- invoice/contract/service-completion dates are preserved as documentary/business provenance but do not replace `receivedAt` as the Block 02 recognition date;
-- a record without a known perception date is `PENDING` and MUST NOT contribute recognized monetary totals.
-
-## Decision 4 — original value is immutable factual identity
-
-A recognized foreign-source record MUST preserve:
+### 4. Original value is preserved
 
 ```text
 originalAmount
@@ -139,13 +81,9 @@ originalCurrency
 receivedAt
 ```
 
-These values describe the economic receipt and MUST NOT be overwritten merely because a later exchange-rate correction is recorded.
+These describe the economic receipt and are not overwritten by later FX corrections. ISO 4217 codes are used where applicable.
 
-Supported currency identifiers use ISO 4217 codes where applicable.
-
-## Decision 5 — CLP tax value is a conversion snapshot, not a live recalculation
-
-The canonical conversion snapshot is:
+### 5. CLP value is a frozen conversion snapshot
 
 ```text
 clpAmount
@@ -157,34 +95,28 @@ convertedAt
 conversionStatus
 ```
 
-Initial source contract:
+Initial official source contract:
 
 ```text
 fxSource = BCCH
 ```
 
-For USD, the source series is Dólar Observado. For other BCCh-supported currencies, the official nominal CLP exchange rate/parity publication is used.
+USD uses Dólar Observado; other supported currencies use the applicable BCCh nominal/parity publication. Historical recognized records MUST NOT be silently revalued by later market movements.
 
-The conversion used by the record is frozen as historical provenance. A later change in current market FX MUST NOT silently revalue historical recognized income.
+### 6. Non-banking-day / unavailable-rate safety
 
-## Decision 6 — non-banking-day / unavailable-rate safety
+No implicit previous-business-day fallback is authorized.
 
-Block 02 MUST NOT silently invent a weekend/holiday FX convention.
-
-If no official BCCh rate can be resolved for the exact legal/effective perception date under the provider contract:
+If no official rate can be resolved safely for the effective perception date:
 
 ```text
 conversionStatus = NEEDS_REVIEW
 recognitionState = PENDING
 ```
 
-The record may preserve the original receipt immediately, but it MUST NOT contribute a CLP recognized amount until the conversion is explicitly resolved with auditable provenance.
+The original receipt may be stored, but it does not contribute a recognized CLP amount until resolved with explicit provenance.
 
-A later implementation MAY introduce a formally researched effective-date/fallback rule, but it must not be smuggled in as an implicit `previous business day` assumption.
-
-## Decision 7 — manual FX is allowed only as explicit provenance fallback
-
-When an official automatic lookup cannot resolve the conversion, a user may record an explicit conversion snapshot:
+### 7. Manual FX fallback requires explicit provenance
 
 ```text
 fxSource = MANUAL
@@ -194,18 +126,9 @@ fxSourceReference
 fxReason
 ```
 
-Requirements:
+Manual values must be visibly marked, reference/reason are mandatory, and original amount/currency remain unchanged.
 
-- manual values are visibly marked as manual;
-- source/reference and reason are mandatory;
-- the original amount/currency remain unchanged;
-- no silent replacement of an existing conversion is allowed.
-
-This fallback is evidence-preserving, not an automatic tax-rule inference.
-
-## Decision 8 — corrections are append-only conversion provenance
-
-A conversion correction MUST preserve history.
+### 8. FX corrections are append-only
 
 Target model:
 
@@ -228,13 +151,11 @@ foreign_service_fx_conversions
   supersedesConversionId?
 ```
 
-Only one conversion is current, but previous conversion snapshots remain queryable. Correction is not destructive overwrite.
+Prior conversion snapshots remain queryable. Changes to original amount/currency/receivedAt are economic-fact corrections, distinct from FX corrections.
 
-Changing `originalAmount`, `originalCurrency` or `receivedAt` is an economic-fact correction and must be treated separately from an FX correction.
+### 9. Foreign tax is factual provenance only in Block 02
 
-## Decision 9 — foreign tax withholding is provenance, not Block 02 tax-credit calculation
-
-A foreign-source honorarium MAY preserve factual foreign tax information:
+Optional factual fields may include:
 
 ```text
 foreignTaxAmountOriginal?
@@ -243,11 +164,11 @@ foreignTaxPaidAt?
 foreignTaxDocumentReference?
 ```
 
-Block 02 does not calculate article 41 A credit entitlement or annual credit limits. Those facts are captured for later tax-credit capability/reconciliation.
+Article 41 A credit entitlement/calculation remains out of scope.
 
-## Decision 10 — ledger projection semantics
+### 10. Ledger projection semantics
 
-The ledger gains a new executable entry kind only for Path B:
+New executable entry kind for genuine foreign-source path only:
 
 ```text
 FOREIGN_SERVICE_INCOME
@@ -264,37 +185,25 @@ amounts.currency = CLP when conversion is resolved
 amounts.gross = clpAmount when recognized
 ```
 
-The provenance summary MUST retain original currency/amount and conversion identity so the CLP projection remains explainable.
+Provenance retains original amount/currency and conversion identity. Path A continues to project from `fee_receipts` only.
 
-Path A remains projected from `fee_receipts`; linked FX settlement metadata MUST NOT generate another ledger entry.
+### 11. Storage boundary
 
-## Decision 11 — proposed storage boundary
-
-`PTL-TASK-IL-005` should introduce dedicated storage rather than overloading `income_sources` or `fee_receipts`:
+`PTL-TASK-IL-005` SHALL introduce dedicated storage rather than overload `income_sources` or `fee_receipts`:
 
 ```text
 foreign_service_income
 foreign_service_fx_conversions
 ```
 
-Rationale:
-
-- different recognition semantics;
-- original-currency factual identity;
-- append-only conversion provenance;
-- optional foreign-tax evidence;
-- prevents BHE and foreign-source semantics from being mixed in a single aggregate.
-
-The exact SQLite migration is implementation work for `PTL-TASK-IL-005`, not part of this spike.
-
 ## Invariants
 
 1. `foreign payer != foreign-source income`.
-2. A CLP BHE remains the canonical tax fact when the service is Chile-source and represented by BHE.
+2. A CLP BHE remains canonical when the service is Chile-source and represented by BHE.
 3. FX settlement linked to a BHE is not a second income fact.
 4. Genuine foreign-source honoraria are recognized on perception.
-5. Original amount/currency are always preserved.
-6. CLP conversion is historically frozen with explicit source/date/rate provenance.
+5. Original amount/currency are preserved.
+6. CLP conversion is frozen with explicit source/date/rate provenance.
 7. Unresolved conversion cannot silently contribute a recognized CLP total.
 8. Corrections preserve prior conversion snapshots.
 9. Block 02 does not calculate foreign-tax credit entitlement.
@@ -311,9 +220,19 @@ The exact SQLite migration is implementation work for `PTL-TASK-IL-005`, not par
 - SII reconciliation/import;
 - documentary evidence vault.
 
+## External authority reviewed
+
+- SII — BHE currency: https://www.sii.cl/preguntas_frecuentes/declaracion_renta/001_140_0649.htm
+- SII — honoraria received from abroad: https://www.sii.cl/preguntas_frecuentes/declaracion_renta/001_140_2557.htm
+- SII — annual return form: https://www.sii.cl/servicios_online/renta/2026/rentaform.html
+- SII — source versus payer location: https://www.sii.cl/pagina/jurisprudencia/adminis/2004/renta/ja766.htm
+- SII — FX conversion for foreign-source honoraria: https://www.sii.cl/documentos/circulares/1999/circu05_2.htm
+- Banco Central de Chile — exchange rates/parities: https://www.bcentral.cl/es/areas/estadisticas/tipos-de-cambios-y-paridades
+- Banco Central de Chile — statistical FAQ: https://www.bcentral.cl/es/areas/estadisticas/preguntas-frecuentes-estadisticas
+
 ## Consequence for PTL-US-IL-004
 
-`PTL-US-IL-004` should be refined from a vague “foreign payer = foreign income” flow into an explicit classification flow:
+The story is unblocked and must implement an explicit classification flow:
 
 ```text
 foreign payer
@@ -324,15 +243,10 @@ foreign payer
         -> foreign_service_income + perception-based BCCh conversion snapshot
 ```
 
-This prevents duplicate facts and gives `PTL-TASK-IL-005` an executable persistence/provider contract.
+## Closure result
 
-## Spike closure criteria
-
-The spike can move to `DONE` when the project accepts these decisions and updates:
-
-- `PTL-US-IL-004`;
-- `DESIGN-IL-004`;
-- `PTL-TASK-IL-005`;
-- Block 02 dependency/status documents.
-
-No runtime code change is required to close the spike itself.
+```text
+PTL-SPIKE-IL-002 = DONE
+PTL-TASK-IL-005 = READY
+PTL-US-IL-004 = READY_AFTER_TASK_IL_005
+```
