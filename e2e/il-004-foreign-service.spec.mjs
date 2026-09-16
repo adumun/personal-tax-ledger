@@ -1,4 +1,6 @@
-import { test, expect } from '../.tools/playwright/node_modules/@playwright/test/index.js';
+import playwrightTest from '../.tools/playwright/node_modules/@playwright/test/index.js';
+
+const { test, expect } = playwrightTest;
 
 const now = '2026-09-16T05:00:00.000Z';
 
