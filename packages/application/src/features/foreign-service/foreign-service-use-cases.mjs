@@ -62,11 +62,11 @@ export function createForeignServiceIncomeUseCases({ repository, fxProvider, res
 
     async resolveOfficialConversion(context, id) {
       assertAnnualWorkspaceContext(context);
-      if (!fxProvider) throw new TypeError('fxProvider is required for official conversion');
       const current = await repository.get(context, id);
       if (!current) return null;
       assertContextCommercialYear(context, current.taxYear, 'resolveOfficialConversion');
       if (!current.receivedAt) return { status: 'NEEDS_REVIEW', reason: 'MISSING_RECEIVED_AT' };
+      if (!fxProvider) return { status: 'NEEDS_REVIEW', reason: 'OFFICIAL_PROVIDER_UNAVAILABLE' };
       await assertContextStillActive(context, 'resolveOfficialConversion');
       const rate = await fxProvider.resolveRate({
         currency: current.originalCurrency,

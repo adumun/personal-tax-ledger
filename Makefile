@@ -7,8 +7,11 @@ STORE_OUT := $(DIST_ROOT)/store
 UAT_OUT := $(DIST_ROOT)/uat
 WIN_REPO := $(shell wslpath -w "$(CURDIR)" 2>/dev/null || true)
 WIN_STORE_OUT := $(shell wslpath -w "$(CURDIR)/$(STORE_OUT)" 2>/dev/null || true)
+PLAYWRIGHT_VERSION := 1.55.0
+PLAYWRIGHT_HOME := .tools/playwright
+PLAYWRIGHT_BIN := $(PLAYWRIGHT_HOME)/node_modules/.bin/playwright
 
-.PHONY: bootstrap deps prepare-shared-ui up down test test-ledger-ui typecheck doctor validate build build-web build-store build-uat run-web clean clean-distribution help
+.PHONY: bootstrap deps prepare-shared-ui up down test test-ledger-ui e2e-bootstrap test-e2e test-e2e-il-004 typecheck doctor validate build build-web build-store build-uat run-web clean clean-distribution help
 
 # Canonical ADÜMÜN developer façade (STD-ENG-DEV-001).
 bootstrap:
@@ -46,6 +49,23 @@ test:
 # Focused visual-slice regression gate used while dogfooding the shared React shell.
 test-ledger-ui:
 	@node --test test/annual-income-ledger-frontend.test.mjs test/tax-ledger-http-client.test.mjs
+
+# Browser tooling is intentionally isolated from the product dependency graph. The
+# exact Playwright version is pinned here and installed under an ignored tooling root.
+e2e-bootstrap: deps
+	@echo "==> Bootstrapping Playwright $(PLAYWRIGHT_VERSION) for PTL E2E"
+	@mkdir -p "$(PLAYWRIGHT_HOME)"
+	@npm install --prefix "$(PLAYWRIGHT_HOME)" --package-lock=false --no-save "@playwright/test@$(PLAYWRIGHT_VERSION)"
+	@"$(PLAYWRIGHT_BIN)" install chromium
+
+# Browser tests target the already-running local web runtime (make up) by default.
+# Override only when intentionally validating another local endpoint:
+#   PTL_E2E_BASE_URL=http://127.0.0.1:5174 make test-e2e-il-004
+test-e2e-il-004: e2e-bootstrap
+	@echo "==> Running PTL-US-IL-004 browser paths against $${PTL_E2E_BASE_URL:-http://127.0.0.1:5173}"
+	@"$(PLAYWRIGHT_BIN)" test e2e/il-004-foreign-service.spec.mjs --config=playwright.config.mjs
+
+test-e2e: test-e2e-il-004
 
 typecheck:
 	@npm run typecheck
@@ -127,6 +147,9 @@ help:
 	@echo "  make down              Explain foreground-runtime shutdown semantics"
 	@echo "  make test              Run canonical automated test suite"
 	@echo "  make test-ledger-ui    Run focused ledger/shared-shell regression tests"
+	@echo "  make e2e-bootstrap     Install pinned local Playwright tooling + Chromium"
+	@echo "  make test-e2e-il-004   Run PTL-US-IL-004 Path A/Path B browser tests"
+	@echo "  make test-e2e          Run browser E2E suite"
 	@echo "  make typecheck         Run workspace TypeScript checks"
 	@echo "  make doctor            Fast, side-effect-safe repository health check"
 	@echo "  make validate          Run canonical PTL validation gate"

@@ -91,6 +91,11 @@ export function createForeignServiceIncomeUseCases(options: {
   fxProvider?: unknown;
   resolveActiveContext?: ResolveActiveAnnualContext;
 }): Record<string, AsyncUseCase>;
+export function createFeeReceiptForeignSettlementUseCases(options: {
+  repository: unknown;
+  feeReceiptUseCases: { getFeeReceipt(context: AnnualWorkspaceContext, id: string): Promise<Record<string, unknown> | null> };
+  resolveActiveContext?: ResolveActiveAnnualContext;
+}): Record<string, AsyncUseCase>;
 export function createBcchForeignExchangeProvider(options: {
   lookupRate: (input: { currency: string; date: string; targetCurrency: 'CLP' }) => Promise<Record<string, unknown>>;
 }): { resolveRate(input: { currency: string; date: string; targetCurrency?: 'CLP' }): Promise<Record<string, unknown>> };
