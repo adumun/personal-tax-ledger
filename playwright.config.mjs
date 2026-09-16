@@ -8,6 +8,12 @@ export default {
   fullyParallel: false,
   workers: 1,
   reporter: [['list']],
+  webServer: {
+    command: 'make up',
+    url: baseURL,
+    reuseExistingServer: true,
+    timeout: 120_000
+  },
   use: {
     baseURL,
     headless: true,
