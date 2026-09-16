@@ -165,6 +165,69 @@ The branch was re-inspected against `master` before Draft PR validation. The rev
 - BCCh date mismatch cannot silently substitute a different date;
 - unresolved conversion remains non-recognized in the ledger.
 
+## Browser E2E gate
+
+A focused Playwright suite now exists at:
+
+```text
+e2e/il-004-foreign-service.spec.mjs
+```
+
+It runs against the already-started local web application (`make up`) and uses controlled browser-layer fixtures for the foreign-service/BHE edge responses. The application shell, annual-workspace bootstrap, navigation and React flow remain real; the controlled edge fixtures prevent the expected E2E path from persisting disposable records into the user's normal local database.
+
+### Path A browser assertions
+
+The suite verifies that:
+
+1. `+ Servicio con pagador extranjero` opens the classifier;
+2. `CHILE` presents the BHE-owner settlement path;
+3. the selected BHE remains the owner;
+4. settlement payload carries `serviceSourceJurisdiction: CHILE`;
+5. received amount/currency/date/reference are transported correctly;
+6. save closes the foreign-service dialog and returns to the annual ledger;
+7. the expected Path A interaction makes zero `POST /api/foreign-service-income` calls.
+
+### Path B browser assertions
+
+The suite verifies that:
+
+1. `FOREIGN` creates a `foreign_service_income` fact with payer/source dimensions separated;
+2. original amount and currency are retained;
+3. unresolved official conversion surfaces `Requiere revisión` and a user-facing explanation rather than raw `NEEDS_REVIEW` / `BCCH` labels;
+4. manual conversion requires and sends rate/date/reference/reason;
+5. a resolved manual snapshot becomes visible as `Conversión resuelta` / `Conversión manual`;
+6. returning to the ledger projects the owner row;
+7. `Ver / editar` reopens the exact owner id represented by that row;
+8. metadata correction returns through the same owner flow without dropping the resolved conversion state.
+
+### E2E tooling boundary
+
+Playwright is intentionally kept outside the product dependency graph for this slice:
+
+- pinned version: `@playwright/test@1.55.0`;
+- local tooling root: `.tools/playwright`;
+- `.tools/`, `playwright-report/` and `test-results/` are ignored;
+- product `package.json` and canonical lockfile are not modified;
+- Make owns installation and execution.
+
+Canonical developer commands:
+
+```text
+make e2e-bootstrap
+make test-e2e-il-004
+make test-e2e
+```
+
+`make test-e2e-il-004` performs the pinned tooling bootstrap automatically, so the normal local invocation while `make up` is already running is simply:
+
+```text
+make test-e2e-il-004
+```
+
+Default target URL is `http://127.0.0.1:5173`. A deliberate alternate runtime may be supplied with `PTL_E2E_BASE_URL`.
+
+This browser gate is additive evidence. It does not replace explicit human visual approval required by the `NEW_FLOW` UI-impact classification.
+
 ## Pre-visual gate observation — 2026-09-14
 
 The user executed:
@@ -207,12 +270,17 @@ make test
 
 `make bootstrap` already passed in the same local checkout and need not be repeated unless dependencies changed locally.
 
-If the rerun is green, the story advances to:
+After the rerun is green, the automated browser gate is:
+
+```text
+make test-e2e-il-004
+```
+
+If both automated layers are green, the story advances to:
 
 ```text
 IMPLEMENTED / VISUAL_VALIDATION_PENDING
-  -> make up
-  -> Path A + Path B visual validation
+  -> final human Path A + Path B visual validation
 ```
 
 Because this story introduces a visible new flow, closure requires:
