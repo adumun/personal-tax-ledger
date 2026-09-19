@@ -321,3 +321,22 @@ Correction:
 - browser coverage now clicks an incomplete manual snapshot and asserts the visible inline error before continuing the valid conversion path.
 
 This is a real UX defect found by visual validation. The story remains blocked until the corrected head passes automated gates and the user re-validates the interaction visually.
+
+
+## Validation standard alignment — 2026-09-19
+
+Visual review identified that required-field signaling had been implemented with native HTML `required` attributes. This was corrected.
+
+PTL now keeps the visible `obligatorio/opcional` affordance while validation remains owned by React flow logic before submit. Native browser-required validation is not used for this flow.
+
+This aligns with ADÜMÜN `STD-DATA-VAL-001 — Validation & Data Integrity Standard`, especially:
+
+- frontend validation exists for UX and early feedback;
+- known blocking rules are applied before submit;
+- errors are associated with the relevant field/form region;
+- validation must not rely on accidental browser coercion;
+- non-trivial React forms SHOULD use appropriate form-management tooling, with React Hook Form as the recommended default unless an equivalent approach is documented.
+
+Current IL-004 implementation still uses explicit React state/handlers rather than React Hook Form. That is acceptable for the current correction because invariant semantics and submission blocking remain explicit, but it should be treated as a follow-up form-management alignment opportunity rather than as a reason to reintroduce native HTML validation.
+
+Canonical standard source: `adumun/platform-standards/data/STD-DATA-VAL-001-VALIDATION-AND-DATA-INTEGRITY-STANDARD.md`.
