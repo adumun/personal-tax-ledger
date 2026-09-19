@@ -309,7 +309,7 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
 
       {mode === 'CREATE' && !jurisdiction && <SectionCard>
         <div className="foreign-service-flow-grid">
-          <label><span>País del pagador (ISO, 2 letras)<small aria-hidden="true"> · obligatorio</small></span><input required value={payerCountry} maxLength={2} placeholder="US" onChange={e => setPayerCountry(e.target.value.toUpperCase())} /></label>
+          <label><span>País del pagador (ISO, 2 letras)<small aria-hidden="true"> · obligatorio</small></span><input value={payerCountry} maxLength={2} placeholder="US" onChange={e => setPayerCountry(e.target.value.toUpperCase())} /></label>
         </div>
         <fieldset className="foreign-service-jurisdiction">
           <legend>¿Dónde se prestó materialmente el servicio?</legend>
@@ -323,11 +323,11 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
         <p>La BHE continúa siendo el único hecho de ingreso del ledger. El pago en moneda extranjera se registra sólo como settlement/provenance y no genera una segunda fila.</p>
         <div className="foreign-service-flow-actions"><Button variant="ghost" onClick={onCreateFeeReceipt}>+ Crear BHE</Button></div>
         <div className="foreign-service-flow-grid">
-          <label><span>BHE propietaria<small aria-hidden="true"> · obligatorio</small></span><select required value={selectedReceiptId} onChange={e => setSelectedReceiptId(e.target.value)}><option value="">Selecciona una BHE</option>{receipts.map(receipt => <option key={receipt.id} value={receipt.id}>{receipt.issueDate} · {receipt.clientName} · {money(receipt.grossAmount)}</option>)}</select></label>
-          <label><span>País del pagador<small aria-hidden="true"> · obligatorio</small></span><input required maxLength={2} value={settlement.payerCountry} onChange={e => setSettlement(current => ({ ...current, payerCountry: e.target.value.toUpperCase() }))} /></label>
-          <label><span>Monto recibido<small aria-hidden="true"> · obligatorio</small></span><input required type="number" min="0" step="0.01" value={settlement.receivedAmount} onChange={e => setSettlement(current => ({ ...current, receivedAmount: e.target.value }))} /></label>
-          <label><span>Moneda recibida<small aria-hidden="true"> · obligatorio</small></span><input required maxLength={3} value={settlement.receivedCurrency} onChange={e => setSettlement(current => ({ ...current, receivedCurrency: e.target.value.toUpperCase() }))} /></label>
-          <label><span>Fecha del pago<small aria-hidden="true"> · obligatorio</small></span><input required type="date" value={settlement.receivedAt} onChange={e => setSettlement(current => ({ ...current, receivedAt: e.target.value }))} /></label>
+          <label><span>BHE propietaria<small aria-hidden="true"> · obligatorio</small></span><select value={selectedReceiptId} onChange={e => setSelectedReceiptId(e.target.value)}><option value="">Selecciona una BHE</option>{receipts.map(receipt => <option key={receipt.id} value={receipt.id}>{receipt.issueDate} · {receipt.clientName} · {money(receipt.grossAmount)}</option>)}</select></label>
+          <label><span>País del pagador<small aria-hidden="true"> · obligatorio</small></span><input maxLength={2} value={settlement.payerCountry} onChange={e => setSettlement(current => ({ ...current, payerCountry: e.target.value.toUpperCase() }))} /></label>
+          <label><span>Monto recibido<small aria-hidden="true"> · obligatorio</small></span><input type="number" min="0" step="0.01" value={settlement.receivedAmount} onChange={e => setSettlement(current => ({ ...current, receivedAmount: e.target.value }))} /></label>
+          <label><span>Moneda recibida<small aria-hidden="true"> · obligatorio</small></span><input maxLength={3} value={settlement.receivedCurrency} onChange={e => setSettlement(current => ({ ...current, receivedCurrency: e.target.value.toUpperCase() }))} /></label>
+          <label><span>Fecha del pago<small aria-hidden="true"> · obligatorio</small></span><input type="date" value={settlement.receivedAt} onChange={e => setSettlement(current => ({ ...current, receivedAt: e.target.value }))} /></label>
           <label><span>Referencia banco / proveedor<small aria-hidden="true"> · opcional</small></span><input value={settlement.providerReference} onChange={e => setSettlement(current => ({ ...current, providerReference: e.target.value }))} /></label>
           <label className="wide"><span>Notas<small aria-hidden="true"> · opcional</small></span><textarea value={settlement.notes} onChange={e => setSettlement(current => ({ ...current, notes: e.target.value }))} /></label>
         </div>
@@ -338,11 +338,11 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
         <SectionCard>
           <div className="foreign-service-flow-section-heading"><div><h3>Honorario de fuente extranjera</h3><p>El año se deriva de la fecha de percepción. El monto original nunca se reemplaza por la conversión CLP.</p></div>{foreignRecord ? <StatusBadge tone={currentConversion?.conversionStatus === 'RESOLVED' ? 'success' : 'warning'}>{currentConversion?.conversionStatus === 'RESOLVED' ? 'Conversión resuelta' : 'Pendiente de conversión'}</StatusBadge> : null}</div>
           <div className="foreign-service-flow-grid">
-            <label><span>Pagador<small aria-hidden="true"> · obligatorio</small></span><input required value={foreignForm.payerName} onChange={e => setForeignForm(current => ({ ...current, payerName: e.target.value }))} /></label>
-            <label><span>País del pagador<small aria-hidden="true"> · obligatorio</small></span><input required maxLength={2} value={foreignForm.payerCountry} onChange={e => setForeignForm(current => ({ ...current, payerCountry: e.target.value.toUpperCase() }))} /></label>
-            <label><span>Fecha de percepción<small aria-hidden="true"> · obligatorio</small></span><input required type="date" value={foreignForm.receivedAt} onChange={e => setForeignForm(current => ({ ...current, receivedAt: e.target.value }))} /></label>
-            <label><span>Monto original<small aria-hidden="true"> · obligatorio</small></span><input required type="number" min="0" step="0.01" value={foreignForm.originalAmount} onChange={e => setForeignForm(current => ({ ...current, originalAmount: e.target.value }))} /></label>
-            <label><span>Moneda original<small aria-hidden="true"> · obligatorio</small></span><input required maxLength={3} value={foreignForm.originalCurrency} onChange={e => setForeignForm(current => ({ ...current, originalCurrency: e.target.value.toUpperCase() }))} /></label>
+            <label><span>Pagador<small aria-hidden="true"> · obligatorio</small></span><input value={foreignForm.payerName} onChange={e => setForeignForm(current => ({ ...current, payerName: e.target.value }))} /></label>
+            <label><span>País del pagador<small aria-hidden="true"> · obligatorio</small></span><input maxLength={2} value={foreignForm.payerCountry} onChange={e => setForeignForm(current => ({ ...current, payerCountry: e.target.value.toUpperCase() }))} /></label>
+            <label><span>Fecha de percepción<small aria-hidden="true"> · obligatorio</small></span><input type="date" value={foreignForm.receivedAt} onChange={e => setForeignForm(current => ({ ...current, receivedAt: e.target.value }))} /></label>
+            <label><span>Monto original<small aria-hidden="true"> · obligatorio</small></span><input type="number" min="0" step="0.01" value={foreignForm.originalAmount} onChange={e => setForeignForm(current => ({ ...current, originalAmount: e.target.value }))} /></label>
+            <label><span>Moneda original<small aria-hidden="true"> · obligatorio</small></span><input maxLength={3} value={foreignForm.originalCurrency} onChange={e => setForeignForm(current => ({ ...current, originalCurrency: e.target.value.toUpperCase() }))} /></label>
             <label><span>Descripción<small aria-hidden="true"> · opcional</small></span><input value={foreignForm.description} onChange={e => setForeignForm(current => ({ ...current, description: e.target.value }))} /></label>
             <label><span>Impuesto extranjero pagado/retenido<small aria-hidden="true"> · opcional</small></span><input type="number" min="0" step="0.01" value={foreignForm.foreignTaxAmountOriginal} onChange={e => setForeignForm(current => ({ ...current, foreignTaxAmountOriginal: e.target.value }))} /></label>
             <label><span>Moneda del impuesto<small aria-hidden="true"> · opcional</small></span><input maxLength={3} value={foreignForm.foreignTaxCurrency} onChange={e => setForeignForm(current => ({ ...current, foreignTaxCurrency: e.target.value.toUpperCase() }))} /></label>
@@ -363,10 +363,10 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
 
           <h4>Conversión manual documentada</h4>
           <div className="foreign-service-flow-grid">
-            <label><span>Tipo de cambio<small aria-hidden="true"> · obligatorio</small></span><input required type="number" min="0" step="0.000001" value={manualRate} onChange={e => setManualRate(e.target.value)} /></label>
-            <label><span>Fecha de la tasa<small aria-hidden="true"> · obligatorio</small></span><input required type="date" value={manualRateDate} onChange={e => setManualRateDate(e.target.value)} /></label>
-            <label><span>Fuente / referencia<small aria-hidden="true"> · obligatorio</small></span><input required value={manualReference} onChange={e => setManualReference(e.target.value)} /></label>
-            <label><span>Razón de uso manual<small aria-hidden="true"> · obligatorio</small></span><input required value={manualReason} onChange={e => setManualReason(e.target.value)} /></label>
+            <label><span>Tipo de cambio<small aria-hidden="true"> · obligatorio</small></span><input type="number" min="0" step="0.000001" value={manualRate} onChange={e => setManualRate(e.target.value)} /></label>
+            <label><span>Fecha de la tasa<small aria-hidden="true"> · obligatorio</small></span><input type="date" value={manualRateDate} onChange={e => setManualRateDate(e.target.value)} /></label>
+            <label><span>Fuente / referencia<small aria-hidden="true"> · obligatorio</small></span><input value={manualReference} onChange={e => setManualReference(e.target.value)} /></label>
+            <label><span>Razón de uso manual<small aria-hidden="true"> · obligatorio</small></span><input value={manualReason} onChange={e => setManualReason(e.target.value)} /></label>
           </div>
           <div className="foreign-service-flow-actions"><Button disabled={busy} onClick={saveManualConversion}>Guardar nuevo snapshot manual</Button></div>
 
