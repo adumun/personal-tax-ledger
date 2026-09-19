@@ -1,7 +1,7 @@
 # PTL-US-IL-004 — Foreign payer / foreign-source flow — Evidence
 
 **Story:** `PTL-US-IL-004`  
-**Status:** `IMPLEMENTED / VISUAL_VALIDATION_PENDING`  
+**Status:** `IMPLEMENTED / VISUAL_VALIDATION_BLOCKED`  
 **Capability:** `TAX-04`  
 **UI impact:** `NEW_FLOW`, `FIELD_ADDITION`  
 **Design:** `DESIGN-IL-004`
@@ -291,7 +291,7 @@ make test
 With both automated layers green, the story advances to:
 
 ```text
-IMPLEMENTED / VISUAL_VALIDATION_PENDING
+IMPLEMENTED / VISUAL_VALIDATION_BLOCKED
   -> final human Path A + Path B visual validation
 ```
 
@@ -304,3 +304,20 @@ USER_VISUAL_APPROVED
 ```
 
 Until visual approval and canonical validation, the pull request remains Draft and the story must not be marked `DONE`.
+
+
+## Visual validation finding — 2026-09-19
+
+During human visual validation, the FX action buttons appeared non-functional while the user was positioned in the `Conversión a CLP` section.
+
+Root cause: both official-resolution feedback and manual-conversion validation/success feedback were written only to the global flow-level `info/error` region located above the currently visible conversion section. The actions were wired, but the UI produced no visible local response from the user's current viewport.
+
+Correction:
+
+- FX-specific errors now render inline inside `Conversión a CLP` with `role="alert"`;
+- FX-specific informational/success results now render inline there with `role="status"`;
+- official source review-required outcomes are visible beside the action that caused them;
+- manual validation failures are visible beside the manual conversion form;
+- browser coverage now clicks an incomplete manual snapshot and asserts the visible inline error before continuing the valid conversion path.
+
+This is a real UX defect found by visual validation. The story remains blocked until the corrected head passes automated gates and the user re-validates the interaction visually.
