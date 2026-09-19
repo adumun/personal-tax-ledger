@@ -277,7 +277,7 @@ test.describe('PTL-US-IL-004 — Servicio con pagador extranjero', () => {
 
     await expect(dialog.getByText('Conversión resuelta', { exact: true })).toBeVisible();
     await expect(dialog.getByText('Conversión manual', { exact: true }).first()).toBeVisible();
-    await expect(dialog.getByText(/950\.000/)).toBeVisible();
+    await expect(dialog.getByText('$950.000', { exact: true })).toBeVisible();
 
     await dialog.getByRole('button', { name: 'Volver al ledger', exact: true }).click();
     await expect(dialog).toBeHidden();
