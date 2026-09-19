@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 DONE / US-IL-004 IMPLEMENTED / PRE_VISUAL_GATE_RERUN_PENDING`  
+**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 DONE / US-IL-004 IMPLEMENTED / VISUAL_VALIDATION_PENDING`  
 **Date:** 2026-09-14
 
 ## Baseline inherited from Block 01
@@ -76,10 +76,8 @@ Evidence: [`il-004-foreign-service-flow-evidence.md`](il-004-foreign-service-flo
 
 ## Remaining IL-C sequence
 
-1. rerun `make typecheck` and `make test` on the corrected branch head (browser E2E already PASS 2/2);
-2. if green, set `PTL-US-IL-004` to `IMPLEMENTED / VISUAL_VALIDATION_PENDING`;
-3. visually validate Path A + Path B;
-4. after explicit user visual approval, run canonical `make validate`;
+1. visually validate Path A + Path B;
+2. after explicit user visual approval, run canonical `make validate`;
 5. close `PTL-US-IL-004` as DONE and finalize evidence;
 6. mark the Draft PR ready and merge exact-head;
 7. run terminal `PTL-TASK-IL-006` regression/DoD gate;
@@ -110,7 +108,7 @@ Block 02 does not own evidence vault, SII reconciliation, readiness, annual tax 
 ## Current executable path
 
 ```text
-PTL-US-IL-004 corrected pre-visual gate rerun
+PTL-US-IL-004 automated gates PASS
   -> VISUAL_VALIDATION_PENDING
   -> make up / visual validation
   -> canonical make validate
