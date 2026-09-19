@@ -67,7 +67,7 @@ Implementation evidence: [`task-il-005-evidence.md`](task-il-005-evidence.md).
 
 ## Current slice — PTL-US-IL-004
 
-Implementation is assembled and statically reconciled across contracts, application, SQLite, HTTP, frontend owner flow, tests and evidence. The first local pre-visual gate attempt passed bootstrap/typecheck and produced 236/237 tests green; the single failure was an obsolete frontend assertion that prohibited internal `ownerRecordId` routing. That test has been corrected without weakening production behavior. The exact corrected head now requires a focused gate rerun before advancing to visual validation.
+Implementation is assembled and statically reconciled across contracts, application, SQLite, HTTP, frontend owner flow, tests and evidence. The first local pre-visual gate attempt passed bootstrap/typecheck and produced 236/237 tests green; the single failure was an obsolete frontend assertion that prohibited internal `ownerRecordId` routing. That test has been corrected without weakening production behavior. The browser E2E gate is now green for both Path A and Path B (`2 passed`). The corrected head still requires the focused `make typecheck` + `make test` rerun before advancing to visual validation.
 
 Path A:
 
@@ -132,8 +132,8 @@ Detailed contracts: [`user-stories.md`](user-stories.md).
 
 ## Remaining execution order
 
-1. rerun `make typecheck` and `make test` on the corrected IL-004 head;
-2. if green, advance to `IMPLEMENTED / VISUAL_VALIDATION_PENDING`, run `make up` and perform user visual validation for Path A and Path B;
+1. rerun `make typecheck` and `make test` on the corrected IL-004 head (browser E2E is already PASS 2/2);
+2. if green, advance to `IMPLEMENTED / VISUAL_VALIDATION_PENDING` and perform user visual validation for Path A and Path B;
 3. after approval, run canonical `make validate` and close `PTL-US-IL-004`;
 4. finalize evidence, mark the Draft PR ready and merge exact-head;
 5. run `PTL-TASK-IL-006` terminal regression/DoD;
