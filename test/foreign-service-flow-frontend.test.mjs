@@ -74,7 +74,9 @@ test('US-IL-004: required and optional fields are explicit in the foreign-servic
   assert.match(source, /Fuente \/ referencia<small aria-hidden="true"> · obligatorio<\/small>/);
   assert.match(source, /Razón de uso manual<small aria-hidden="true"> · obligatorio<\/small>/);
   assert.match(source, /Descripción<small aria-hidden="true"> · opcional<\/small>/);
+  assert.doesNotMatch(source, /<input required/);
+  assert.doesNotMatch(source, /<select required/);
+  assert.match(source, /setError\('Completa pagador, país, fecha de percepción y monto original\.'\)/);
+  assert.match(source, /setConversionError\('La conversión manual exige tasa, fecha, fuente\/referencia y razón\.'\)/);
   assert.match(source, /Referencia documental<small aria-hidden="true"> · opcional<\/small>/);
-  assert.match(source, /<input required/);
-  assert.match(source, /<select required/);
 });
