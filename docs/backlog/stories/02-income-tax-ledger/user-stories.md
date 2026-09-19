@@ -99,7 +99,7 @@ Como contribuyente que emite BHE, quiero administrar los hechos de honorarios de
 **Type:** Story  
 **Capability:** TAX-04  
 **Related:** `PTL-EXT-01`  
-**Status:** IMPLEMENTED / VISUAL_VALIDATION_PENDING  
+**Status:** IMPLEMENTED / VISUAL_VALIDATION_BLOCKED  
 **Priority:** P1  
 **Size:** L  
 **Canonical data impact:** CANONICAL_LEDGER  
@@ -167,7 +167,7 @@ serviceSourceJurisdiction = CHILE | FOREIGN
 - economic-fact changes invalidate current FX only when perception date, original amount or original currency changes;
 - foreign owner `Ver / editar` round-trips through its dedicated flow and reloads the annual ledger.
 
-Browser E2E validation is green for Path A and Path B (`2 passed`). The corrected-head `make typecheck` + `make test` rerun has also been reported green. No visual approval is claimed yet.
+Browser E2E validation is green for Path A and Path B (`2 passed`). The corrected-head `make typecheck` + `make test` rerun has also been reported green. Visual validation found an inline-feedback defect in the conversion actions; the correction is implemented, but visual approval is blocked until rerun and re-validation.
 
 ### Dependencies
 
