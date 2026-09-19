@@ -46,6 +46,8 @@ The single failure was not a production defect. An older `US-IL-006` frontend te
 
 The test has been corrected so that it now verifies the intended boundary: owner identity may be consumed internally for routing but must not be rendered as visible ledger data. The production implementation was not degraded to satisfy the stale assertion.
 
+The focused Playwright browser gate has also been executed successfully on 2026-09-19: Path A PASS, Path B PASS, `2 passed (5.6s)`. Harness-only corrections were required during bring-up; no production behavior was changed to obtain the green E2E result.
+
 ```text
 Servicio con pagador extranjero
   -> explicit payer country
@@ -74,9 +76,9 @@ Evidence: [`il-004-foreign-service-flow-evidence.md`](il-004-foreign-service-flo
 
 ## Remaining IL-C sequence
 
-1. rerun `make typecheck` and `make test` on the corrected branch head;
+1. rerun `make typecheck` and `make test` on the corrected branch head (browser E2E already PASS 2/2);
 2. if green, set `PTL-US-IL-004` to `IMPLEMENTED / VISUAL_VALIDATION_PENDING`;
-3. run `make up` and visually validate Path A + Path B;
+3. visually validate Path A + Path B;
 4. after explicit user visual approval, run canonical `make validate`;
 5. close `PTL-US-IL-004` as DONE and finalize evidence;
 6. mark the Draft PR ready and merge exact-head;
