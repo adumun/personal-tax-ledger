@@ -131,6 +131,8 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
+  const [conversionError, setConversionError] = useState('');
+  const [conversionInfo, setConversionInfo] = useState('');
 
   const currentConversion = useMemo(
     () => foreignRecord?.currentConversionId
@@ -188,6 +190,8 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
     setJurisdiction(value);
     setError('');
     setInfo('');
+    setConversionError('');
+    setConversionInfo('');
     if (value === 'FOREIGN') setForeignForm(current => ({ ...current, payerCountry: payerCountry || current.payerCountry }));
     else setSettlement(current => ({ ...current, payerCountry: payerCountry || current.payerCountry }));
   };
@@ -232,26 +236,27 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
 
   const resolveOfficial = async () => {
     if (!foreignRecord) return;
-    setBusy(true); setError(''); setInfo('');
+    setBusy(true); setError(''); setInfo(''); setConversionError(''); setConversionInfo('');
     try {
       const result = await foreignServiceClient.resolveOfficial(foreignRecord.id);
       if (result.status === 'RESOLVED') {
         await loadForeign(foreignRecord.id);
-        setInfo('Conversión oficial resuelta y congelada con su procedencia.');
+        setConversionInfo('Conversión oficial resuelta y congelada con su procedencia.');
       } else {
-        setInfo(`La conversión oficial requiere revisión porque ${officialResolutionReasonLabel(result.reason)}. Puedes conservar el registro pendiente o ingresar una conversión manual documentada.`);
+        setConversionInfo(`La conversión oficial requiere revisión porque ${officialResolutionReasonLabel(result.reason)}. Puedes conservar el registro pendiente o ingresar una conversión manual documentada.`);
       }
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : String(cause));
+      setConversionError(cause instanceof Error ? cause.message : String(cause));
     } finally { setBusy(false); }
   };
 
   const saveManualConversion = async () => {
     if (!foreignRecord || !(Number(manualRate) > 0) || !manualRateDate || !manualReference.trim() || !manualReason.trim()) {
-      setError('La conversión manual exige tasa, fecha, fuente/referencia y razón.');
+      setConversionError('La conversión manual exige tasa, fecha, fuente/referencia y razón.');
+      setConversionInfo('');
       return;
     }
-    setBusy(true); setError(''); setInfo('');
+    setBusy(true); setError(''); setInfo(''); setConversionError(''); setConversionInfo('');
     try {
       await foreignServiceClient.addManualConversion(foreignRecord.id, {
         fxRate: Number(manualRate),
@@ -261,9 +266,9 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
       });
       await loadForeign(foreignRecord.id);
       setManualRate(''); setManualReference(''); setManualReason('');
-      setInfo('Conversión manual guardada como un nuevo snapshot; el historial anterior permanece disponible.');
+      setConversionInfo('Conversión manual guardada como un nuevo snapshot; el historial anterior permanece disponible.');
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : String(cause));
+      setConversionError(cause instanceof Error ? cause.message : String(cause));
     } finally { setBusy(false); }
   };
 
@@ -351,6 +356,8 @@ export default function ForeignServiceFlow({ commercialYear, mode, ownerRecordId
 
         {foreignRecord && <SectionCard>
           <div className="foreign-service-flow-section-heading"><div><h3>Conversión a CLP</h3><p>Una conversión reconocida queda congelada con tasa, fecha, fuente y referencia. Corregirla agrega un snapshot; no sobrescribe el histórico.</p></div>{currentConversion ? <StatusBadge tone={currentConversion.fxSource === 'BCCH' ? 'success' : 'warning'}>{fxSourceLabel(currentConversion.fxSource)}</StatusBadge> : <StatusBadge tone="warning">Requiere revisión</StatusBadge>}</div>
+          {conversionError && <div className="foreign-service-flow-message error" role="alert">{conversionError}</div>}
+          {conversionInfo && <div className="foreign-service-flow-message" role="status">{conversionInfo}</div>}
           {currentConversion ? <dl className="foreign-service-conversion-current"><div><dt>Monto CLP vigente</dt><dd>{money(currentConversion.clpAmount)}</dd></div><div><dt>Tipo de cambio</dt><dd>{currentConversion.fxRate}</dd></div><div><dt>Fecha tasa</dt><dd>{currentConversion.fxRateDate}</dd></div><div><dt>Fuente / referencia</dt><dd>{fxSourceLabel(currentConversion.fxSource)} · {currentConversion.fxSourceReference}</dd></div></dl> : <p>Este hecho permanece pendiente: todavía no aporta un monto CLP reconocido al ledger.</p>}
           <div className="foreign-service-flow-actions"><Button variant="ghost" disabled={busy} onClick={resolveOfficial}>Intentar resolver con fuente oficial</Button></div>
 
