@@ -128,7 +128,7 @@ test.describe('PTL-US-IL-004 — Servicio con pagador extranjero', () => {
     await dialog.getByLabel('País del pagador (ISO, 2 letras)', { exact: true }).fill('US');
     await dialog.getByRole('button', { name: /Chile/ }).click();
 
-    await dialog.getByLabel('BHE propietaria', { exact: true }).selectOption(receipt.id);
+    await dialog.getByRole('combobox').selectOption(receipt.id);
     await dialog.getByLabel('Monto recibido', { exact: true }).fill('1100');
     await dialog.getByLabel('Moneda recibida', { exact: true }).fill('USD');
     await dialog.getByLabel('Fecha del pago', { exact: true }).fill(`${year}-06-20`);
