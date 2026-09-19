@@ -1,7 +1,7 @@
 # PTL-US-IL-004 — Foreign payer / foreign-source flow — Evidence
 
 **Story:** `PTL-US-IL-004`  
-**Status:** `IMPLEMENTED / PRE_VISUAL_GATE_RERUN_PENDING`  
+**Status:** `IMPLEMENTED / VISUAL_VALIDATION_PENDING`  
 **Capability:** `TAX-04`  
 **UI impact:** `NEW_FLOW`, `FIELD_ADDITION`  
 **Design:** `DESIGN-IL-004`
@@ -277,7 +277,7 @@ No production code was weakened to satisfy the stale test.
 
 ## Validation state
 
-The focused browser E2E gate is green (2/2). The corrected head still requires one rerun of the non-browser pre-visual gate. No full automated-gate green result is claimed until that rerun is observed.
+The focused browser E2E gate is green (2/2). The corrected-head non-browser pre-visual gate (`make typecheck` + `make test`) has also been reported green by the user. All automated gates required before visual review are therefore satisfied.
 
 Required rerun:
 
@@ -288,7 +288,7 @@ make test
 
 `make bootstrap` already passed in the same local checkout and need not be repeated unless dependencies changed locally.
 
-The automated browser gate has already passed. After the remaining `make typecheck` + `make test` rerun is green, the story advances to:
+With both automated layers green, the story advances to:
 
 ```text
 IMPLEMENTED / VISUAL_VALIDATION_PENDING
