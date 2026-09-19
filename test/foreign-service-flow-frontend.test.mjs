@@ -54,6 +54,9 @@ test('US-IL-004 Path B: foreign fact and conversion history remain separate oper
   assert.match(source, /PTL no calcula en esta story el crédito del artículo 41 A/);
   assert.match(source, /Requiere revisión/);
   assert.match(source, /Banco Central de Chile/);
+  assert.match(source, /conversionError && <div className="foreign-service-flow-message error" role="alert">\{conversionError\}<\/div>/);
+  assert.match(source, /conversionInfo && <div className="foreign-service-flow-message" role="status">\{conversionInfo\}<\/div>/);
+  assert.match(source, /setConversionError\('La conversión manual exige tasa, fecha, fuente\/referencia y razón\.'\)/);
   assert.doesNotMatch(source, />NEEDS_REVIEW</);
   assert.doesNotMatch(source, />BCCH</);
   assert.match(client, /conversions\/official/);
