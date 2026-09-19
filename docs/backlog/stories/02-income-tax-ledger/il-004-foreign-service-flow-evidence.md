@@ -228,6 +228,24 @@ Default target URL is `http://127.0.0.1:5173`. A deliberate alternate runtime ma
 
 This browser gate is additive evidence. It does not replace explicit human visual approval required by the `NEW_FLOW` UI-impact classification.
 
+### Browser E2E execution — 2026-09-19
+
+The user executed:
+
+```text
+make test-e2e-il-004
+```
+
+Final observed result after harness-only locator/bootstrap corrections:
+
+```text
+Path A — PASS
+Path B — PASS
+2 passed (5.6s)
+```
+
+The intermediate failures were confined to E2E harness behavior (module interoperability, runtime startup, and ambiguous Playwright locators). No production behavior was weakened or changed to make the browser suite pass.
+
 ## Pre-visual gate observation — 2026-09-14
 
 The user executed:
@@ -259,7 +277,7 @@ No production code was weakened to satisfy the stale test.
 
 ## Validation state
 
-The corrected head requires one rerun of the pre-visual gate. No green result is claimed until that rerun is observed.
+The focused browser E2E gate is green (2/2). The corrected head still requires one rerun of the non-browser pre-visual gate. No full automated-gate green result is claimed until that rerun is observed.
 
 Required rerun:
 
@@ -270,13 +288,7 @@ make test
 
 `make bootstrap` already passed in the same local checkout and need not be repeated unless dependencies changed locally.
 
-After the rerun is green, the automated browser gate is:
-
-```text
-make test-e2e-il-004
-```
-
-If both automated layers are green, the story advances to:
+The automated browser gate has already passed. After the remaining `make typecheck` + `make test` rerun is green, the story advances to:
 
 ```text
 IMPLEMENTED / VISUAL_VALIDATION_PENDING
