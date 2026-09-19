@@ -125,14 +125,14 @@ test.describe('PTL-US-IL-004 — Servicio con pagador extranjero', () => {
 
     const dialog = page.getByRole('dialog', { name: 'Servicio con pagador extranjero' });
     await expect(dialog).toBeVisible();
-    await dialog.getByLabel('País del pagador (ISO, 2 letras)', { exact: true }).fill('US');
+    await dialog.getByLabel(/^País del pagador \(ISO, 2 letras\)/).fill('US');
     await dialog.getByRole('button', { name: /Chile/ }).click();
 
     await dialog.getByRole('combobox').selectOption(receipt.id);
-    await dialog.getByLabel('Monto recibido', { exact: true }).fill('1100');
-    await dialog.getByLabel('Moneda recibida', { exact: true }).fill('USD');
-    await dialog.getByLabel('Fecha del pago', { exact: true }).fill(`${year}-06-20`);
-    await dialog.getByLabel('Referencia banco / proveedor', { exact: true }).fill('E2E-BANK-A');
+    await dialog.getByLabel(/^Monto recibido/).fill('1100');
+    await dialog.getByLabel(/^Moneda recibida/).fill('USD');
+    await dialog.getByLabel(/^Fecha del pago/).fill(`${year}-06-20`);
+    await dialog.getByLabel(/^Referencia banco \/ proveedor/).fill('E2E-BANK-A');
     await dialog.getByRole('button', { name: 'Guardar settlement y volver al ledger', exact: true }).click();
 
     await expect(dialog).toBeHidden();
@@ -243,13 +243,13 @@ test.describe('PTL-US-IL-004 — Servicio con pagador extranjero', () => {
     await page.getByRole('button', { name: '+ Servicio con pagador extranjero' }).click();
 
     let dialog = page.getByRole('dialog', { name: 'Servicio con pagador extranjero' });
-    await dialog.getByLabel('País del pagador (ISO, 2 letras)', { exact: true }).fill('US');
+    await dialog.getByLabel(/^País del pagador \(ISO, 2 letras\)/).fill('US');
     await dialog.getByRole('button', { name: /Extranjero/ }).click();
-    await dialog.getByLabel('Pagador', { exact: true }).fill('E2E Foreign Client');
-    await dialog.getByLabel('Fecha de percepción', { exact: true }).fill(`${year}-07-10`);
-    await dialog.getByLabel('Monto original', { exact: true }).fill('1000');
-    await dialog.getByLabel('Moneda original', { exact: true }).fill('USD');
-    await dialog.getByLabel('Descripción', { exact: true }).fill('Servicio E2E Path B');
+    await dialog.getByLabel(/^Pagador(?:\s|·|$)/).fill('E2E Foreign Client');
+    await dialog.getByLabel(/^Fecha de percepción/).fill(`${year}-07-10`);
+    await dialog.getByLabel(/^Monto original/).fill('1000');
+    await dialog.getByLabel(/^Moneda original/).fill('USD');
+    await dialog.getByLabel(/^Descripción/).fill('Servicio E2E Path B');
     await dialog.getByRole('button', { name: 'Guardar hecho', exact: true }).click();
 
     expect(createPayload).toMatchObject({
@@ -272,10 +272,10 @@ test.describe('PTL-US-IL-004 — Servicio con pagador extranjero', () => {
     await dialog.getByRole('button', { name: 'Guardar nuevo snapshot manual', exact: true }).click();
     await expect(dialog.getByRole('alert')).toContainText('La conversión manual exige tasa, fecha, fuente/referencia y razón.');
 
-    await dialog.getByLabel('Tipo de cambio', { exact: true }).fill('950');
-    await dialog.getByLabel('Fecha de la tasa', { exact: true }).fill(`${year}-07-10`);
-    await dialog.getByLabel('Fuente / referencia', { exact: true }).fill('E2E manual fixture');
-    await dialog.getByLabel('Razón de uso manual', { exact: true }).fill('Validación E2E determinista');
+    await dialog.getByLabel(/^Tipo de cambio/).fill('950');
+    await dialog.getByLabel(/^Fecha de la tasa/).fill(`${year}-07-10`);
+    await dialog.getByLabel(/^Fuente \/ referencia/).fill('E2E manual fixture');
+    await dialog.getByLabel(/^Razón de uso manual/).fill('Validación E2E determinista');
     await dialog.getByRole('button', { name: 'Guardar nuevo snapshot manual', exact: true }).click();
 
     await expect(dialog.getByText('Conversión resuelta', { exact: true })).toBeVisible();
@@ -288,11 +288,11 @@ test.describe('PTL-US-IL-004 — Servicio con pagador extranjero', () => {
 
     await page.getByRole('button', { name: 'Ver / editar', exact: true }).click();
     dialog = page.getByRole('dialog', { name: 'Servicio con pagador extranjero' });
-    await expect(dialog.getByLabel('Pagador', { exact: true })).toHaveValue('E2E Foreign Client');
-    await expect(dialog.getByLabel('Monto original', { exact: true })).toHaveValue('1000');
-    await expect(dialog.getByLabel('Moneda original', { exact: true })).toHaveValue('USD');
+    await expect(dialog.getByLabel(/^Pagador(?:\s|·|$)/)).toHaveValue('E2E Foreign Client');
+    await expect(dialog.getByLabel(/^Monto original/)).toHaveValue('1000');
+    await expect(dialog.getByLabel(/^Moneda original/)).toHaveValue('USD');
 
-    await dialog.getByLabel('Descripción', { exact: true }).fill('Servicio E2E Path B editado');
+    await dialog.getByLabel(/^Descripción/).fill('Servicio E2E Path B editado');
     await dialog.getByRole('button', { name: 'Guardar corrección del hecho', exact: true }).click();
     expect(updatePayload).toMatchObject({ description: 'Servicio E2E Path B editado' });
     await expect(dialog.getByText('Conversión resuelta', { exact: true })).toBeVisible();
