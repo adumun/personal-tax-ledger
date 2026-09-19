@@ -63,3 +63,18 @@ test('US-IL-004 Path B: foreign fact and conversion history remain separate oper
   assert.match(client, /conversions\/manual/);
   assert.match(client, /listConversions/);
 });
+
+
+test('US-IL-004: required and optional fields are explicit in the foreign-service UI', async () => {
+  const source = await readFile(flowPath, 'utf8');
+  assert.match(source, /Pagador<small aria-hidden="true"> · obligatorio<\/small>/);
+  assert.match(source, /Monto original<small aria-hidden="true"> · obligatorio<\/small>/);
+  assert.match(source, /Moneda original<small aria-hidden="true"> · obligatorio<\/small>/);
+  assert.match(source, /Tipo de cambio<small aria-hidden="true"> · obligatorio<\/small>/);
+  assert.match(source, /Fuente \/ referencia<small aria-hidden="true"> · obligatorio<\/small>/);
+  assert.match(source, /Razón de uso manual<small aria-hidden="true"> · obligatorio<\/small>/);
+  assert.match(source, /Descripción<small aria-hidden="true"> · opcional<\/small>/);
+  assert.match(source, /Referencia documental<small aria-hidden="true"> · opcional<\/small>/);
+  assert.match(source, /<input required/);
+  assert.match(source, /<select required/);
+});
