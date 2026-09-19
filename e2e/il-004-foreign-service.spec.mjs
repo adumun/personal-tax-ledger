@@ -269,6 +269,9 @@ test.describe('PTL-US-IL-004 — Servicio con pagador extranjero', () => {
     await expect(dialog).not.toContainText('NEEDS_REVIEW');
     await expect(dialog).not.toContainText('BCCH');
 
+    await dialog.getByRole('button', { name: 'Guardar nuevo snapshot manual', exact: true }).click();
+    await expect(dialog.getByRole('alert')).toContainText('La conversión manual exige tasa, fecha, fuente/referencia y razón.');
+
     await dialog.getByLabel('Tipo de cambio', { exact: true }).fill('950');
     await dialog.getByLabel('Fecha de la tasa', { exact: true }).fill(`${year}-07-10`);
     await dialog.getByLabel('Fuente / referencia', { exact: true }).fill('E2E manual fixture');
