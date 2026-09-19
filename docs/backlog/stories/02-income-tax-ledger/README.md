@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger
 
-**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 CLOSED / SPIKE-IL-002 CLOSED / TASK-IL-005 CLOSED / US-IL-004 IMPLEMENTED / VISUAL_VALIDATION_PENDING`  
+**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 CLOSED / SPIKE-IL-002 CLOSED / TASK-IL-005 CLOSED / US-IL-004 IMPLEMENTED / VISUAL_VALIDATION_BLOCKED`  
 **Primary capability:** `TAX-04 — Tax Ledger`  
 **Related capabilities:** `TAX-01`, `TAX-02`, `TAX-06`, `TAX-07`, `TAX-08`, `TAX-09`  
 **Related extension:** `PTL-EXT-01 — International Contractor Income Planning`
@@ -67,7 +67,7 @@ Implementation evidence: [`task-il-005-evidence.md`](task-il-005-evidence.md).
 
 ## Current slice — PTL-US-IL-004
 
-Implementation is assembled and statically reconciled across contracts, application, SQLite, HTTP, frontend owner flow, tests and evidence. The first local pre-visual gate attempt passed bootstrap/typecheck and produced 236/237 tests green; the single failure was an obsolete frontend assertion that prohibited internal `ownerRecordId` routing. That test has been corrected without weakening production behavior. The browser E2E gate is green for both Path A and Path B (`2 passed`), and the corrected-head `make typecheck` + `make test` rerun has also been reported green. The story is now awaiting final human visual validation.
+Implementation is assembled and statically reconciled across contracts, application, SQLite, HTTP, frontend owner flow, tests and evidence. The first local pre-visual gate attempt passed bootstrap/typecheck and produced 236/237 tests green; the single failure was an obsolete frontend assertion that prohibited internal `ownerRecordId` routing. That test has been corrected without weakening production behavior. The browser E2E gate is green for both Path A and Path B (`2 passed`), and the corrected-head `make typecheck` + `make test` rerun has also been reported green. Human visual validation found an FX-action feedback defect: official/manual conversion actions updated feedback above the user's current viewport, making the buttons appear non-functional. The correction is implemented and the story remains blocked pending rerun and visual re-validation.
 
 Path A:
 
@@ -100,7 +100,7 @@ The annual ledger exposes one explicit `Servicio con pagador extranjero` action 
 | `PTL-US-IL-001` | Ver el ledger anual unificado de ingresos | `NEW_SECTION`, `FLOW_CHANGE` | L2 | DONE |
 | `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
 | `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
-| `PTL-US-IL-004` | Registrar servicios con pagador extranjero sin duplicar el hecho tributario | `NEW_FLOW`, `FIELD_ADDITION` | L2 | IMPLEMENTED / VISUAL_VALIDATION_PENDING |
+| `PTL-US-IL-004` | Registrar servicios con pagador extranjero sin duplicar el hecho tributario | `NEW_FLOW`, `FIELD_ADDITION` | L2 | IMPLEMENTED / VISUAL_VALIDATION_BLOCKED |
 | `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | DONE |
 | `PTL-US-IL-006` | Conservar trazabilidad, autoridad y aislamiento anual del ledger | `STATE_CHANGE` | L1 | DONE |
 
