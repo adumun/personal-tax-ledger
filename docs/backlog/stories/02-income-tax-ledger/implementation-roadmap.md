@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 DONE / US-IL-004 IMPLEMENTED / VISUAL_VALIDATION_BLOCKED`  
+**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 DONE / US-IL-004 DONE`  
 **Date:** 2026-09-14
 
 ## Baseline inherited from Block 01
@@ -76,13 +76,11 @@ Evidence: [`il-004-foreign-service-flow-evidence.md`](il-004-foreign-service-flo
 
 ## Remaining IL-C sequence
 
-1. rerun automated gates on the FX-feedback correction;
-2. visually re-validate Path A + Path B, especially official/manual FX actions;
-3. after explicit user visual approval, run canonical `make validate`;
-5. close `PTL-US-IL-004` as DONE and finalize evidence;
-6. mark the Draft PR ready and merge exact-head;
-7. run terminal `PTL-TASK-IL-006` regression/DoD gate;
-8. close Block 02 if the terminal gate passes.
+`PTL-US-IL-004` is DONE: automated gates, visual approval and canonical `make validate` are all PASS.
+
+1. mark the PR ready and merge exact-head;
+2. run terminal `PTL-TASK-IL-006` regression/DoD gate;
+3. close Block 02 if the terminal gate passes.
 
 ## Terminal gate
 
@@ -109,11 +107,8 @@ Block 02 does not own evidence vault, SII reconciliation, readiness, annual tax 
 ## Current executable path
 
 ```text
-PTL-US-IL-004 automated gates PASS
-  -> VISUAL_VALIDATION_PENDING
-  -> make up / visual validation
-  -> canonical make validate
-  -> DONE / PR ready / exact-head merge
+PTL-US-IL-004 DONE
+  -> PR ready / exact-head merge
   -> PTL-TASK-IL-006
   -> Block 02 CLOSED
 ```
