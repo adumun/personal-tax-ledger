@@ -30,6 +30,7 @@ Ver [ADÜMÜN governance and Business TaxOps relationship](docs/governance/adumu
 - [Microsoft Store submission histórica](docs/desktop/microsoft-store-submission-in-certification-2026-09-06.md)
 - [Guía de Windows](docs/windows-local.md)
 - [Gaps conocidos](docs/gaps/README.md)
+- [Near-term restart plan](docs/backlog/near-term-restart-plan.md)
 - [Serie de trabajo A.6-A.13](docs/slice/personal-tax-ledger-packs-a6-a13/README.md)
 
 ## Estado de distribución desktop
