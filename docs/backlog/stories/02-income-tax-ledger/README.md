@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger
 
-**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 CLOSED / SPIKE-IL-002 CLOSED / TASK-IL-005 CLOSED / US-IL-004 DONE`  
+**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 CLOSED / SPIKE-IL-002 CLOSED / TASK-IL-005 CLOSED / US-IL-004 DONE / TERMINAL DOD PENDING`  
 **Primary capability:** `TAX-04 — Tax Ledger`  
 **Related capabilities:** `TAX-01`, `TAX-02`, `TAX-06`, `TAX-07`, `TAX-08`, `TAX-09`  
 **Related extension:** `PTL-EXT-01 — International Contractor Income Planning`
@@ -132,8 +132,8 @@ Detailed contracts: [`user-stories.md`](user-stories.md).
 
 ## Remaining execution order
 
-1. merge the closed `PTL-US-IL-004` branch exact-head;
-2. run `PTL-TASK-IL-006` terminal regression/DoD;
-3. close Block 02 if the terminal gate passes.
+1. run `PTL-TASK-IL-006` terminal regression/DoD — tracked by GitHub Issue #37;
+2. persist terminal evidence and reconcile Block 02 status;
+3. close Block 02 only if the terminal gate passes.
 
 See [`implementation-roadmap.md`](implementation-roadmap.md), [`enablers-and-dependencies.md`](enablers-and-dependencies.md), [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md), [`task-il-005-evidence.md`](task-il-005-evidence.md), [`il-004-foreign-service-flow-evidence.md`](il-004-foreign-service-flow-evidence.md), [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md) and [`il-005-factual-position-evidence.md`](il-005-factual-position-evidence.md).
