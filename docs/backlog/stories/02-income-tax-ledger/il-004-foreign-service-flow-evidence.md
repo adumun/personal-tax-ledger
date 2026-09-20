@@ -1,7 +1,7 @@
 # PTL-US-IL-004 — Foreign payer / foreign-source flow — Evidence
 
 **Story:** `PTL-US-IL-004`  
-**Status:** `IMPLEMENTED / VISUAL_VALIDATION_BLOCKED`  
+**Status:** `DONE`  
 **Capability:** `TAX-04`  
 **UI impact:** `NEW_FLOW`, `FIELD_ADDITION`  
 **Design:** `DESIGN-IL-004`
@@ -291,7 +291,7 @@ make test
 With both automated layers green, the story advances to:
 
 ```text
-IMPLEMENTED / VISUAL_VALIDATION_BLOCKED
+DONE
   -> final human Path A + Path B visual validation
 ```
 
@@ -340,3 +340,18 @@ This aligns with ADÜMÜN `STD-DATA-VAL-001 — Validation & Data Integrity Stan
 Current IL-004 implementation still uses explicit React state/handlers rather than React Hook Form. That is acceptable for the current correction because invariant semantics and submission blocking remain explicit, but it should be treated as a follow-up form-management alignment opportunity rather than as a reason to reintroduce native HTML validation.
 
 Canonical standard source: `adumun/platform-standards/data/STD-DATA-VAL-001-VALIDATION-AND-DATA-INTEGRITY-STANDARD.md`.
+
+
+## Closure — 2026-09-19
+
+Final closure evidence:
+
+- human visual validation — PASS after FX inline-feedback and required/optional affordance corrections;
+- React-owned validation preserved; native HTML `required` validation removed;
+- `make test-e2e-il-004` — PASS, Path A + Path B, 2/2;
+- `make validate` — PASS;
+- unit/integration suite — 238 PASS / 0 FAIL;
+- desktop syntax check — PASS;
+- architecture check — PASS.
+
+Story state: `DONE`.
