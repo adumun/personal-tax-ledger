@@ -175,23 +175,47 @@ export function updateForeignServiceEconomicFact(id, input) {
   ensureDb();
   const existing = getForeignServiceIncome(id);
   if (!existing) return null;
+
   const receivedAt = normalizeDate(input.receivedAt ?? existing.receivedAt);
   const originalAmount = normalizePositiveAmount(input.originalAmount ?? existing.originalAmount, 'originalAmount');
   const originalCurrency = normalizeCurrency(input.originalCurrency ?? existing.originalCurrency, 'originalCurrency');
   const taxYear = deriveTaxYear(receivedAt, input.taxYear ?? existing.taxYear);
+  const payerName = String(input.payerName ?? existing.payerName).trim();
+  if (!payerName) throw new TypeError('payerName is required');
+  const payerCountry = String(input.payerCountry ?? existing.payerCountry).trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(payerCountry)) throw new TypeError('payerCountry must be an ISO 3166-1 alpha-2 code');
+  const foreignTaxAmount = input.foreignTaxAmountOriginal == null || input.foreignTaxAmountOriginal === ''
+    ? null
+    : normalizePositiveAmount(input.foreignTaxAmountOriginal, 'foreignTaxAmountOriginal');
+  const foreignTaxCurrency = input.foreignTaxCurrency
+    ? normalizeCurrency(input.foreignTaxCurrency, 'foreignTaxCurrency')
+    : null;
+  const conversionInputsChanged = receivedAt !== existing.receivedAt
+    || originalAmount !== existing.originalAmount
+    || originalCurrency !== existing.originalCurrency;
+  const nextConversionId = conversionInputsChanged ? null : existing.currentConversionId;
+
   db.prepare(`
     UPDATE foreign_service_income SET
       tax_year = ?, payer_name = ?, payer_country = ?, received_at = ?,
-      original_amount = ?, original_currency = ?, description = ?, notes = ?,
-      current_conversion_id = NULL, updated_at = CURRENT_TIMESTAMP
+      original_amount = ?, original_currency = ?, description = ?,
+      current_conversion_id = ?, foreign_tax_amount_original = ?, foreign_tax_currency = ?,
+      foreign_tax_paid_at = ?, foreign_tax_document_reference = ?, notes = ?,
+      updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `).run(
     taxYear,
-    String(input.payerName ?? existing.payerName).trim(),
-    String(input.payerCountry ?? existing.payerCountry).trim().toUpperCase(),
+    payerName,
+    payerCountry,
     receivedAt,
-    JSON.stringify(originalAmount), originalCurrency,
+    JSON.stringify(originalAmount),
+    originalCurrency,
     input.description ?? existing.description,
+    nextConversionId,
+    foreignTaxAmount == null ? null : JSON.stringify(foreignTaxAmount),
+    foreignTaxCurrency,
+    normalizeDate(input.foreignTaxPaidAt ?? existing.foreignTaxPaidAt),
+    input.foreignTaxDocumentReference ?? existing.foreignTaxDocumentReference,
     input.notes ?? existing.notes,
     id
   );

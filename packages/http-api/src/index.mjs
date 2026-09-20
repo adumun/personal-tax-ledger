@@ -10,6 +10,7 @@ export { createTaxApplicabilityProfileRouter } from './tax-applicability-profile
 export { createTaxLedgerRouter } from './tax-ledger.mjs';
 export { createExecutionLogRouter } from './execution-logs.mjs';
 export { createFeeExpenseSettingsRouter, createFeeReceiptRouter } from './fee-receipts.mjs';
+export { createForeignServiceRouter } from './foreign-service.mjs';
 export { createIncomeRouter } from './incomes.mjs';
 export { createMortgageRouter } from './mortgages.mjs';
 export { createSettingsRouter } from './settings.mjs';

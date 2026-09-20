@@ -99,7 +99,7 @@ Como contribuyente que emite BHE, quiero administrar los hechos de honorarios de
 **Type:** Story  
 **Capability:** TAX-04  
 **Related:** `PTL-EXT-01`  
-**Status:** READY  
+**Status:** DONE  
 **Priority:** P1  
 **Size:** L  
 **Canonical data impact:** CANONICAL_LEDGER  
@@ -154,6 +154,21 @@ serviceSourceJurisdiction = CHILE | FOREIGN
 - correcciones preservan conversion history;
 - no se presenta foreign-tax-credit entitlement, liability, refund, readiness ni conciliación SII como parte de esta story.
 
+### Implementation state
+
+- annual ledger exposes one explicit `Servicio con pagador extranjero` entry point;
+- classification asks payer country and material service location separately;
+- Path A persists `fee_receipt_foreign_settlements` as BHE-linked provenance only;
+- Path A reuses existing BHE create/edit authority and never registers settlement as a ledger provider;
+- Path B creates/edits the dedicated `foreign_service_income` owner;
+- official FX unavailable/mismatched remains explicit `NEEDS_REVIEW`;
+- manual FX requires rate, rate date, source/reference and reason;
+- conversion history remains append-only;
+- economic-fact changes invalidate current FX only when perception date, original amount or original currency changes;
+- foreign owner `Ver / editar` round-trips through its dedicated flow and reloads the annual ledger.
+
+Browser E2E validation is green for Path A and Path B (`2 passed`). The full corrected-head test suite is green. Human visual validation passed after correcting inline conversion feedback and required/optional field affordances. Canonical `make validate` also passed, including 238/238 tests, desktop syntax checks and architecture checks.
+
 ### Dependencies
 
 - `REQUIRES` -> `PTL-SPIKE-IL-002` — DONE
@@ -162,7 +177,8 @@ serviceSourceJurisdiction = CHILE | FOREIGN
 - `UI_DEPENDS_ON` -> `DESIGN-IL-004`
 
 Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).  
-Enabler evidence: [`task-il-005-evidence.md`](task-il-005-evidence.md).
+Enabler evidence: [`task-il-005-evidence.md`](task-il-005-evidence.md).  
+Story evidence: [`il-004-foreign-service-flow-evidence.md`](il-004-foreign-service-flow-evidence.md).
 
 ---
 

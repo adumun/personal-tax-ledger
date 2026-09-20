@@ -6,6 +6,7 @@ import {
   assertExecutionLogRepositoryContract,
   assertFeeReceiptRepositoryContract,
   assertFeeExpenseSettingsRepositoryContract,
+  assertFeeReceiptForeignSettlementRepositoryContract,
   assertMortgageRepositoryContract,
   assertMortgageAnnualRecordRepositoryContract,
   assertTaxParameterRepositoryContract,
@@ -19,6 +20,7 @@ import {
   EXECUTION_LOG_REPOSITORY_METHODS,
   FEE_RECEIPT_REPOSITORY_METHODS,
   FEE_EXPENSE_SETTINGS_REPOSITORY_METHODS,
+  FEE_RECEIPT_FOREIGN_SETTLEMENT_REPOSITORY_METHODS,
   MORTGAGE_REPOSITORY_METHODS,
   MORTGAGE_ANNUAL_RECORD_REPOSITORY_METHODS,
   TAX_PARAMETER_REPOSITORY_METHODS,
@@ -63,6 +65,13 @@ test('el contrato de repositorio de gastos de honorarios exige list/get/upsert',
   const repository = Object.fromEntries(FEE_EXPENSE_SETTINGS_REPOSITORY_METHODS.map(method => [method, () => null]));
   assert.equal(assertFeeExpenseSettingsRepositoryContract(repository), repository);
   assert.throws(() => assertFeeExpenseSettingsRepositoryContract({ list() {} }), /get/);
+});
+
+test('US-IL-004: settlement extranjero de BHE exige getByFeeReceiptId/upsert y no satisface el repositorio de ingresos', () => {
+  const repository = Object.fromEntries(FEE_RECEIPT_FOREIGN_SETTLEMENT_REPOSITORY_METHODS.map(method => [method, () => null]));
+  assert.equal(assertFeeReceiptForeignSettlementRepositoryContract(repository), repository);
+  assert.throws(() => assertFeeReceiptForeignSettlementRepositoryContract({ getByFeeReceiptId() {} }), /upsert/);
+  assert.throws(() => assertFeeReceiptRepositoryContract(repository), /list/, 'settlement provenance no debe convertirse en autoridad de BHE');
 });
 
 test('el contrato de repositorio de créditos hipotecarios exige list/get/create/update/remove', () => {

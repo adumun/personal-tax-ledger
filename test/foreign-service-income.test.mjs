@@ -83,6 +83,48 @@ test('IL-005: foreign-source fact preserves original value and append-only conve
   });
 });
 
+test('US-IL-004: metadata edit preserves valid conversion but conversion-input correction invalidates only the current pointer', async () => {
+  await withRepository(async ({ repository }) => {
+    const context = annualContext();
+    const created = await repository.create(context, {
+      payerName: 'Client One',
+      payerCountry: 'US',
+      serviceSourceJurisdiction: 'FOREIGN',
+      receivedAt: '2026-09-01',
+      originalAmount: 1200,
+      originalCurrency: 'USD',
+      notes: 'Initial note'
+    });
+    const conversion = await repository.appendConversion(context, created.id, {
+      fxRate: 925,
+      fxRateDate: '2026-09-01',
+      fxSource: 'MANUAL',
+      fxSourceReference: 'Official historical table',
+      fxReason: 'Manual documented entry'
+    });
+
+    const metadataEdit = await repository.updateEconomicFact(context, created.id, {
+      payerName: 'Client One LLC',
+      notes: 'Updated note only',
+      foreignTaxAmountOriginal: 50,
+      foreignTaxCurrency: 'USD'
+    });
+    assert.equal(metadataEdit.currentConversionId, conversion.id);
+    assert.equal(metadataEdit.payerName, 'Client One LLC');
+    assert.equal(metadataEdit.foreignTaxAmountOriginal, 50);
+
+    const economicCorrection = await repository.updateEconomicFact(context, created.id, {
+      originalAmount: 1250
+    });
+    assert.equal(economicCorrection.currentConversionId, null);
+    assert.equal(economicCorrection.originalAmount, 1250);
+    const history = await repository.listConversions(context, created.id);
+    assert.equal(history.length, 1);
+    assert.equal(history[0].id, conversion.id);
+    assert.equal(history[0].originalAmount, 1200);
+  });
+});
+
 test('IL-005: BCCh provider never silently substitutes a different rate date', async () => {
   const provider = createBcchForeignExchangeProvider({
     async lookupRate() {

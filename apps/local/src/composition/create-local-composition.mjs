@@ -39,7 +39,10 @@ export function createLocalComposition(dependencies) {
   const income = createIncomeComposition(compositionDependencies);
   const logs = createExecutionLogComposition(compositionDependencies);
   const fees = createFeeReceiptComposition(compositionDependencies);
-  const foreignService = createForeignServiceComposition(compositionDependencies);
+  const foreignService = createForeignServiceComposition({
+    ...compositionDependencies,
+    feeReceiptUseCases: fees.feeReceiptUseCases
+  });
   const mortgages = createMortgageComposition(compositionDependencies);
   const taxLedger = createTaxLedgerComposition({
     ...compositionDependencies,

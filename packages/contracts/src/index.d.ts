@@ -209,6 +209,25 @@ export interface ForeignExchangeProvider {
 export const FOREIGN_EXCHANGE_PROVIDER_METHODS: readonly string[];
 export function assertForeignExchangeProviderContract(provider: unknown): ForeignExchangeProvider;
 
+export type FeeReceiptForeignSettlementRecord = {
+  feeReceiptId: string;
+  payerCountry: string;
+  serviceSourceJurisdiction: 'CHILE';
+  receivedAmount: number;
+  receivedCurrency: string;
+  receivedAt: string;
+  providerReference: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+export interface FeeReceiptForeignSettlementRepository {
+  getByFeeReceiptId(context: AnnualWorkspaceContext, feeReceiptId: string): Promise<FeeReceiptForeignSettlementRecord | null>;
+  upsert(context: AnnualWorkspaceContext, feeReceiptId: string, input: Record<string, unknown>): Promise<FeeReceiptForeignSettlementRecord>;
+}
+export const FEE_RECEIPT_FOREIGN_SETTLEMENT_REPOSITORY_METHODS: readonly ['getByFeeReceiptId', 'upsert'];
+export function assertFeeReceiptForeignSettlementRepositoryContract(repository: unknown): FeeReceiptForeignSettlementRepository;
+
 export type TaxLedgerEntryKind = 'DEPENDENT_INCOME' | 'DOMESTIC_FEE_INCOME' | 'FOREIGN_SERVICE_INCOME' | 'OTHER_INCOME_SOURCE';
 export type TaxLedgerOwnerAggregate = 'INCOME_SOURCE' | 'FEE_RECEIPT' | 'FOREIGN_SERVICE_INCOME';
 export type TaxLedgerRecognitionState = 'RECOGNIZED' | 'PENDING' | 'EXCLUDED';

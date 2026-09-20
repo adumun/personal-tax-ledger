@@ -34,7 +34,7 @@ Ingresos del año
 - Honorarios / BHE nacional;
 - other existing income-source kinds when the owner aggregate already supports them.
 
-`FOREIGN_SERVICE_INCOME` becomes executable only after `PTL-SPIKE-IL-002` is accepted and `PTL-TASK-IL-005` implements the owner/value contract.
+`FOREIGN_SERVICE_INCOME` is now executable through the accepted `PTL-SPIKE-IL-002` decision and closed `PTL-TASK-IL-005` owner/value contract.
 
 ### States
 
@@ -52,7 +52,8 @@ Generic ledger actions resolve to owner flows:
 
 - `Ver / editar` -> owner aggregate editor;
 - `Agregar renta dependiente` -> existing income source flow;
-- `Agregar BHE` -> existing fee receipt flow.
+- `Agregar BHE` -> existing fee receipt flow;
+- `Servicio con pagador extranjero` -> explicit source-jurisdiction classification before choosing canonical owner.
 
 There is no generic `edit ledger row` mutation.
 
@@ -70,7 +71,7 @@ A cancelled BHE must remain visibly distinguishable and must not be visually pre
 
 ## DESIGN-IL-004 — Foreign payer / foreign-source service classification
 
-**Status:** `SPIKE_DECISION_PROPOSED`  
+**Status:** `IMPLEMENTED / AUTOMATED_VALIDATION_PENDING`  
 **Fidelity:** L2
 
 The flow must not equate a foreign payer with foreign-source income.
@@ -151,7 +152,17 @@ It must be visually distinguishable from BCCh-resolved conversion.
 
 An FX correction creates a new conversion snapshot and preserves the prior one. The UI must not overwrite conversion history invisibly.
 
-Changing original amount/currency/perception date is an economic-fact correction, not merely an FX correction.
+Changing original amount/currency/perception date is an economic-fact correction, not merely an FX correction. Changes that do not affect those conversion inputs preserve the currently valid conversion pointer.
+
+### Implemented interaction
+
+- the annual ledger exposes `+ Servicio con pagador extranjero`;
+- Path A reuses BHE as owner and persists a one-to-one `fee_receipt_foreign_settlements` provenance record;
+- Path A settlement is never registered as a second `TaxLedgerEntry`;
+- Path B creates/edits `foreign_service_income` and exposes current conversion plus append-only history;
+- official conversion failure remains explicit `NEEDS_REVIEW`; no rate is guessed;
+- manual conversion requires all provenance fields from this contract;
+- `FOREIGN_SERVICE_INCOME` rows resolve `Ver / editar` to their owner-specific editor rather than a generic ledger mutation.
 
 ### Hard boundary
 
@@ -164,7 +175,8 @@ The foreign-service flow does not own:
 - SII reconciliation;
 - documentary evidence vault.
 
-Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).
+Decision evidence: [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md).  
+Implementation evidence: [`il-004-foreign-service-flow-evidence.md`](il-004-foreign-service-flow-evidence.md).
 
 ## DESIGN-IL-005 — Factual annual income position
 
