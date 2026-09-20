@@ -1,6 +1,6 @@
 # Block 02 — Income & Tax Ledger
 
-**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 CLOSED / SPIKE-IL-002 CLOSED / TASK-IL-005 CLOSED / US-IL-004 IMPLEMENTED / VISUAL_VALIDATION_BLOCKED`  
+**Status:** `IN_PROGRESS / IL-A CLOSED / IL-B CLOSED / IL-005 CLOSED / SPIKE-IL-002 CLOSED / TASK-IL-005 CLOSED / US-IL-004 DONE`  
 **Primary capability:** `TAX-04 — Tax Ledger`  
 **Related capabilities:** `TAX-01`, `TAX-02`, `TAX-06`, `TAX-07`, `TAX-08`, `TAX-09`  
 **Related extension:** `PTL-EXT-01 — International Contractor Income Planning`
@@ -67,7 +67,7 @@ Implementation evidence: [`task-il-005-evidence.md`](task-il-005-evidence.md).
 
 ## Current slice — PTL-US-IL-004
 
-Implementation is assembled and statically reconciled across contracts, application, SQLite, HTTP, frontend owner flow, tests and evidence. The first local pre-visual gate attempt passed bootstrap/typecheck and produced 236/237 tests green; the single failure was an obsolete frontend assertion that prohibited internal `ownerRecordId` routing. That test has been corrected without weakening production behavior. The browser E2E gate is green for both Path A and Path B (`2 passed`), and the corrected-head `make typecheck` + `make test` rerun has also been reported green. Human visual validation found an FX-action feedback defect: official/manual conversion actions updated feedback above the user's current viewport, making the buttons appear non-functional. The correction is implemented and the story remains blocked pending rerun and visual re-validation.
+PTL-US-IL-004 is closed. The implementation was reconciled across contracts, application, SQLite, HTTP, frontend owner flow, tests and evidence. Browser E2E is green for Path A and Path B, the full test suite is green, visual validation passed after correcting inline FX feedback and required/optional field affordances, and canonical `make validate` passed.
 
 Path A:
 
@@ -100,7 +100,7 @@ The annual ledger exposes one explicit `Servicio con pagador extranjero` action 
 | `PTL-US-IL-001` | Ver el ledger anual unificado de ingresos | `NEW_SECTION`, `FLOW_CHANGE` | L2 | DONE |
 | `PTL-US-IL-002` | Mantener hechos de renta dependiente dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
 | `PTL-US-IL-003` | Mantener BHE/honorarios nacionales dentro del ledger | `FLOW_CHANGE`, `FIELD_REUSE` | L2 | DONE |
-| `PTL-US-IL-004` | Registrar servicios con pagador extranjero sin duplicar el hecho tributario | `NEW_FLOW`, `FIELD_ADDITION` | L2 | IMPLEMENTED / VISUAL_VALIDATION_BLOCKED |
+| `PTL-US-IL-004` | Registrar servicios con pagador extranjero sin duplicar el hecho tributario | `NEW_FLOW`, `FIELD_ADDITION` | L2 | DONE |
 | `PTL-US-IL-005` | Ver posición anual de ingresos basada en hechos | `NEW_SECTION` | L2 | DONE |
 | `PTL-US-IL-006` | Conservar trazabilidad, autoridad y aislamiento anual del ledger | `STATE_CHANGE` | L1 | DONE |
 
@@ -132,10 +132,8 @@ Detailed contracts: [`user-stories.md`](user-stories.md).
 
 ## Remaining execution order
 
-1. perform user visual validation for Path A and Path B;
-2. after approval, run canonical `make validate` and close `PTL-US-IL-004`;
-4. finalize evidence, mark the Draft PR ready and merge exact-head;
-5. run `PTL-TASK-IL-006` terminal regression/DoD;
-6. close Block 02 if the terminal gate passes.
+1. merge the closed `PTL-US-IL-004` branch exact-head;
+2. run `PTL-TASK-IL-006` terminal regression/DoD;
+3. close Block 02 if the terminal gate passes.
 
 See [`implementation-roadmap.md`](implementation-roadmap.md), [`enablers-and-dependencies.md`](enablers-and-dependencies.md), [`spike-il-002-foreign-service-recognition-fx.md`](spike-il-002-foreign-service-recognition-fx.md), [`task-il-005-evidence.md`](task-il-005-evidence.md), [`il-004-foreign-service-flow-evidence.md`](il-004-foreign-service-flow-evidence.md), [`il-b-owner-flow-evidence.md`](il-b-owner-flow-evidence.md) and [`il-005-factual-position-evidence.md`](il-005-factual-position-evidence.md).
