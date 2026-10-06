@@ -1,15 +1,101 @@
 export type WorkspaceContext = { workspaceId: string; actorId: string };
+export type AnnualWorkspaceContext = WorkspaceContext & { annualWorkspaceId: string; commercialYear: number };
+export type ResolveActiveAnnualContext = () => Promise<AnnualWorkspaceContext>;
 type AsyncUseCase = (...args: unknown[]) => Promise<unknown>;
-export function createIncomeUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
+type YearScopedOptions = { repository: unknown; resolveActiveContext?: ResolveActiveAnnualContext };
+export type TaxLedgerProvider = { list(context: AnnualWorkspaceContext): Promise<unknown[]> };
+export type TaxLedgerFilters = {
+  entryKind?: string;
+  ownerAggregate?: string;
+  recognitionState?: string;
+};
+export type TaxLedgerReadModel = {
+  listAnnualLedger(context: AnnualWorkspaceContext, filters?: TaxLedgerFilters): Promise<unknown>;
+};
+
+export function createIncomeUseCases(options: YearScopedOptions): Record<string, AsyncUseCase>;
 export function createSettingsUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
-export function createExecutionLogUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
-export function createFeeReceiptUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
-export function createFeeExpenseSettingsUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
-export function createMortgageUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
-export function createMortgageAnnualRecordUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
+export function createExecutionLogUseCases(options: YearScopedOptions): Record<string, AsyncUseCase>;
+export function createFeeReceiptUseCases(options: YearScopedOptions): Record<string, AsyncUseCase>;
+export function createFeeExpenseSettingsUseCases(options: YearScopedOptions): Record<string, AsyncUseCase>;
+export function createMortgageUseCases(options: YearScopedOptions): Record<string, AsyncUseCase>;
+export function createMortgageAnnualRecordUseCases(options: YearScopedOptions): Record<string, AsyncUseCase>;
 export function createTaxParameterUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
 export function createTaxRuleSourceUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
 export function createReferenceUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
 export function createYearUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
 export function createSnapshotUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
 export function createSystemUseCases(options: Record<string, unknown>): Record<string, AsyncUseCase>;
+export function createAnnualWorkspaceUseCases(options: { repository: unknown }): Record<string, AsyncUseCase>;
+export function createAnnualWorkspaceFlowUseCases(options: {
+  repository: unknown;
+  settingsUseCases: Record<string, AsyncUseCase>;
+  supportedYearPolicyUseCases: Record<string, AsyncUseCase>;
+  now?: () => string;
+}): Record<string, AsyncUseCase>;
+export function createActiveAnnualWorkspaceContextResolver(options: {
+  settingsRepository: unknown;
+  annualWorkspaceRepository: unknown;
+  baseContext: WorkspaceContext;
+}): ResolveActiveAnnualContext;
+export function createSupportedYearPolicyUseCases(options: {
+  taxParameterRepository: unknown;
+  taxRuleSourceRepository: unknown;
+  requiredRuleKeys?: readonly string[];
+}): Record<string, AsyncUseCase>;
+export function createTaxApplicabilityProfileUseCases(options: {
+  repository: unknown;
+  resolveActiveContext?: ResolveActiveAnnualContext;
+  now?: () => string;
+}): Record<string, AsyncUseCase>;
+export const TAX_APPLICABILITY_REVIEW_STATE: Readonly<{ OK: 'OK'; PENDING: 'PENDING'; NEEDS_REVIEW: 'NEEDS_REVIEW' }>;
+export const TAX_FACT_PRESENCE: Readonly<{ PRESENT: 'PRESENT'; NOT_PRESENT: 'NOT_PRESENT'; UNAVAILABLE: 'UNAVAILABLE' }>;
+export function createTaxApplicabilityProfileReviewUseCases(options: {
+  profileUseCases: Record<string, AsyncUseCase>;
+  readCanonicalFactPresence: (context: AnnualWorkspaceContext) => Promise<Record<string, string>>;
+}): Record<string, AsyncUseCase>;
+export function createAnnualWorkspaceOverviewUseCases(options: {
+  annualWorkspaceRepository: unknown;
+  profileReviewUseCases: Record<string, AsyncUseCase>;
+  incomeUseCases: Record<string, AsyncUseCase>;
+  feeReceiptUseCases: Record<string, AsyncUseCase>;
+  mortgageUseCases: Record<string, AsyncUseCase>;
+  supportedYearPolicyUseCases: Record<string, AsyncUseCase>;
+}): Record<string, AsyncUseCase>;
+export const PRIOR_YEAR_REUSABLE_CATEGORY: Readonly<{ APPLICABILITY_PROFILE: 'APPLICABILITY_PROFILE' }>;
+export const PRIOR_YEAR_FORBIDDEN_COPY: readonly string[];
+export function createPriorYearInitializationUseCases(options: {
+  annualWorkspaceRepository: unknown;
+  annualWorkspaceFlowUseCases: Record<string, AsyncUseCase>;
+  settingsUseCases: Record<string, AsyncUseCase>;
+  taxApplicabilityProfileRepository: unknown;
+  initializationRepository: unknown;
+  now?: () => string;
+}): Record<string, AsyncUseCase>;
+export function createIncomeSourceTaxLedgerProvider(options: {
+  incomeUseCases: { listIncomeSources(context: AnnualWorkspaceContext, taxYear?: number): Promise<unknown[]> };
+}): TaxLedgerProvider;
+export function createFeeReceiptTaxLedgerProvider(options: {
+  feeReceiptUseCases: { listFeeReceipts(context: AnnualWorkspaceContext, filters?: Record<string, unknown>): Promise<unknown[]> };
+  settingsUseCases: { getSettings(context: AnnualWorkspaceContext): Promise<Record<string, unknown>> };
+}): TaxLedgerProvider;
+export function createForeignServiceTaxLedgerProvider(options: {
+  foreignServiceUseCases: {
+    listForeignServiceIncome(context: AnnualWorkspaceContext): Promise<Record<string, unknown>[]>;
+    listForeignServiceConversions(context: AnnualWorkspaceContext, id: string): Promise<Record<string, unknown>[]>;
+  };
+}): TaxLedgerProvider;
+export function createAnnualTaxLedgerReadModel(options: { providers: TaxLedgerProvider[] }): TaxLedgerReadModel;
+export function createForeignServiceIncomeUseCases(options: {
+  repository: unknown;
+  fxProvider?: unknown;
+  resolveActiveContext?: ResolveActiveAnnualContext;
+}): Record<string, AsyncUseCase>;
+export function createFeeReceiptForeignSettlementUseCases(options: {
+  repository: unknown;
+  feeReceiptUseCases: { getFeeReceipt(context: AnnualWorkspaceContext, id: string): Promise<Record<string, unknown> | null> };
+  resolveActiveContext?: ResolveActiveAnnualContext;
+}): Record<string, AsyncUseCase>;
+export function createBcchForeignExchangeProvider(options: {
+  lookupRate: (input: { currency: string; date: string; targetCurrency: 'CLP' }) => Promise<Record<string, unknown>>;
+}): { resolveRate(input: { currency: string; date: string; targetCurrency?: 'CLP' }): Promise<Record<string, unknown>> };

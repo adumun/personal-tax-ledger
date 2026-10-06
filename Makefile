@@ -1,44 +1,87 @@
 SHELL := /bin/bash
 
 MODE ?= store
-VERSION := $(shell node -p "require('./package.json').version")
+VERSION := $(shell node -p "require('./package.json').version" 2>/dev/null || echo unknown)
 DIST_ROOT := out/distribution
+STORE_OUT := $(DIST_ROOT)/store
 UAT_OUT := $(DIST_ROOT)/uat
+WIN_REPO := $(shell wslpath -w "$(CURDIR)" 2>/dev/null || true)
+WIN_STORE_OUT := $(shell wslpath -w "$(CURDIR)/$(STORE_OUT)" 2>/dev/null || true)
+PLAYWRIGHT_VERSION := 1.55.0
+PLAYWRIGHT_HOME := .tools/playwright
+PLAYWRIGHT_BIN := $(PLAYWRIGHT_HOME)/node_modules/.bin/playwright
 
-.PHONY: bootstrap deps up down test doctor validate build build-store store-artifact build-uat run-web lint clean clean-distribution help
+.PHONY: bootstrap deps prepare-shared-ui up down test test-ledger-ui e2e-bootstrap test-e2e test-e2e-il-004 typecheck doctor validate build build-web build-store build-uat run-web clean clean-distribution help
 
+# Canonical ADÜMÜN developer façade (STD-ENG-DEV-001).
 bootstrap:
-	@npm ci
+	@echo "==> Bootstrapping PTL dependencies"
+	@npm install
+	@$(MAKE) --no-print-directory prepare-shared-ui
+
+# The local web app consumes @personal-tax-ledger/shared-ui through its compiled dist/ export.
+# Rebuild it before development so source and effective runtime artifact cannot drift.
+prepare-shared-ui:
+	@echo "==> Building shared UI runtime artifact"
+	@npm run build --workspace @personal-tax-ledger/shared-ui
 
 deps:
-	@command -v node >/dev/null || { echo "Missing dependency: node" >&2; exit 2; }
-	@command -v npm >/dev/null || { echo "Missing dependency: npm" >&2; exit 2; }
-	@node -e "const major=Number(process.versions.node.split('.')[0]); if (major !== 24) { console.error('Expected Node 24.x, got '+process.version); process.exit(2); }"
-	@echo "Node: $$(node --version)"
-	@echo "npm:  $$(npm --version)"
+	@echo "==> Checking PTL development toolchain"
+	@command -v node >/dev/null || { echo "node is required" >&2; exit 2; }
+	@command -v npm >/dev/null || { echo "npm is required" >&2; exit 2; }
+	@command -v make >/dev/null || { echo "make is required" >&2; exit 2; }
+	@node --version
+	@npm --version
+	@$(MAKE) --version | head -n 1
 
-up: run-web
+# Foreground development runtime. Stop it with Ctrl+C in the owning terminal.
+up: deps prepare-shared-ui
+	@npm run dev
 
+# PTL does not daemonize the development runtime; this target documents that fact
+# rather than killing unrelated Node processes heuristically.
 down:
-	@echo "PTL local runtime runs in the foreground; stop it with Ctrl-C. No persistent local service is managed by Make."
+	@echo "PTL local development runs in the foreground; stop the owning 'make up' process with Ctrl+C."
 
 test:
 	@npm test
 
-doctor: deps
-	@test -f package.json || { echo "Missing package.json" >&2; exit 2; }
-	@test -f package-lock.json || { echo "Missing package-lock.json" >&2; exit 2; }
-	@test -f scripts/build-store-msix.sh || { echo "Missing Store artifact script" >&2; exit 2; }
-	@test -f scripts/package-msix.ps1 || { echo "Missing Windows SDK MSIX bridge" >&2; exit 2; }
-	@echo "Repository health: PASS"
+# Focused visual-slice regression gate used while dogfooding the shared React shell.
+test-ledger-ui:
+	@node --test test/annual-income-ledger-frontend.test.mjs test/tax-ledger-http-client.test.mjs
 
-validate:
+# Browser tooling is intentionally isolated from the product dependency graph. The
+# exact Playwright version is pinned here and installed under an ignored tooling root.
+e2e-bootstrap: deps
+	@echo "==> Bootstrapping Playwright $(PLAYWRIGHT_VERSION) for PTL E2E"
+	@mkdir -p "$(PLAYWRIGHT_HOME)"
+	@npm install --prefix "$(PLAYWRIGHT_HOME)" --package-lock=false --no-save "@playwright/test@$(PLAYWRIGHT_VERSION)"
+	@"$(PLAYWRIGHT_BIN)" install chromium
+
+# Browser tests target the already-running local web runtime (make up) by default.
+# Override only when intentionally validating another local endpoint:
+#   PTL_E2E_BASE_URL=http://127.0.0.1:5174 make test-e2e-il-004
+test-e2e-il-004: e2e-bootstrap
+	@echo "==> Running PTL-US-IL-004 browser paths against $${PTL_E2E_BASE_URL:-http://127.0.0.1:5173}"
+	@"$(PLAYWRIGHT_BIN)" test e2e/il-004-foreign-service.spec.mjs --config=playwright.config.mjs
+
+test-e2e: test-e2e-il-004
+
+typecheck:
 	@npm run typecheck
-	@$(MAKE) --no-print-directory test
+
+doctor: deps
+	@echo "==> Checking dependency graph"
+	@npm ls --depth=0 >/dev/null
+	@echo "==> Checking repository patch hygiene"
+	@git diff --check
+	@echo "DOCTOR-PASS"
+
+validate: typecheck test
 	@npm run desktop:check
 	@npm run architecture:check
 
-# Canonical distribution entrypoint.
+# Canonical distribution entrypoint retained for PTL release lanes.
 # - make build            -> Microsoft Store candidate (.msix)
 # - make build MODE=uat   -> local UAT installer (.exe)
 build:
@@ -51,16 +94,27 @@ else
 	@exit 2
 endif
 
-# Microsoft Store release-artifact lane.
-# Complex/native tooling remains encapsulated in scripts/build-store-msix.sh.
-build-store:
-	@bash scripts/build-store-msix.sh
+# Build only the React/web application, without producing a distribution artifact.
+build-web: prepare-shared-ui
+	@npm run build
 
-# Explicit domain alias for the exact artifact uploaded to Partner Center.
-store-artifact: build-store
+# Public distribution lane. Microsoft Store accepts the MSIX candidate, not Setup.exe.
+build-store: validate
+	@echo "==> PTL Store build $(VERSION)"
+	@rm -rf "$(STORE_OUT)"
+	@mkdir -p "$(STORE_OUT)"
+	@PTL_MSIX_MODE=store npm run desktop:msix:prepare
+	@if [[ -z "$(WIN_REPO)" ]]; then \
+		echo "Unable to resolve the repository as a Windows path. Store packaging requires WSL2 + Windows SDK." >&2; \
+		exit 3; \
+	fi
+	@powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(WIN_REPO)\\scripts\\build-msix-store-submission.ps1" -RepoRoot "$(WIN_REPO)" -OutputDirectory "$(WIN_STORE_OUT)"
+	@node scripts/write-distribution-manifest.mjs store "$(STORE_OUT)"
+	@echo
+	@echo "STORE CANDIDATE READY: $(STORE_OUT)"
+	@find "$(STORE_OUT)" -maxdepth 1 -type f -printf '  %f\n' | sort
 
 # Local human UAT lane. Produces an installable Squirrel Setup.exe.
-# This artifact is intentionally NOT a Microsoft Store submission artifact.
 build-uat: validate
 	@echo "==> PTL local UAT build $(VERSION)"
 	@rm -rf "$(UAT_OUT)"
@@ -72,36 +126,38 @@ build-uat: validate
 	@echo "UAT INSTALLER READY: $(UAT_OUT)/PersonalTaxLedger-$(VERSION)-UAT-Setup.exe"
 	@echo "WARNING: this UAT EXE is not Store-signed and may be blocked by Smart App Control on some Windows devices."
 
-run-web:
-	@npm run build
+# Compatibility alias for the pre-existing static-web execution path.
+run-web: build-web
 	@npm start
 
-lint:
-	@npm run lint
-
 clean: clean-distribution
-	@rm -rf out/msix
+	@rm -rf apps/local/web/dist
 
 clean-distribution:
 	@rm -rf "$(DIST_ROOT)"
 
 help:
-	@echo "Personal Tax Ledger — canonical Make interface"
+	@echo "Personal Tax Ledger canonical repository commands"
 	@echo
-	@echo "Baseline (STD-ENG-DEV-001):"
-	@echo "  make bootstrap          Install locked dependencies"
-	@echo "  make deps               Validate required toolchain"
-	@echo "  make up                 Build and run local web application"
-	@echo "  make down               Explain foreground shutdown semantics"
-	@echo "  make test               Run canonical automated test suite"
-	@echo "  make doctor             Run non-destructive repository health checks"
-	@echo "  make validate           Run deeper repository validation"
-	@echo "  make lint               Run lint/static checks"
-	@echo "  make clean              Remove generated distribution/MSIX output"
+	@echo "Development (STD-ENG-DEV-001):"
+	@echo "  make bootstrap         Install/refresh dependencies and rebuild shared UI runtime"
+	@echo "  make deps              Verify required local toolchain"
+	@echo "  make prepare-shared-ui Rebuild @personal-tax-ledger/shared-ui dist export"
+	@echo "  make up                Build shared UI and start API + Vite development runtime"
+	@echo "  make down              Explain foreground-runtime shutdown semantics"
+	@echo "  make test              Run canonical automated test suite"
+	@echo "  make test-ledger-ui    Run focused ledger/shared-shell regression tests"
+	@echo "  make e2e-bootstrap     Install pinned local Playwright tooling + Chromium"
+	@echo "  make test-e2e-il-004   Run PTL-US-IL-004 Path A/Path B browser tests"
+	@echo "  make test-e2e          Run browser E2E suite"
+	@echo "  make typecheck         Run workspace TypeScript checks"
+	@echo "  make doctor            Fast, side-effect-safe repository health check"
+	@echo "  make validate          Run canonical PTL validation gate"
+	@echo "  make build-web         Build shared UI and React/web application"
 	@echo
 	@echo "Distribution:"
-	@echo "  make build              Build Microsoft Store artifact (default MODE=store)"
-	@echo "  make build MODE=uat     Build local UAT Setup.exe"
-	@echo "  make build-store        Build and validate Partner Center MSIX"
-	@echo "  make store-artifact     Explicit alias for build-store"
-	@echo "  make build-uat          Build local UAT Setup.exe"
+	@echo "  make build             Build Microsoft Store MSIX candidate (default)"
+	@echo "  make build MODE=uat    Build local UAT Setup.exe"
+	@echo "  make build-uat         Explicit local UAT Setup.exe lane"
+	@echo "  make build-store       Explicit Microsoft Store lane"
+	@echo "  make clean             Remove local build/distribution outputs"

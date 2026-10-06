@@ -1,6 +1,9 @@
 node_modules/
 apps/local/web/dist/
 .desktop-runtime/
+.tools/
+playwright-report/
+test-results/
 out/
 data/*.sqlite
 data/*.sqlite-*

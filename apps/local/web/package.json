@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@adumun/react-components": "git+https://github.com/adumun/react-components.git#e9dff2fba8fcf3ec7d352a7c40d5d4d749bc999e",
     "react": "19.2.7",
     "react-dom": "19.2.7"
   },

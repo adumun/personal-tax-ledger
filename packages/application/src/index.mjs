@@ -11,3 +11,30 @@ export { createReferenceUseCases } from './features/references/reference-use-cas
 export { createYearUseCases } from './features/years/year-use-cases.mjs';
 export { createSnapshotUseCases } from './features/snapshots/snapshot-use-cases.mjs';
 export { createSystemUseCases } from './features/system/system-use-cases.mjs';
+export {
+  createAnnualWorkspaceUseCases,
+  createAnnualWorkspaceFlowUseCases,
+  createActiveAnnualWorkspaceContextResolver
+} from './features/annual-workspace/annual-workspace-use-cases.mjs';
+export { createSupportedYearPolicyUseCases } from './features/annual-workspace/supported-year-policy-use-cases.mjs';
+export { createTaxApplicabilityProfileUseCases } from './features/annual-workspace/tax-applicability-profile-use-cases.mjs';
+export {
+  createTaxApplicabilityProfileReviewUseCases,
+  TAX_APPLICABILITY_REVIEW_STATE,
+  TAX_FACT_PRESENCE
+} from './features/annual-workspace/tax-applicability-profile-review-use-cases.mjs';
+export { createAnnualWorkspaceOverviewUseCases } from './features/annual-workspace/annual-workspace-overview-use-cases.mjs';
+export {
+  createPriorYearInitializationUseCases,
+  PRIOR_YEAR_REUSABLE_CATEGORY,
+  PRIOR_YEAR_FORBIDDEN_COPY
+} from './features/annual-workspace/prior-year-initialization-use-cases.mjs';
+export {
+  createIncomeSourceTaxLedgerProvider,
+  createFeeReceiptTaxLedgerProvider,
+  createForeignServiceTaxLedgerProvider
+} from './features/ledger/tax-ledger-providers.mjs';
+export { createAnnualTaxLedgerReadModel } from './features/ledger/annual-tax-ledger-read-model.mjs';
+export { createForeignServiceIncomeUseCases } from './features/foreign-service/foreign-service-use-cases.mjs';
+export { createFeeReceiptForeignSettlementUseCases } from './features/foreign-service/fee-receipt-foreign-settlement-use-cases.mjs';
+export { createBcchForeignExchangeProvider } from './features/foreign-service/bcch-foreign-exchange-provider.mjs';

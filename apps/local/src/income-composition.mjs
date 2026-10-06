@@ -5,10 +5,15 @@ import { createIncomeRouter } from '@personal-tax-ledger/http-api';
 
 export function createIncomeComposition(dependencies) {
   const repository = dependencies?.incomeRepository || createSqliteIncomeRepository(undefined, dependencies?.database);
-  const useCases = createIncomeUseCases({ repository });
+  const useCases = createIncomeUseCases({ repository, resolveActiveContext: dependencies?.resolveAnnualContext });
   return {
     incomeRepository: repository,
     incomeUseCases: useCases,
-    createIncomeRouter: routerDependencies => createIncomeRouter({ ...routerDependencies, useCases, context: LOCAL_WORKSPACE_CONTEXT })
+    createIncomeRouter: routerDependencies => createIncomeRouter({
+      ...routerDependencies,
+      useCases,
+      context: LOCAL_WORKSPACE_CONTEXT,
+      resolveContext: dependencies?.resolveAnnualContext
+    })
   };
 }

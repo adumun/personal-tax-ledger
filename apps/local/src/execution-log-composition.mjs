@@ -5,7 +5,7 @@ import { createExecutionLogRouter } from '@personal-tax-ledger/http-api';
 
 export function createExecutionLogComposition(dependencies) {
   const repository = dependencies?.executionLogRepository || createSqliteExecutionLogRepository(undefined, dependencies?.database);
-  const useCases = createExecutionLogUseCases({ repository });
+  const useCases = createExecutionLogUseCases({ repository, resolveActiveContext: dependencies?.resolveAnnualContext });
   return {
     executionLogRepository: repository,
     executionLogUseCases: useCases,

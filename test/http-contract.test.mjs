@@ -8,7 +8,15 @@ import { tmpdir } from 'node:os';
 const port = 3400 + Math.floor(Math.random() * 300);
 const baseUrl = `http://127.0.0.1:${port}`;
 let child;
+let childExitPromise;
+let childExitResult = null;
+let childStdout = '';
+let childStderr = '';
 let tempDir;
+
+function diagnostics() {
+  return `stdout:\n${childStdout || '<empty>'}\nstderr:\n${childStderr || '<empty>'}`;
+}
 
 before(async () => {
   tempDir = await mkdtemp(join(tmpdir(), 'personal-tax-ledger-a01-'));
@@ -17,21 +25,38 @@ before(async () => {
     env: { ...process.env, PORT: String(port), DB_PATH: join(tempDir, 'test.sqlite') },
     stdio: ['ignore', 'pipe', 'pipe']
   });
+  child.stdout?.on('data', chunk => { childStdout += String(chunk); });
+  child.stderr?.on('data', chunk => { childStderr += String(chunk); });
+  childExitPromise = new Promise(resolve => {
+    child.once('exit', (code, signal) => {
+      childExitResult = { code, signal };
+      resolve(childExitResult);
+    });
+  });
+
   const started = Date.now();
   while (Date.now() - started < 10_000) {
+    if (childExitResult) {
+      throw new Error(`El servidor HTTP terminó antes de iniciar (${JSON.stringify(childExitResult)}).\n${diagnostics()}`);
+    }
     try {
       const response = await fetch(`${baseUrl}/api/health`);
       if (response.ok) return;
     } catch {}
     await new Promise(resolve => setTimeout(resolve, 50));
   }
-  throw new Error('El servidor HTTP no inició dentro del tiempo esperado');
+  throw new Error(`El servidor HTTP no inició dentro del tiempo esperado.\n${diagnostics()}`);
 });
 
 after(async () => {
-  child?.kill('SIGTERM');
-  await new Promise(resolve => child?.once('exit', resolve));
-  await rm(tempDir, { recursive: true, force: true });
+  if (child && !childExitResult) child.kill('SIGTERM');
+  if (childExitPromise) {
+    await Promise.race([
+      childExitPromise,
+      new Promise(resolve => setTimeout(resolve, 1_000))
+    ]);
+  }
+  if (tempDir) await rm(tempDir, { recursive: true, force: true });
 });
 
 async function request(path, options) {

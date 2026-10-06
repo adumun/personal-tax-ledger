@@ -6,13 +6,19 @@ import { createMortgageRouter } from '@personal-tax-ledger/http-api';
 export function createMortgageComposition(dependencies) {
   const mortgageRepository = dependencies?.mortgageRepository || createSqliteMortgageRepository(undefined, dependencies?.database);
   const mortgageAnnualRecordRepository = dependencies?.mortgageAnnualRecordRepository || createSqliteMortgageAnnualRecordRepository(undefined, dependencies?.database);
-  const mortgageUseCases = createMortgageUseCases({ repository: mortgageRepository });
-  const mortgageAnnualRecordUseCases = createMortgageAnnualRecordUseCases({ repository: mortgageAnnualRecordRepository });
+  const mortgageUseCases = createMortgageUseCases({ repository: mortgageRepository, resolveActiveContext: dependencies?.resolveAnnualContext });
+  const mortgageAnnualRecordUseCases = createMortgageAnnualRecordUseCases({ repository: mortgageAnnualRecordRepository, resolveActiveContext: dependencies?.resolveAnnualContext });
   return {
     mortgageRepository,
     mortgageUseCases,
     mortgageAnnualRecordRepository,
     mortgageAnnualRecordUseCases,
-    createMortgageRouter: routerDependencies => createMortgageRouter({ ...routerDependencies, mortgageUseCases, annualRecordUseCases: mortgageAnnualRecordUseCases, context: LOCAL_WORKSPACE_CONTEXT })
+    createMortgageRouter: routerDependencies => createMortgageRouter({
+      ...routerDependencies,
+      mortgageUseCases,
+      annualRecordUseCases: mortgageAnnualRecordUseCases,
+      context: LOCAL_WORKSPACE_CONTEXT,
+      resolveContext: dependencies?.resolveAnnualContext
+    })
   };
 }

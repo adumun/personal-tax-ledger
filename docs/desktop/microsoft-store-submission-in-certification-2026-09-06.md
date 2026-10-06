@@ -1,5 +1,7 @@
 # Microsoft Store submission — in certification (2026-09-06)
 
+> **Historical checkpoint.** This document records the state observed on 2026-09-06. Microsoft Store publication was later confirmed on 2026-09-11. Current state: [`microsoft-store-publication-confirmed-2026-09-11.md`](microsoft-store-publication-confirmed-2026-09-11.md).
+
 ## Status
 
 Personal Tax Ledger `0.1.5.0` was submitted to Microsoft Partner Center for Store certification on 2026-09-06 local time (Partner Center displayed the submission as last modified on 2026-09-07).
@@ -57,11 +59,11 @@ Store ID:                   9N8NR29965DS
 
 The package declares `runFullTrust`, required by the packaged Electron/Win32 desktop application model. Partner Center accepted the submission after receiving the required justification. Final approval of the restricted capability remains part of Microsoft certification.
 
-## Remaining gates
+## Remaining gates at this checkpoint
 
-This document does **not** claim Store publication or Microsoft certification completion.
+This document did **not** claim Store publication or Microsoft certification completion at the time it was written.
 
-Pending:
+Pending as of 2026-09-06:
 
 1. Partner Center pre-processing completion.
 2. Microsoft certification result.
@@ -71,12 +73,20 @@ Pending:
 6. Native runtime verification for `0.1.5.0`, including loopback-only listener validation, historical profile/workspace reuse, persistence, and absence of duplicate database state.
 7. Controlled removal of the legacy Squirrel installation after the Store-signed MSIX is proven stable.
 
+Items 1-4 are superseded by the 2026-09-11 publication confirmation. Items 5-7 remain separate native runtime gates until evidenced.
+
 ## Evidence interpretation
 
-At this checkpoint the correct lifecycle state is:
+At this 2026-09-06 checkpoint the correct lifecycle state was:
 
 ```text
 NATIVE_MSIX_VALIDATED_STORE_SUBMITTED_CERTIFICATION_PENDING
 ```
 
-Do not promote the Store distribution lane to DONE until Microsoft certification and publishing complete and the Store-signed package passes the native runtime gates on the target Windows host.
+Current state is recorded separately as:
+
+```text
+STORE_PUBLICATION_CONFIRMED_NATIVE_RUNTIME_VALIDATION_PENDING
+```
+
+Historical evidence is intentionally preserved rather than rewritten to erase the earlier certification state.

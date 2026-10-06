@@ -1,6 +1,13 @@
 export const packageName = '@personal-tax-ledger/contracts';
 
-export { assertWorkspaceContext, LOCAL_WORKSPACE_CONTEXT } from './shared/workspace-context.mjs';
+export {
+  WorkspaceContextMismatchError,
+  assertWorkspaceContext,
+  assertAnnualWorkspaceContext,
+  createAnnualWorkspaceContext,
+  assertContextCommercialYear,
+  LOCAL_WORKSPACE_CONTEXT
+} from './shared/workspace-context.mjs';
 export { INCOME_REPOSITORY_METHODS, assertIncomeRepositoryContract } from './features/income/income-source.mjs';
 export { SETTINGS_REPOSITORY_METHODS, assertSettingsRepositoryContract } from './features/settings/settings.mjs';
 export { EXECUTION_LOG_REPOSITORY_METHODS, assertExecutionLogRepositoryContract } from './features/logs/execution-log.mjs';
@@ -13,3 +20,17 @@ export { TAX_RULE_SOURCE_REPOSITORY_METHODS, assertTaxRuleSourceRepositoryContra
 export { REFERENCE_REPOSITORY_METHODS, assertReferenceRepositoryContract } from './features/references/reference.mjs';
 export { YEAR_REPOSITORY_METHODS, assertYearRepositoryContract } from './features/years/year.mjs';
 export { SNAPSHOT_REPOSITORY_METHODS, assertSnapshotRepositoryContract } from './features/snapshots/snapshot.mjs';
+export { ANNUAL_TAX_WORKSPACE_REPOSITORY_METHODS, assertAnnualTaxWorkspaceRepositoryContract } from './features/annual-workspace/annual-tax-workspace.mjs';
+export { TAX_APPLICABILITY_PROFILE_REPOSITORY_METHODS, assertTaxApplicabilityProfileRepositoryContract } from './features/annual-workspace/tax-applicability-profile.mjs';
+export { PRIOR_YEAR_INITIALIZATION_REPOSITORY_METHODS, assertPriorYearInitializationRepositoryContract } from './features/annual-workspace/prior-year-initialization.mjs';
+export { TAX_LEDGER_PROVIDER_METHODS, assertTaxLedgerProviderContract } from './features/ledger/tax-ledger-provider.mjs';
+export {
+  FOREIGN_SERVICE_INCOME_REPOSITORY_METHODS,
+  assertForeignServiceIncomeRepositoryContract,
+  FOREIGN_EXCHANGE_PROVIDER_METHODS,
+  assertForeignExchangeProviderContract
+} from './features/foreign-service/foreign-service-income.mjs';
+export {
+  FEE_RECEIPT_FOREIGN_SETTLEMENT_REPOSITORY_METHODS,
+  assertFeeReceiptForeignSettlementRepositoryContract
+} from './features/foreign-service/fee-receipt-foreign-settlement.mjs';

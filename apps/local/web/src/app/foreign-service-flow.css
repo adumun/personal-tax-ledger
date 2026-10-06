@@ -1,0 +1,171 @@
+.foreign-service-flow-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: auto;
+  padding: 2rem;
+  background: rgb(15 23 42 / 0.55);
+}
+
+.foreign-service-flow {
+  width: min(980px, 100%);
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: var(--surface, #fff);
+  box-shadow: 0 24px 80px rgb(15 23 42 / 0.28);
+}
+
+.foreign-service-flow > header,
+.foreign-service-flow-section-heading,
+.foreign-service-flow-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.foreign-service-flow > header h2,
+.foreign-service-flow h3,
+.foreign-service-flow h4 {
+  margin: 0.2rem 0 0.4rem;
+}
+
+.foreign-service-flow > header p,
+.foreign-service-flow-section-heading p,
+.foreign-service-flow p {
+  margin: 0;
+}
+
+.foreign-service-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.foreign-service-flow-grid label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.foreign-service-flow-grid label.wide {
+  grid-column: 1 / -1;
+}
+
+.foreign-service-flow-grid input,
+.foreign-service-flow-grid select,
+.foreign-service-flow-grid textarea {
+  width: 100%;
+  min-height: 2.5rem;
+  box-sizing: border-box;
+}
+
+.foreign-service-flow-grid textarea {
+  min-height: 5rem;
+}
+
+.foreign-service-jurisdiction {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.foreign-service-jurisdiction legend {
+  grid-column: 1 / -1;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.foreign-service-jurisdiction button {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  text-align: left;
+  border: 1px solid currentColor;
+  border-radius: 0.75rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+.foreign-service-flow-actions {
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.foreign-service-flow-message {
+  padding: 0.75rem 1rem;
+  border-radius: 0.6rem;
+  background: rgb(14 116 144 / 0.08);
+}
+
+.foreign-service-flow-message.error {
+  background: rgb(185 28 28 / 0.08);
+}
+
+.foreign-service-boundary {
+  margin-top: 0.8rem !important;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+.foreign-service-conversion-current {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.foreign-service-conversion-current div {
+  padding: 0.75rem;
+  border: 1px solid rgb(148 163 184 / 0.35);
+  border-radius: 0.6rem;
+}
+
+.foreign-service-conversion-current dt {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.foreign-service-conversion-current dd {
+  margin: 0.25rem 0 0;
+  font-weight: 650;
+}
+
+.foreign-service-history ol {
+  display: grid;
+  gap: 0.55rem;
+  padding-left: 1.25rem;
+}
+
+.foreign-service-history li {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.foreign-service-history small {
+  opacity: 0.7;
+}
+
+@media (max-width: 720px) {
+  .foreign-service-flow-backdrop {
+    padding: 0;
+  }
+
+  .foreign-service-flow {
+    min-height: 100%;
+    border-radius: 0;
+  }
+
+  .foreign-service-flow-grid,
+  .foreign-service-jurisdiction,
+  .foreign-service-conversion-current {
+    grid-template-columns: 1fr;
+  }
+}

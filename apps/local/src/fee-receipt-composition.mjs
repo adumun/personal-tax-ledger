@@ -6,14 +6,24 @@ import { createFeeExpenseSettingsRouter, createFeeReceiptRouter } from '@persona
 export function createFeeReceiptComposition(dependencies) {
   const feeReceiptRepository = dependencies?.feeReceiptRepository || createSqliteFeeReceiptRepository(undefined, dependencies?.database);
   const feeExpenseSettingsRepository = dependencies?.feeExpenseSettingsRepository || createSqliteFeeExpenseSettingsRepository(undefined, dependencies?.database);
-  const feeReceiptUseCases = createFeeReceiptUseCases({ repository: feeReceiptRepository });
-  const feeExpenseSettingsUseCases = createFeeExpenseSettingsUseCases({ repository: feeExpenseSettingsRepository });
+  const feeReceiptUseCases = createFeeReceiptUseCases({ repository: feeReceiptRepository, resolveActiveContext: dependencies?.resolveAnnualContext });
+  const feeExpenseSettingsUseCases = createFeeExpenseSettingsUseCases({ repository: feeExpenseSettingsRepository, resolveActiveContext: dependencies?.resolveAnnualContext });
   return {
     feeReceiptRepository,
     feeReceiptUseCases,
     feeExpenseSettingsRepository,
     feeExpenseSettingsUseCases,
-    createFeeReceiptRouter: routerDependencies => createFeeReceiptRouter({ ...routerDependencies, useCases: feeReceiptUseCases, context: LOCAL_WORKSPACE_CONTEXT }),
-    createFeeExpenseSettingsRouter: routerDependencies => createFeeExpenseSettingsRouter({ ...routerDependencies, useCases: feeExpenseSettingsUseCases, context: LOCAL_WORKSPACE_CONTEXT })
+    createFeeReceiptRouter: routerDependencies => createFeeReceiptRouter({
+      ...routerDependencies,
+      useCases: feeReceiptUseCases,
+      context: LOCAL_WORKSPACE_CONTEXT,
+      resolveContext: dependencies?.resolveAnnualContext
+    }),
+    createFeeExpenseSettingsRouter: routerDependencies => createFeeExpenseSettingsRouter({
+      ...routerDependencies,
+      useCases: feeExpenseSettingsUseCases,
+      context: LOCAL_WORKSPACE_CONTEXT,
+      resolveContext: dependencies?.resolveAnnualContext
+    })
   };
 }

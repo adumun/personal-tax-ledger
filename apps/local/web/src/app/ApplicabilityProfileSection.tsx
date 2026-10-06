@@ -1,0 +1,108 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Button, FormActions, PageHeader, RadioGroup, SectionCard, StatusBadge } from '@adumun/react-components';
+import {
+  applicabilityProfileClient,
+  type ApplicabilityAnswer,
+  type ApplicabilityProfileReview
+} from './applicability-profile-client';
+
+const LABELS: Record<string, { label: string; reviewTarget?: string }> = {
+  DEPENDENT_INCOME: { label: 'Renta dependiente / empleador', reviewTarget: 'Ingresos laborales' },
+  DOMESTIC_FEE_INCOME: { label: 'Honorarios / BHE nacionales', reviewTarget: 'Boletas de honorarios' },
+  FOREIGN_SERVICE_INCOME: { label: 'Pagador o cliente extranjero' },
+  APV_CONTRIBUTIONS: { label: 'APV', reviewTarget: 'Ingresos laborales / APV' },
+  MORTGAGE_INTEREST: { label: 'Crédito hipotecario relevante', reviewTarget: 'Créditos hipotecarios' }
+};
+
+const OPTIONS: Array<{ value: ApplicabilityAnswer; label: string }> = [
+  { value: 'YES', label: 'Sí' },
+  { value: 'NO', label: 'No' },
+  { value: 'UNKNOWN', label: 'Aún no sé' }
+];
+
+export default function ApplicabilityProfileSection({ commercialYear }: { commercialYear: number }) {
+  const [review, setReview] = useState<ApplicabilityProfileReview | null>(null);
+  const [answers, setAnswers] = useState<Record<string, ApplicabilityAnswer>>({});
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setReview(null);
+    setSaved(false);
+    setError('');
+    applicabilityProfileClient.get().then(value => {
+      setReview(value);
+      setAnswers({ ...value.profile.answers });
+    }).catch(error => setError(error instanceof Error ? error.message : String(error)));
+  }, [commercialYear]);
+
+  const dimensions = useMemo(() => review?.dimensions || [], [review]);
+
+  const save = async () => {
+    setBusy(true);
+    setError('');
+    setSaved(false);
+    try {
+      const next = await applicabilityProfileClient.save(answers);
+      setReview(next);
+      setAnswers({ ...next.profile.answers });
+      setSaved(true);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return <section className="annual-applicability-profile" aria-labelledby="annual-applicability-title">
+    <PageHeader
+      eyebrow="Período"
+      title="Perfil del año"
+      titleId="annual-applicability-title"
+      description="Define qué situaciones esperas tener este año. Esto no registra montos ni confirma que hayan ocurrido; sirve para preparar PTL y detectar información pendiente."
+      actions={review ? <div className="annual-applicability-summary" aria-live="polite">
+        <StatusBadge tone={review.pendingCount > 0 ? 'warning' : 'success'}>{review.pendingCount} pendiente{review.pendingCount === 1 ? '' : 's'}</StatusBadge>
+        <StatusBadge tone={review.needsReviewCount > 0 ? 'critical' : 'neutral'}>{review.needsReviewCount} por revisar</StatusBadge>
+      </div> : undefined}
+    />
+
+    {error && <div className="annual-applicability-error">{error}</div>}
+    {!review ? <p>Cargando perfil del año…</p> : <SectionCard className="annual-applicability-card">
+      <div className="annual-applicability-list">
+        {dimensions.map(item => {
+          const meta = LABELS[item.dimension] || { label: item.dimension };
+          const current = answers[item.dimension] || 'UNKNOWN';
+          return <div key={item.dimension} className={`annual-applicability-row ${item.state === 'NEEDS_REVIEW' ? 'needs-review' : ''}`}>
+            <div className="annual-applicability-situation">
+              <strong>{meta.label}</strong>
+              {item.state === 'NEEDS_REVIEW' && <div className="annual-applicability-conflict" role="status">
+                <StatusBadge tone="critical">Requiere revisión</StatusBadge>
+                <span>Declaraste “No”, pero PTL ya tiene datos registrados de esta categoría. El perfil no se modifica automáticamente y los datos existentes no se eliminan.</span>
+                {meta.reviewTarget && <small>Revisa los datos en: {meta.reviewTarget}.</small>}
+              </div>}
+              {item.factPresence === 'UNAVAILABLE' && <small>PTL aún no dispone de una fuente canónica para contrastar esta categoría.</small>}
+            </div>
+            <RadioGroup
+              label={meta.label}
+              value={current}
+              options={OPTIONS}
+              disabled={busy}
+              inline
+              name={`applicability-${item.dimension}`}
+              onChange={value => {
+                setSaved(false);
+                setAnswers(previous => ({ ...previous, [item.dimension]: value }));
+              }}
+            />
+          </div>;
+        })}
+      </div>
+
+      <FormActions
+        status={saved ? <StatusBadge tone="success" role="status">Perfil guardado</StatusBadge> : undefined}
+        primary={<Button variant="primary" loading={busy} disabled={!review} onClick={save}>Guardar perfil</Button>}
+      />
+    </SectionCard>}
+  </section>;
+}

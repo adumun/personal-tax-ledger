@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import WorkspaceView from './WorkspaceView';
+import AnnualWorkspaceGate from './AnnualWorkspaceGate';
 import LocalProfileSettingsLauncher from './LocalProfileSettingsLauncher';
 import { desktopBridge, type DesktopBootstrapConfig, type LocalTaxProfile, type WorkspaceMode } from '../desktop-config';
 import './desktop-startup.css';
@@ -16,11 +16,11 @@ export default function DesktopBootstrapGate() {
     bridge.getBootstrapConfig().then(setConfig).catch(error => setError(String(error)));
   }, [bridge]);
 
-  if (!bridge) return <WorkspaceView />;
+  if (!bridge) return <AnnualWorkspaceGate />;
   if (error) return <div className="startup-screen"><div className="startup-card"><h1>Personal Tax Ledger</h1><p className="alert error">{error}</p></div></div>;
   if (!config) return <div className="startup-screen"><div className="startup-card"><h1>Personal Tax Ledger</h1><p>Preparando tu espacio personal…</p></div></div>;
   if (!config.firstRunCompleted) return <FirstRunOnboarding initial={config} onCompleted={setConfig} />;
-  return <><WorkspaceView /><LocalProfileSettingsLauncher /></>;
+  return <><AnnualWorkspaceGate /><LocalProfileSettingsLauncher /></>;
 }
 
 function FirstRunOnboarding({ initial, onCompleted }: { initial: DesktopBootstrapConfig; onCompleted: (value: DesktopBootstrapConfig) => void }) {

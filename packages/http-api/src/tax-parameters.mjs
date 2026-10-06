@@ -2,19 +2,24 @@ import { apiError as respondError, json as respond } from './http-errors.mjs';
 import { readJsonBody } from './read-json-body.mjs';
 import { queryYear as parseQueryYear } from './query-params.mjs';
 
-export function createTaxParameterRouter({ useCases, readBody = readJsonBody, json = respond, apiError = respondError, queryYear = parseQueryYear }) {
+async function resolveRequestContext(context, resolveContext) {
+  return resolveContext ? resolveContext() : context;
+}
+
+export function createTaxParameterRouter({ useCases, context, resolveContext, readBody = readJsonBody, json = respond, apiError = respondError, queryYear = parseQueryYear }) {
   return async function routeTaxParameters({ req, res, path, url }) {
+    const requestContext = await resolveRequestContext(context, resolveContext);
     if (path === '/api/tax-parameters' && req.method === 'GET') {
-      const year = queryYear(url, 2026);
-      json(res, 200, await useCases.listTaxParameters(null, year));
+      const year = queryYear(url, requestContext.commercialYear);
+      json(res, 200, await useCases.listTaxParameters(requestContext, year));
       return true;
     }
     if (path === '/api/tax-parameters' && req.method === 'PUT') {
       const body = await readBody(req);
-      const year = Number(body.taxYear) || 2026;
+      const year = Number(body.taxYear) || Number(requestContext.commercialYear);
       if (!body.values || typeof body.values !== 'object') { apiError(res, 400, 'invalid_body', 'Se requiere `values`'); return true; }
       const updated = {};
-      for (const [k, v] of Object.entries(body.values)) updated[k] = await useCases.upsertTaxParameter(null, year, k, v);
+      for (const [k, v] of Object.entries(body.values)) updated[k] = await useCases.upsertTaxParameter(requestContext, year, k, v);
       json(res, 200, updated);
       return true;
     }
