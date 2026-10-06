@@ -11,7 +11,7 @@ PLAYWRIGHT_VERSION := 1.55.0
 PLAYWRIGHT_HOME := .tools/playwright
 PLAYWRIGHT_BIN := $(PLAYWRIGHT_HOME)/node_modules/.bin/playwright
 
-.PHONY: bootstrap deps prepare-shared-ui up down test test-ledger-ui e2e-bootstrap test-e2e test-e2e-il-004 typecheck doctor validate build build-web build-store build-uat run-web clean clean-distribution help
+.PHONY: bootstrap deps prepare-shared-ui up down test test-ledger-ui e2e-bootstrap test-e2e test-e2e-il-004 typecheck doctor validate build build-web build-store store-artifact build-uat run-web lint clean clean-distribution help
 
 # Canonical ADÜMÜN developer façade (STD-ENG-DEV-001).
 bootstrap:
@@ -98,21 +98,11 @@ endif
 build-web: prepare-shared-ui
 	@npm run build
 
-# Public distribution lane. Microsoft Store accepts the MSIX candidate, not Setup.exe.
-build-store: validate
-	@echo "==> PTL Store build $(VERSION)"
-	@rm -rf "$(STORE_OUT)"
-	@mkdir -p "$(STORE_OUT)"
-	@PTL_MSIX_MODE=store npm run desktop:msix:prepare
-	@if [[ -z "$(WIN_REPO)" ]]; then \
-		echo "Unable to resolve the repository as a Windows path. Store packaging requires WSL2 + Windows SDK." >&2; \
-		exit 3; \
-	fi
-	@powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(WIN_REPO)\\scripts\\build-msix-store-submission.ps1" -RepoRoot "$(WIN_REPO)" -OutputDirectory "$(WIN_STORE_OUT)"
-	@node scripts/write-distribution-manifest.mjs store "$(STORE_OUT)"
-	@echo
-	@echo "STORE CANDIDATE READY: $(STORE_OUT)"
-	@find "$(STORE_OUT)" -maxdepth 1 -type f -printf '  %f\n' | sort
+# Microsoft Store release-artifact lane.
+build-store:
+	@bash scripts/build-store-msix.sh
+
+store-artifact: build-store
 
 # Local human UAT lane. Produces an installable Squirrel Setup.exe.
 build-uat: validate
@@ -131,7 +121,10 @@ run-web: build-web
 	@npm start
 
 clean: clean-distribution
-	@rm -rf apps/local/web/dist
+	@rm -rf apps/local/web/dist out/msix
+
+lint:
+	@npm run lint
 
 clean-distribution:
 	@rm -rf "$(DIST_ROOT)"
@@ -160,4 +153,5 @@ help:
 	@echo "  make build MODE=uat    Build local UAT Setup.exe"
 	@echo "  make build-uat         Explicit local UAT Setup.exe lane"
 	@echo "  make build-store       Explicit Microsoft Store lane"
+	@echo "  make store-artifact    Explicit Partner Center artifact lane"
 	@echo "  make clean             Remove local build/distribution outputs"
