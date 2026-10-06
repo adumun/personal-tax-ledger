@@ -36,8 +36,12 @@
     "desktop:installer:win": "npm run desktop:package:win && node scripts/create-windows-installer.mjs",
     "desktop:msix:prepare": "npm run desktop:package:win && node scripts/prepare-msix.mjs",
     "desktop:msix:prepare:store": "PTL_MSIX_MODE=store npm run desktop:msix:prepare",
+    "desktop:msix:store:artifact": "bash scripts/build-store-msix.sh",
     "start": "node apps/local/src/main.mjs",
     "test": "node --test test/*.test.mjs"
+  },
+  "allowScripts": {
+    "electron-winstaller": false
   },
   "devDependencies": {
     "@electron/packager": "20.3.0",
