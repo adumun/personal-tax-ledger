@@ -23,6 +23,9 @@ directorio, al final de la acción principal.
 
 ## Índice
 
+- [2026-10-06-bootstrap-store-artifact.md](2026-10-06-bootstrap-store-artifact.md)
+  — el bootstrap y la generación MSIX requieren permitir la dependencia Git fijada y, para el artefacto final, el bridge WSL/Windows SDK.
+
 - [2026-08-07-a6-a18-auditoria-contratos-vs-realidad.md](2026-08-07-a6-a18-auditoria-contratos-vs-realidad.md)
   — diferencias detectadas entre los contratos esperados de A6-A18 y la implementación/evidencia actual; revisión sin correcciones.
 

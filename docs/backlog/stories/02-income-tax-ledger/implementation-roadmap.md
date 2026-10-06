@@ -1,7 +1,7 @@
 # Block 02 — Income & Tax Ledger — Implementation Roadmap
 
-**Status:** `GO / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 DONE / US-IL-004 DONE`  
-**Date:** 2026-09-14
+**Status:** `CLOSED / TERMINAL-DOD-PASS / DOMESTIC+FACTUAL SLICES CLOSED / SPIKE-IL-002 DONE / TASK-IL-005 DONE / US-IL-004 DONE`
+**Date:** 2026-10-06
 
 ## Baseline inherited from Block 01
 
@@ -78,13 +78,13 @@ Evidence: [`il-004-foreign-service-flow-evidence.md`](il-004-foreign-service-flo
 
 `PTL-US-IL-004` is DONE: automated gates, visual approval and canonical `make validate` are all PASS.
 
-1. mark the PR ready and merge exact-head;
-2. run terminal `PTL-TASK-IL-006` regression/DoD gate;
-3. close Block 02 if the terminal gate passes.
+1. mark the PR ready and merge exact-head; **DONE**;
+2. run terminal `PTL-TASK-IL-006` regression/DoD gate; **DONE**;
+3. close Block 02 if the terminal gate passes; **DONE**.
 
 ## Terminal gate
 
-`PTL-TASK-IL-006` closes Block 02 regression/DoD after IL-C is closed.
+`PTL-TASK-IL-006` closed Block 02 regression/DoD after IL-C was closed. Evidence: [`task-il-006-terminal-regression-evidence-2026-10-06.md`](task-il-006-terminal-regression-evidence-2026-10-06.md).
 
 It must prove:
 
@@ -109,6 +109,6 @@ Block 02 does not own evidence vault, SII reconciliation, readiness, annual tax 
 ```text
 PTL-US-IL-004 DONE
   -> PR ready / exact-head merge
-  -> PTL-TASK-IL-006
+  -> PTL-TASK-IL-006 PASS
   -> Block 02 CLOSED
 ```
